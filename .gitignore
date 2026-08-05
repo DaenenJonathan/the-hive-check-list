@@ -1,0 +1,24 @@
+# .NET
+bin/
+obj/
+*.user
+.vs/
+*.suo
+*.ncrunch*
+appsettings.Development.json
+
+# Runtime-uploaded content (persisted via Docker volume, not source)
+src/WebApi/wwwroot/images/items/*
+!src/WebApi/wwwroot/images/items/.gitkeep
+
+# Node / Angular
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/cache/
+
+# General
+.env
+*.log
+
+# Claude Code local settings
+.claude/settings.local.json

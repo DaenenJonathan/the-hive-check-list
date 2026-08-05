@@ -1,0 +1,22 @@
+<nav class="navbar" *ngIf="authService.isAuthenticated">
+  <div class="navbar-brand">TheHive</div>
+  <div class="navbar-links">
+    <a routerLink="/actions" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">{{ 'NAV.ACTIONS' | translate }}</a>
+    <a routerLink="/actions/returns" routerLinkActive="active">{{ 'NAV.RETURNS' | translate }}</a>
+    <a routerLink="/checklists" routerLinkActive="active">{{ 'NAV.CHECKLISTS' | translate }}</a>
+    <a routerLink="/imports" routerLinkActive="active" *ngIf="authService.hasRole('Admin','Manager')">{{ 'NAV.IMPORTS' | translate }}</a>
+    <a routerLink="/audit" routerLinkActive="active" *ngIf="authService.hasRole('Admin','Manager')">{{ 'NAV.AUDIT' | translate }}</a>
+  </div>
+  <div class="navbar-right">
+    <div class="lang-switcher">
+      <button *ngFor="let lang of languages"
+              [class.active]="currentLang === lang"
+              (click)="setLang(lang)">{{ lang.toUpperCase() }}</button>
+    </div>
+    <button class="btn btn-sm btn-outline" (click)="authService.logout()">{{ 'NAV.LOGOUT' | translate }}</button>
+  </div>
+</nav>
+
+<main class="main-content">
+  <router-outlet></router-outlet>
+</main>

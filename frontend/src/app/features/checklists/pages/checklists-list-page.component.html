@@ -1,0 +1,67 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1>{{ 'CHECKLISTS.TITLE' | translate }}</h1>
+    <button *ngIf="authService.hasRole('Admin','Manager') && !showForm"
+            class="btn btn-primary"
+            (click)="showForm = true">
+      + {{ 'CHECKLISTS.NEW' | translate }}
+    </button>
+  </div>
+
+  <div *ngIf="showForm && authService.hasRole('Admin','Manager')" class="card">
+    <form [formGroup]="form" (ngSubmit)="create()">
+      <div class="form-row">
+        <div class="form-group">
+          <label>{{ 'CHECKLISTS.NAME' | translate }}</label>
+          <input type="text" formControlName="name" class="form-control" [placeholder]="'CHECKLISTS.NAME' | translate" />
+        </div>
+        <div class="form-group">
+          <label>{{ 'CHECKLISTS.ACTION' | translate }}</label>
+          <select formControlName="brandActionId" class="form-control">
+            <option value="">-- {{ 'CHECKLISTS.SELECT_ACTION' | translate }} --</option>
+            <option *ngFor="let a of actions" [value]="a.id">{{ a.name }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>{{ 'CHECKLISTS.EVENT_DATE' | translate }}</label>
+          <input type="date" formControlName="eventDate" class="form-control" />
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-success" [disabled]="form.invalid">
+          {{ 'COMMON.CREATE' | translate }}
+        </button>
+        <button type="button" class="btn btn-secondary" (click)="showForm = false">
+          {{ 'COMMON.CANCEL' | translate }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div *ngIf="loading">{{ 'COMMON.LOADING' | translate }}</div>
+
+  <div *ngIf="!loading">
+    <p *ngIf="checklists.length === 0">{{ 'COMMON.NO_DATA' | translate }}</p>
+
+    <ng-container *ngFor="let group of actionGroups">
+      <h2 class="section-header">
+        {{ group.name }}
+        <span class="section-count">{{ group.items.length }}</span>
+      </h2>
+      <div class="checklists-grid">
+        <div class="checklist-card" *ngFor="let c of group.items" [routerLink]="['/checklists', c.id]">
+          <div class="card-header">
+            <h3>{{ c.name }}</h3>
+            <span class="badge">v{{ c.version }}</span>
+          </div>
+          <p *ngIf="c.eventDate" class="event-date">📅 {{ c.eventDate | date:'dd/MM/yyyy' }}</p>
+          <p *ngIf="c.brandActionAddress" class="event-date">📍 {{ c.brandActionAddress }}</p>
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="progressPercent(c)"></div>
+          </div>
+          <div class="progress-label">{{ c.preparedItems }} / {{ c.totalItems }} items ({{ progressPercent(c) }}%)</div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</div>

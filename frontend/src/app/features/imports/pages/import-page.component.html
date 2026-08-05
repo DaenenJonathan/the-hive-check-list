@@ -1,0 +1,76 @@
+<div class="page-container">
+  <h1>{{ 'IMPORT.TITLE' | translate }}</h1>
+
+  <!-- Step 1: Upload -->
+  <div *ngIf="step === 'upload'">
+    <div class="drop-zone">
+      <p>{{ 'IMPORT.DROP_FILE' | translate }}</p>
+      <input type="file" accept=".xlsx,.xlsm" (change)="onFileSelected($event)" />
+    </div>
+    <div *ngIf="selectedFile" class="file-selected">
+      {{ selectedFile.name }}
+    </div>
+    <div *ngIf="error" class="alert alert-danger">{{ error | translate }}</div>
+    <button type="button" class="btn btn-primary" [disabled]="!selectedFile || loading" (click)="previewFile()">
+      {{ loading ? ('COMMON.LOADING' | translate) : ('IMPORT.PREVIEW' | translate) }}
+    </button>
+  </div>
+
+  <!-- Step 2: Preview -->
+  <div *ngIf="step === 'preview' && preview">
+
+    <div class="alert alert-danger" *ngIf="!preview.isValid">
+      <ul><li *ngFor="let e of preview.errors">{{ e }}</li></ul>
+    </div>
+
+    <div *ngIf="preview.isValid">
+      <!-- Metadata card -->
+      <div class="import-metadata card">
+        <div class="metadata-grid">
+          <div><span class="label">Client</span><span class="value">{{ preview.client }}</span></div>
+          <div><span class="label">Brand</span><span class="value">{{ preview.brand }}</span></div>
+          <div><span class="label">Projet</span><span class="value">{{ preview.projectName }}</span></div>
+          <div><span class="label">Type</span><span class="value">{{ preview.actionType }}</span></div>
+          <div *ngIf="preview.eventDate"><span class="label">Date</span><span class="value">{{ preview.eventDate | date:'dd/MM/yyyy' }}</span></div>
+          <div *ngIf="preview.account"><span class="label">Account</span><span class="value">{{ preview.account }}</span></div>
+          <div *ngIf="preview.addressAction" class="full-width"><span class="label">Adresse action</span><span class="value">{{ preview.addressAction }}</span></div>
+          <div *ngIf="preview.addressPickUp" class="full-width"><span class="label">Adresse pickup</span><span class="value">{{ preview.addressPickUp }}</span></div>
+        </div>
+        <div class="checklist-name-badge">
+          {{ preview.suggestedChecklistName }}
+        </div>
+      </div>
+
+      <!-- Items by category -->
+      <p class="items-summary">{{ 'IMPORT.ITEMS_COUNT' | translate:{ count: preview.items.length } }}</p>
+
+      <ng-container *ngFor="let cat of categories">
+        <h3 class="category-header">{{ cat }}</h3>
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th>{{ 'CHECKLISTS.MATERIAL' | translate }}</th>
+              <th>{{ 'CHECKLISTS.QTY_REQUESTED' | translate }}</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of itemsByCategory[cat]">
+              <td>{{ item.materialName }}</td>
+              <td>{{ item.quantityRequested }}</td>
+              <td>{{ item.notes }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </ng-container>
+
+      <div class="form-actions">
+        <button class="btn btn-success" [disabled]="loading" (click)="confirmImport()">
+          {{ loading ? ('COMMON.LOADING' | translate) : ('IMPORT.CONFIRM_IMPORT' | translate) }}
+        </button>
+        <button class="btn btn-secondary" (click)="reset()">{{ 'COMMON.CANCEL' | translate }}</button>
+      </div>
+      <div *ngIf="error" class="alert alert-danger mt-2">{{ error | translate }}</div>
+    </div>
+  </div>
+</div>

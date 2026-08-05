@@ -1,0 +1,72 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1>{{ 'RETURNS.TITLE' | translate }}</h1>
+      <span class="action-link" *ngIf="action">{{ action.name }} · {{ action.client }}</span>
+    </div>
+    <a [routerLink]="['/actions']" class="btn btn-outline">{{ 'COMMON.BACK' | translate }}</a>
+  </div>
+
+  <div class="card return-status-bar">
+    <span class="badge" [class.badge-success]="returnValidated">
+      {{ (returnValidated ? 'RETURNS.VALIDATED' : 'RETURNS.NOT_VALIDATED') | translate }}
+    </span>
+    <span *ngIf="returnValidated && returnValidatedAt" class="action-link">
+      {{ 'RETURNS.VALIDATED_ON' | translate }} {{ returnValidatedAt | date:'dd/MM/yyyy HH:mm' }}
+    </span>
+    <button
+      *ngIf="authService.hasRole('Admin','Manager','WarehouseUser')"
+      type="button"
+      class="btn btn-sm btn-success"
+      [disabled]="validating || !sent"
+      (click)="validateReturns()"
+    >{{ (returnValidated ? 'RETURNS.REVALIDATE' : 'RETURNS.VALIDATE') | translate }}</button>
+    <small *ngIf="!sent" class="hint">{{ 'RETURNS.NOT_SENT_HINT' | translate }}</small>
+    <small *ngIf="sent" class="hint">{{ 'RETURNS.EDITABLE_HINT' | translate }}</small>
+  </div>
+
+  <div *ngIf="loading" class="loading">{{ 'COMMON.LOADING' | translate }}</div>
+  <div *ngIf="!loading && items.length === 0">{{ 'COMMON.NO_DATA' | translate }}</div>
+
+  <ng-container *ngFor="let group of checklistGroups">
+    <h2 class="section-header">{{ group.checklistName }}</h2>
+    <table class="table" style="margin-bottom: 1rem">
+      <thead>
+        <tr>
+          <th>{{ 'CHECKLISTS.MATERIAL' | translate }}</th>
+          <th>{{ 'CHECKLISTS.CATEGORY' | translate }}</th>
+          <th>{{ 'RETURNS.QTY_REQUESTED' | translate }}</th>
+          <th>{{ 'RETURNS.QTY_SENT' | translate }}</th>
+          <th>{{ 'RETURNS.QTY_RETURNED' | translate }}</th>
+          <th>{{ 'RETURNS.DIFFERENCE' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of group.items">
+          <td>{{ item.materialName }}</td>
+          <td>{{ item.category }}</td>
+          <td>{{ item.quantityRequested }}</td>
+          <td>{{ item.quantityPrepared }}</td>
+          <td>
+            <ng-container *ngIf="authService.hasRole('Admin','Manager','WarehouseUser'); else readonlyReturned">
+              <input type="number" min="0" #retInput [value]="item.quantityReturned ?? 0" class="qty-input" />
+              <button
+                type="button"
+                class="btn btn-sm btn-primary"
+                [disabled]="savingId === item.itemId"
+                (click)="saveReturn(item, +retInput.value)"
+              >{{ 'COMMON.SAVE' | translate }}</button>
+            </ng-container>
+            <ng-template #readonlyReturned>{{ item.quantityReturned ?? '—' }}</ng-template>
+          </td>
+          <td>
+            <ng-container *ngIf="item.quantityReturned !== null; else noReturn">
+              <span class="badge" [class.badge-warning]="returnDifference(item) !== 0">{{ returnDifference(item) }}</span>
+            </ng-container>
+            <ng-template #noReturn>—</ng-template>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </ng-container>
+</div>

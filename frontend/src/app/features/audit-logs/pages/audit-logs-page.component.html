@@ -1,0 +1,30 @@
+<div class="page-container">
+  <h1>{{ 'AUDIT.TITLE' | translate }}</h1>
+
+  <div *ngIf="loading">{{ 'COMMON.LOADING' | translate }}</div>
+
+  <table class="table" *ngIf="!loading && logs.length > 0">
+    <thead>
+      <tr>
+        <th>{{ 'AUDIT.DATE' | translate }}</th>
+        <th>{{ 'AUDIT.USER' | translate }}</th>
+        <th>{{ 'AUDIT.ACTION' | translate }}</th>
+        <th>{{ 'AUDIT.ENTITY' | translate }}</th>
+        <th>{{ 'AUDIT.OLD_VALUE' | translate }}</th>
+        <th>{{ 'AUDIT.NEW_VALUE' | translate }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let log of logs">
+        <td>{{ log.occurredAt | date:'dd/MM/yyyy HH:mm' }}</td>
+        <td>{{ log.userName }}</td>
+        <td>{{ log.action }}</td>
+        <td>{{ log.entityType }}</td>
+        <td>{{ log.oldValue }}</td>
+        <td>{{ log.newValue }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p *ngIf="!loading && logs.length === 0">{{ 'COMMON.NO_DATA' | translate }}</p>
+</div>

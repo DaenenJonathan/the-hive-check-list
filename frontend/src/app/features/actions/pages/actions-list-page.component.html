@@ -1,0 +1,144 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1>{{ 'ACTIONS.TITLE' | translate }}</h1>
+    <button *ngIf="authService.hasRole('Admin','Manager')" class="btn btn-primary" (click)="showForm ? cancel() : startCreate()">
+      {{ showForm ? ('COMMON.CANCEL' | translate) : ('ACTIONS.CREATE' | translate) }}
+    </button>
+  </div>
+
+  <div class="card" *ngIf="showForm">
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="form-row">
+        <div class="form-group">
+          <label>{{ 'ACTIONS.NAME' | translate }}</label>
+          <input type="text" formControlName="name" class="form-control" />
+        </div>
+        <div class="form-group">
+          <label>{{ 'ACTIONS.CLIENT' | translate }}</label>
+          <input type="text" formControlName="client" class="form-control" />
+        </div>
+        <div class="form-group">
+          <label>{{ 'ACTIONS.PLANNED_DATE' | translate }}</label>
+          <mat-form-field appearance="outline" class="date-field">
+            <input matInput readonly formControlName="plannedDate" [matDatepicker]="plannedPicker" (click)="plannedPicker.open()" />
+            <mat-datepicker-toggle matIconSuffix [for]="plannedPicker"></mat-datepicker-toggle>
+            <mat-datepicker #plannedPicker></mat-datepicker>
+          </mat-form-field>
+        </div>
+        <div class="form-group">
+          <label>{{ 'ACTIONS.PLANNED_DEPARTURE_TIME' | translate }}</label>
+          <input type="time" formControlName="plannedDepartureTime" class="form-control" />
+        </div>
+        <div class="form-group">
+          <label>{{ 'ACTIONS.PLANNED_RETURN_TIME' | translate }}</label>
+          <input type="time" formControlName="plannedReturnTime" class="form-control" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>{{ 'ACTIONS.DESCRIPTION' | translate }}</label>
+        <textarea formControlName="description" class="form-control"></textarea>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-success" [disabled]="form.invalid">{{ 'COMMON.SAVE' | translate }}</button>
+        <button type="button" class="btn btn-secondary" (click)="cancel()">{{ 'COMMON.CANCEL' | translate }}</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card filter-bar">
+    <div class="form-group">
+      <label>{{ 'ACTIONS.FILTER_FROM' | translate }}</label>
+      <mat-form-field appearance="outline" class="date-field">
+        <input matInput readonly [matDatepicker]="fromPicker" [(ngModel)]="filterFrom" [ngModelOptions]="{standalone: true}" (click)="fromPicker.open()" />
+        <mat-datepicker-toggle matIconSuffix [for]="fromPicker"></mat-datepicker-toggle>
+        <mat-datepicker #fromPicker></mat-datepicker>
+      </mat-form-field>
+    </div>
+    <div class="form-group">
+      <label>{{ 'ACTIONS.FILTER_TO' | translate }}</label>
+      <mat-form-field appearance="outline" class="date-field">
+        <input matInput readonly [disabled]="!filterFrom" [matDatepicker]="toPicker" [(ngModel)]="filterTo" [ngModelOptions]="{standalone: true}" (click)="filterFrom && toPicker.open()" />
+        <mat-datepicker-toggle matIconSuffix [for]="toPicker"></mat-datepicker-toggle>
+        <mat-datepicker #toPicker [startAt]="filterFrom"></mat-datepicker>
+      </mat-form-field>
+      <small class="hint">{{ 'ACTIONS.FILTER_HINT' | translate }}</small>
+    </div>
+    <div class="form-group filter-actions">
+      <button type="button" class="btn btn-outline" (click)="clearDateFilter()" [disabled]="!filterFrom && !filterTo">
+        {{ 'ACTIONS.FILTER_RESET' | translate }}
+      </button>
+      <button type="button" class="btn btn-outline" (click)="toggleSortDirection()">
+        {{ 'ACTIONS.SORT_DATE' | translate }} {{ sortDirection === 'asc' ? '↑' : '↓' }}
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading">{{ 'COMMON.LOADING' | translate }}</div>
+
+  <div *ngIf="!loading && actions.length === 0">{{ 'COMMON.NO_DATA' | translate }}</div>
+
+  <ng-container *ngFor="let group of clientGroups">
+    <h2 class="section-header">
+      {{ group.client }}
+      <span class="section-count">{{ group.items.length }}</span>
+    </h2>
+    <table class="table" style="margin-bottom: 0.5rem">
+      <thead>
+        <tr>
+          <th>{{ 'ACTIONS.NAME' | translate }}</th>
+          <th>{{ 'ACTIONS.CITY' | translate }}</th>
+          <th>{{ 'ACTIONS.PLANNED_DATE' | translate }}</th>
+          <th>{{ 'ACTIONS.CHECKLISTS_COUNT' | translate }}</th>
+          <th>{{ 'ACTIONS.PROGRESS' | translate }}</th>
+          <th>{{ 'ACTIONS.SENT_STATUS' | translate }}</th>
+          <th>{{ 'ACTIONS.RETURN_STATUS' | translate }}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let action of group.items">
+          <td>
+            {{ action.name }}
+            <div class="action-link" *ngIf="action.address">📍 {{ action.address }}</div>
+          </td>
+          <td>{{ action.city || '—' }}</td>
+          <td>{{ action.plannedDate | date:'dd/MM/yyyy' }}</td>
+          <td><span class="badge">{{ action.checklistCount }}</span></td>
+          <td>
+            <div class="progress-bar">
+              <div class="progress-fill" [style.width.%]="progressPercent(action)"></div>
+            </div>
+            <div class="progress-label">{{ action.preparedItems }} / {{ action.totalItems }} ({{ progressPercent(action) }}%)</div>
+          </td>
+          <td>
+            <span class="badge" [class.badge-success]="action.sent">
+              {{ (action.sent ? 'ACTIONS.SENT_DONE' : 'ACTIONS.SENT_PENDING') | translate }}
+            </span>
+            <button
+              *ngIf="canMarkSent(action) && authService.hasRole('Admin','Manager','WarehouseUser')"
+              type="button"
+              class="btn btn-sm btn-primary"
+              (click)="markSent(action)"
+            >{{ 'ACTIONS.MARK_SENT' | translate }}</button>
+            <small *ngIf="!action.sent && !action.isReadyToSend" class="hint">{{ 'ACTIONS.NOT_READY_HINT' | translate }}</small>
+          </td>
+          <td>
+            <span class="badge" [class.badge-success]="action.returnValidated">
+              {{ (action.returnValidated ? 'ACTIONS.RETURN_DONE' : 'ACTIONS.RETURN_PENDING') | translate }}
+            </span>
+          </td>
+          <td class="edit-actions">
+            <a [routerLink]="['/checklists']" [queryParams]="{brandActionId: action.id}" class="btn btn-sm btn-outline">{{ 'ACTIONS.VIEW' | translate }}</a>
+            <button
+              *ngIf="authService.hasRole('Admin','Manager')"
+              type="button"
+              class="btn btn-sm btn-outline"
+              (click)="startEdit(action)"
+            >{{ 'COMMON.EDIT' | translate }}</button>
+            <a [routerLink]="['/actions', action.id, 'returns']" class="btn btn-sm btn-outline">{{ 'ACTIONS.RETURNS' | translate }}</a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </ng-container>
+</div>

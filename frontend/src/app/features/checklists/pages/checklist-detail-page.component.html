@@ -1,0 +1,156 @@
+<div class="page-container" *ngIf="checklist">
+  <div class="page-header">
+    <div>
+      <h1>{{ checklist.name }} <span class="badge">v{{ checklist.version }}</span></h1>
+      <span class="action-link">{{ checklist.brandActionName }}</span>
+      <span *ngIf="checklist.eventDate" class="action-link"> · 📅 {{ checklist.eventDate | date:'dd/MM/yyyy' }}</span>
+      <span *ngIf="checklist.brandActionAddress" class="action-link"> · 📍 {{ checklist.brandActionAddress }}</span>
+    </div>
+    <div class="page-header-actions">
+      <button *ngIf="!editMode"
+              class="btn btn-sm btn-primary"
+              [disabled]="!hasUnsavedChanges"
+              (click)="saveAll()">
+        💾 Enregistrer tout
+        <span *ngIf="hasUnsavedChanges" class="unsaved-count-badge">{{ pendingChangesCount }}</span>
+      </button>
+      <button *ngIf="authService.hasRole('Admin','Manager')"
+              class="btn btn-sm"
+              [class.btn-outline]="!editMode"
+              [class.btn-secondary]="editMode"
+              (click)="toggleEditMode()">
+        {{ editMode ? '✓ Terminer édition' : '✏️ Modifier' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="progress-summary">
+    <span>{{ checklist.preparedItems }} / {{ checklist.totalItems }} {{ 'CHECKLISTS.PROGRESS' | translate }}</span>
+    <div class="progress-bar">
+      <div class="progress-fill" [style.width.%]="checklist.totalItems ? (checklist.preparedItems / checklist.totalItems * 100) : 0"></div>
+    </div>
+  </div>
+
+  <table class="table items-table">
+    <thead>
+      <tr>
+        <th style="width:20px"></th>
+        <th style="width:72px">Photo</th>
+        <th>{{ 'CHECKLISTS.MATERIAL' | translate }}</th>
+        <th>{{ 'CHECKLISTS.CATEGORY' | translate }}</th>
+        <th>{{ 'CHECKLISTS.NOTES' | translate }}</th>
+        <th>{{ 'CHECKLISTS.QTY_REQUESTED' | translate }}</th>
+        <th>{{ 'CHECKLISTS.QTY_PREPARED' | translate }}</th>
+        <th>{{ 'CHECKLISTS.STATUS' | translate }}</th>
+        <th>{{ 'CHECKLISTS.REMARK' | translate }}</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody cdkDropList [cdkDropListData]="checklist.items" (cdkDropListDropped)="onDrop($event)">
+
+      <!-- MODE NORMAL : mise à jour du statut -->
+      <ng-container *ngIf="!editMode">
+        <ng-container *ngFor="let item of checklist.items; let i = index">
+          <tr *ngIf="showCategoryHeader(item, i)" class="category-row">
+            <td colspan="10">{{ item.category }}</td>
+          </tr>
+          <tr [class]="'status-' + statusLabel(item.status).toLowerCase()" [class.has-pending-change]="isDirty(item)" cdkDrag [cdkDragData]="item">
+            <td class="drag-handle-cell" cdkDragHandle title="Glisser pour réordonner">⠿</td>
+            <td class="item-image-cell">
+              <label class="item-image-label">
+                <img *ngIf="item.imagePath" [src]="item.imagePath | imageUrl" class="item-thumbnail" alt="{{ item.materialName }}"
+                     title="Cliquer pour agrandir"
+                     (click)="openEnlargedImage(item, $event)"
+                     (error)="item.imagePath = null" />
+                <span *ngIf="!item.imagePath" class="item-image-placeholder">📷</span>
+                <input type="file" accept="image/*" class="hidden-file-input" (change)="uploadImage(item, $event)" />
+              </label>
+            </td>
+            <td>{{ item.materialName }}</td>
+            <td>{{ item.category }}</td>
+            <td class="notes-cell">{{ item.notes }}</td>
+            <td>{{ item.quantityRequested }}</td>
+            <td><input type="number" [value]="displayQuantityPrepared(item)" min="0" class="qty-input"
+                       (change)="onQuantityFieldChange(item, +$any($event.target).value)" /></td>
+            <td>
+              <select class="status-select" (change)="onStatusFieldChange(item, $any($event.target).value)">
+                <option *ngFor="let s of statuses" [value]="s" [selected]="s === displayStatusLabel(item)">{{ 'STATUS.' + s | translate }}</option>
+              </select>
+            </td>
+            <td><input type="text" [value]="displayRemark(item)" class="remark-input"
+                       (change)="onRemarkFieldChange(item, $any($event.target).value)" /></td>
+            <td class="pending-indicator-cell">
+              <span *ngIf="isDirty(item)" class="pending-indicator" title="Modification non enregistrée">●</span>
+            </td>
+          </tr>
+        </ng-container>
+      </ng-container>
+
+      <!-- MODE ÉDITION : modifier les détails -->
+      <ng-container *ngIf="editMode">
+        <ng-container *ngFor="let item of checklist.items; let i = index">
+          <tr *ngIf="showCategoryHeader(item, i)" class="category-row">
+            <td colspan="10">{{ item.category }}</td>
+          </tr>
+          <tr cdkDrag [cdkDragData]="item">
+            <td class="drag-handle-cell" cdkDragHandle title="Glisser pour réordonner">⠿</td>
+            <td class="item-image-cell">
+              <label class="item-image-label">
+                <img *ngIf="item.imagePath" [src]="item.imagePath | imageUrl" class="item-thumbnail" alt="{{ item.materialName }}"
+                     title="Cliquer pour agrandir"
+                     (click)="openEnlargedImage(item, $event)"
+                     (error)="item.imagePath = null" />
+                <span *ngIf="!item.imagePath" class="item-image-placeholder">📷</span>
+                <input type="file" accept="image/*" class="hidden-file-input" (change)="uploadImage(item, $event)" />
+              </label>
+            </td>
+            <td><input type="text" #nameInput [value]="item.materialName" class="form-control form-control-sm" /></td>
+            <td><input type="text" #catInput [value]="item.category || ''" class="form-control form-control-sm" /></td>
+            <td><input type="text" #notesInput [value]="item.notes || ''" class="form-control form-control-sm" /></td>
+            <td><input type="number" #qtyInput [value]="item.quantityRequested" min="1" class="qty-input" /></td>
+            <td>—</td>
+            <td>—</td>
+            <td><input type="text" #locInput [value]="item.location || ''" class="form-control form-control-sm" /></td>
+            <td class="edit-actions">
+              <button class="btn btn-sm btn-success" (click)="saveDetails(item, nameInput.value, +qtyInput.value, catInput.value, notesInput.value, locInput.value)">
+                {{ 'COMMON.SAVE' | translate }}
+              </button>
+              <button class="btn btn-sm btn-danger" (click)="deleteItem(item)">🗑</button>
+            </td>
+          </tr>
+        </ng-container>
+
+        <!-- Formulaire ajout -->
+        <tr *ngIf="showAddForm" class="add-item-row">
+          <td></td>
+          <td></td>
+          <td><input type="text" [(ngModel)]="newItem.materialName" placeholder="Nom du matériel" class="form-control form-control-sm" /></td>
+          <td><input type="text" [(ngModel)]="newItem.category" placeholder="Catégorie" class="form-control form-control-sm" /></td>
+          <td><input type="text" [(ngModel)]="newItem.notes" placeholder="Notes" class="form-control form-control-sm" /></td>
+          <td><input type="number" [(ngModel)]="newItem.quantityRequested" min="1" class="qty-input" /></td>
+          <td></td><td></td>
+          <td><input type="text" [(ngModel)]="newItem.location" placeholder="Emplacement" class="form-control form-control-sm" /></td>
+          <td class="edit-actions">
+            <button class="btn btn-sm btn-success" (click)="addItem()">+ Ajouter</button>
+            <button class="btn btn-sm btn-secondary" (click)="showAddForm = false">✕</button>
+          </td>
+        </tr>
+      </ng-container>
+
+    </tbody>
+  </table>
+
+  <div *ngIf="editMode && !showAddForm" class="add-item-trigger">
+    <button class="btn btn-outline" (click)="showAddForm = true">+ Ajouter un article</button>
+  </div>
+
+  <div *ngIf="enlargedItem" class="image-lightbox-backdrop" (click)="closeEnlargedImage()">
+    <div class="image-lightbox-content" (click)="$event.stopPropagation()">
+      <button class="image-lightbox-close" (click)="closeEnlargedImage()">✕</button>
+      <img [src]="enlargedItem.imagePath | imageUrl" [alt]="enlargedItem.materialName" class="image-lightbox-img" />
+      <div class="image-lightbox-caption">{{ enlargedItem.materialName }}</div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="loading">{{ 'COMMON.LOADING' | translate }}</div>

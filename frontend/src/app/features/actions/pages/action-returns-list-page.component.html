@@ -1,0 +1,36 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1>{{ 'RETURNS.LIST_TITLE' | translate }}</h1>
+  </div>
+
+  <div *ngIf="loading" class="loading">{{ 'COMMON.LOADING' | translate }}</div>
+  <div *ngIf="!loading && actions.length === 0">{{ 'COMMON.NO_DATA' | translate }}</div>
+
+  <table class="table" *ngIf="!loading && actions.length > 0">
+    <thead>
+      <tr>
+        <th>{{ 'ACTIONS.NAME' | translate }}</th>
+        <th>{{ 'ACTIONS.CLIENT' | translate }}</th>
+        <th>{{ 'ACTIONS.CITY' | translate }}</th>
+        <th>{{ 'ACTIONS.PLANNED_DATE' | translate }}</th>
+        <th>{{ 'ACTIONS.SENT_ON' | translate }}</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let action of actions">
+        <td>
+          {{ action.name }}
+          <div class="action-link" *ngIf="action.address">📍 {{ action.address }}</div>
+        </td>
+        <td>{{ action.client }}</td>
+        <td>{{ action.city || '—' }}</td>
+        <td>{{ action.plannedDate | date:'dd/MM/yyyy' }}</td>
+        <td>{{ action.sentAt | date:'dd/MM/yyyy HH:mm' }}</td>
+        <td class="edit-actions">
+          <a [routerLink]="['/actions', action.id, 'returns']" class="btn btn-sm btn-primary">{{ 'ACTIONS.RETURNS' | translate }}</a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
