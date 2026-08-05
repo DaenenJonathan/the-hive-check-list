@@ -39,9 +39,9 @@ public static class ExcelMetadataExtractor
         if (found.TryGetValue(MetadataField.EventDate, out var dateValue))
         {
             if (dateValue.IsDateTime)
-                dto.EventDate = DateTime.SpecifyKind(dateValue.GetDateTime(), DateTimeKind.Utc);
+                dto.EventDate = dateValue.GetDateTime();
             else if (DateTime.TryParse(dateValue.ToString(), out var parsed))
-                dto.EventDate = DateTime.SpecifyKind(parsed, DateTimeKind.Utc);
+                dto.EventDate = parsed;
         }
 
         foreach (var field in ExcelFieldSynonyms.MetadataLabels.Keys)

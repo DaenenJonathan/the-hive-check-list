@@ -1,13 +1,11 @@
 using Microsoft.Extensions.Configuration;
 using TheHive.Application.Common.Interfaces;
+using TheHive.Infrastructure.Excel;
 
 namespace TheHive.Infrastructure.Storage;
 
 public class LocalImageStorageService : IImageStorageService
 {
-    private static readonly HashSet<string> AllowedExtensions = new(StringComparer.OrdinalIgnoreCase)
-        { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
-
     private readonly string _basePath;
 
     public LocalImageStorageService(IConfiguration configuration)
@@ -17,17 +15,17 @@ public class LocalImageStorageService : IImageStorageService
         Directory.CreateDirectory(_basePath);
     }
 
+    // Every image reaching this service (manual upload or already-optimized Excel import
+    // bytes) is re-encoded here, so storage size stays bounded regardless of the source.
     public async Task<string> SaveAsync(Stream imageStream, string originalFileName, CancellationToken cancellationToken = default)
     {
-        var ext = Path.GetExtension(originalFileName).ToLowerInvariant();
-        if (!AllowedExtensions.Contains(ext))
-            ext = ".jpg";
+        using var buffer = new MemoryStream();
+        await imageStream.CopyToAsync(buffer, cancellationToken);
+        var optimized = ImageOptimizer.Optimize(buffer.ToArray());
 
-        var fileName = $"{Guid.NewGuid()}{ext}";
+        var fileName = $"{Guid.NewGuid()}.jpg";
         var fullPath = Path.Combine(_basePath, fileName);
-
-        await using var fileStream = File.Create(fullPath);
-        await imageStream.CopyToAsync(fileStream, cancellationToken);
+        await File.WriteAllBytesAsync(fullPath, optimized, cancellationToken);
 
         return $"images/items/{fileName}";
     }
