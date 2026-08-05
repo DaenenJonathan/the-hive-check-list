@@ -5,7 +5,7 @@ namespace TheHive.Infrastructure.Persistence;
 
 public static class DatabaseSeeder
 {
-    public static async Task SeedAsync(UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager)
+    public static async Task SeedAsync(UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager, bool seedDemoUsers)
     {
         // Seed roles
         string[] roles = ["Admin", "Manager", "WarehouseUser", "Viewer"];
@@ -14,6 +14,9 @@ public static class DatabaseSeeder
             if (!await roleManager.RoleExistsAsync(role))
                 await roleManager.CreateAsync(new IdentityRole(role));
         }
+
+        if (!seedDemoUsers)
+            return;
 
         // Seed default admin user
         var adminEmail = "admin@thehive.local";

@@ -98,7 +98,7 @@ using (var scope = app.Services.CreateScope())
 
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    await DatabaseSeeder.SeedAsync(userManager, roleManager);
+    await DatabaseSeeder.SeedAsync(userManager, roleManager, seedDemoUsers: app.Environment.IsDevelopment());
 }
 
 app.UseMiddleware<GlobalExceptionMiddleware>();
