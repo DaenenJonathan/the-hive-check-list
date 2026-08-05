@@ -1,0 +1,22 @@
+services:
+  postgres:
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+  backend:
+    image: ghcr.io/daenenjonathan/the-hive-check-list-backend:${IMAGE_TAG:-latest}
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      Database__Provider: Postgres
+      ConnectionStrings__DefaultConnection: "Host=postgres;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
+      Jwt__Key: ${JWT_KEY}
+      Jwt__Issuer: TheHiveApi
+      Jwt__Audience: TheHiveClient
+      AllowedOrigins__0: ${APP_ORIGIN}
+
+  frontend:
+    image: ghcr.io/daenenjonathan/the-hive-check-list-frontend:${IMAGE_TAG:-latest}
+    ports: !override
+      - "${FRONTEND_HTTP_PORT:-8080}:80"
