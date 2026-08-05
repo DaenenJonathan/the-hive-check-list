@@ -45,20 +45,44 @@ ssh-keygen -t ed25519 -f deploy_key -C "github-actions-deploy" -N ""
 - Colle le contenu de **`deploy_key`** (clé privée) dans le secret GitHub `VPS_SSH_KEY`.
 - Supprime les deux fichiers locaux une fois copiés.
 
-### 2. Cloner le repo sur le VPS
+### 2. Autoriser le VPS à lire le repo privé (Deploy Key)
+
+Le repo est privé, donc `git clone`/`git pull` doit s'authentifier. On utilise une **Deploy Key** GitHub dédiée, en lecture seule — différente de la clé `VPS_SSH_KEY` de l'étape 1 (celle-ci va dans l'autre sens : GitHub → VPS).
+
+Sur le **VPS** cette fois (pas sur ta machine) :
+
+```bash
+ssh-keygen -t ed25519 -f ~/.ssh/thehive_deploy_key -C "vps-deploy-key" -N ""
+cat ~/.ssh/thehive_deploy_key.pub
+```
+
+- Copie la sortie (la clé publique) dans **GitHub → repo → Settings → Deploy keys → Add deploy key**. Laisse "Allow write access" **décoché** (lecture seule suffit).
+- Puis configure SSH pour que le VPS utilise cette clé quand il parle à `github.com` :
+
+```bash
+cat >> ~/.ssh/config <<'EOF'
+Host github.com
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/thehive_deploy_key
+  IdentitiesOnly yes
+EOF
+chmod 600 ~/.ssh/config
+ssh-keyscan github.com >> ~/.ssh/known_hosts
+```
+
+### 3. Cloner le repo sur le VPS
 
 ```bash
 sudo mkdir -p /opt/thehive && sudo chown $USER:$USER /opt/thehive
-git clone https://github.com/DaenenJonathan/the-hive-check-list.git /opt/thehive
+git clone git@github.com:DaenenJonathan/the-hive-check-list.git /opt/thehive
 ```
 
-> Si le repo GitHub est **privé**, `git clone`/`git pull` via HTTPS demandera une authentification. Le plus simple : passer le repo en public, ou configurer un [Deploy Key GitHub](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/managing-deploy-keys) en lecture seule sur le VPS et cloner en SSH (`git@github.com:...`) à la place.
+### 4. Rendre les packages GHCR accessibles
 
-### 3. Rendre les packages GHCR accessibles
+Les images sur `ghcr.io` héritent de la visibilité du repo : comme il est privé, elles le sont aussi. Le workflow s'authentifie déjà automatiquement à chaque déploiement (`docker login` avec le `GITHUB_TOKEN` du run), donc aucune action requise. Si tu veux aussi pouvoir faire un `docker compose pull` manuel depuis le VPS, génère un [Personal Access Token `read:packages`](https://github.com/settings/tokens) et fais `docker login ghcr.io -u <user> -p <token>` une fois.
 
-Par défaut, les images poussées sur `ghcr.io` héritent de la visibilité du repo. Si le repo est privé, le VPS doit s'authentifier avant de faire `docker compose pull` — le workflow le fait déjà automatiquement à chaque déploiement via `docker login` avec le `GITHUB_TOKEN` du run. Aucune action requise de ta part sauf si tu veux aussi pouvoir `pull` manuellement depuis le VPS (dans ce cas, génère un [Personal Access Token `read:packages`](https://github.com/settings/tokens) et fais `docker login ghcr.io -u <user> -p <token>` une fois).
-
-### 4. Créer le fichier `.env` de production
+### 5. Créer le fichier `.env` de production
 
 Ce fichier ne quitte **jamais** le VPS (il n'est ni commité, ni transporté par le pipeline) :
 
@@ -70,7 +94,7 @@ nano .env   # renseigner POSTGRES_PASSWORD, JWT_KEY (openssl rand -base64 48), A
 
 `FRONTEND_HTTP_PORT` (nouveau, défaut `8080`) est le port sur lequel le conteneur frontend écoute en local sur le VPS — c'est ce port que ton reverse proxy existant doit cibler (voir plus bas).
 
-### 5. Premier déploiement manuel
+### 6. Premier déploiement manuel
 
 ```bash
 cd /opt/thehive
