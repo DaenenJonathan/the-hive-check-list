@@ -68,6 +68,8 @@
     "PLANNED_DEPARTURE_TIME": "Geplande vertrektijd",
     "PLANNED_RETURN_TIME": "Geplande retourtijd",
     "DESCRIPTION": "Beschrijving",
+    "TEMPLATE_CHECKLIST": "Checklist als sjabloon",
+    "TEMPLATE_CHECKLIST_NONE": "Geen (lege checklist)",
     "CHECKLISTS_COUNT": "Checklists",
     "STATUS": "Status",
     "VIEW": "Bekijken",

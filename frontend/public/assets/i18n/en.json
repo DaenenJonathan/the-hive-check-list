@@ -68,6 +68,8 @@
     "PLANNED_DEPARTURE_TIME": "Planned departure time",
     "PLANNED_RETURN_TIME": "Planned return time",
     "DESCRIPTION": "Description",
+    "TEMPLATE_CHECKLIST": "Template checklist",
+    "TEMPLATE_CHECKLIST_NONE": "None (empty checklist)",
     "CHECKLISTS_COUNT": "Checklists",
     "STATUS": "Status",
     "VIEW": "View",

@@ -3,6 +3,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActionDto } from '../models/action.model';
 import { ActionService } from '../services/action.service';
 import { AuthService } from '../../../core/auth/auth.service';
+import { ChecklistDto } from '../../checklists/models/checklist.model';
+import { ChecklistService } from '../../checklists/services/checklist.service';
 
 type SortDirection = 'asc' | 'desc';
 
@@ -21,9 +23,11 @@ export class ActionsListPageComponent implements OnInit {
   sortDirection: SortDirection = 'desc';
   filterFrom: Date | null = null;
   filterTo: Date | null = null;
+  templates: ChecklistDto[] = [];
 
   constructor(
     private actionService: ActionService,
+    private checklistService: ChecklistService,
     private fb: FormBuilder,
     public authService: AuthService
   ) {
@@ -33,12 +37,16 @@ export class ActionsListPageComponent implements OnInit {
       plannedDate: ['', Validators.required],
       plannedDepartureTime: [''],
       plannedReturnTime: [''],
-      description: ['']
+      description: [''],
+      templateChecklistId: ['']
     });
   }
 
   ngOnInit(): void {
     this.load();
+    this.checklistService.getAll().subscribe({
+      next: data => { this.templates = data; }
+    });
   }
 
   load(): void {
@@ -63,7 +71,8 @@ export class ActionsListPageComponent implements OnInit {
       plannedDate: new Date(action.plannedDate),
       plannedDepartureTime: action.plannedDepartureTime ?? '',
       plannedReturnTime: action.plannedReturnTime ?? '',
-      description: action.description ?? ''
+      description: action.description ?? '',
+      templateChecklistId: ''
     });
     this.showForm = true;
   }
@@ -83,7 +92,8 @@ export class ActionsListPageComponent implements OnInit {
       // serializing the picker's local-midnight Date shifts it to the previous day in UTC+ timezones.
       plannedDate: this.toDateOnlyString(this.form.value.plannedDate),
       plannedDepartureTime: this.toTimeSpanString(this.form.value.plannedDepartureTime),
-      plannedReturnTime: this.toTimeSpanString(this.form.value.plannedReturnTime)
+      plannedReturnTime: this.toTimeSpanString(this.form.value.plannedReturnTime),
+      templateChecklistId: this.editingId ? null : (this.form.value.templateChecklistId || null)
     };
 
     if (this.editingId) {

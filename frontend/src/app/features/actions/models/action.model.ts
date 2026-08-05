@@ -31,6 +31,7 @@ export interface CreateActionRequest {
   description: string | null;
   plannedDepartureTime: string | null;
   plannedReturnTime: string | null;
+  templateChecklistId?: string | null;
 }
 
 export interface UpdateActionRequest extends CreateActionRequest {
