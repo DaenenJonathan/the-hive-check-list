@@ -152,8 +152,9 @@ export class ActionsListPageComponent implements OnInit {
 
   get clientGroups(): { client: string; items: ActionDto[] }[] {
     // Default view hides actions whose planned date has already passed. As soon as the user picks
-    // a manual "Du" date, that filter takes full control (including on past dates, on purpose).
-    const base = this.filterFrom ? this.actions : this.actions.filter(a => this.isUpcoming(a));
+    // a manual "Du" date, or a client, that takes full control (including past dates, on purpose) -
+    // picking a client should surface that client's whole history, with dates as an optional add-on.
+    const base = (this.filterFrom || this.filterClient) ? this.actions : this.actions.filter(a => this.isUpcoming(a));
     const byDate = this.filterByDate(base);
     const filtered = this.filterClient ? byDate.filter(a => (a.client || 'Sans client') === this.filterClient) : byDate;
     const map = new Map<string, ActionDto[]>();
