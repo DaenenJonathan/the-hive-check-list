@@ -41,9 +41,9 @@
         <th>{{ 'CHECKLISTS.NOTES' | translate }}</th>
         <th>{{ 'CHECKLISTS.QTY_REQUESTED' | translate }}</th>
         <th>{{ 'CHECKLISTS.QTY_PREPARED' | translate }}</th>
+        <th></th>
         <th>{{ 'CHECKLISTS.STATUS' | translate }}</th>
         <th>{{ 'CHECKLISTS.REMARK' | translate }}</th>
-        <th></th>
       </tr>
     </thead>
     <tbody cdkDropList [cdkDropListData]="checklist.items" (cdkDropListDropped)="onDrop($event)">
@@ -72,6 +72,11 @@
             <td>{{ item.quantityRequested }}</td>
             <td><input type="number" [value]="displayQuantityPrepared(item)" min="0" class="qty-input"
                        (change)="onQuantityFieldChange(item, +$any($event.target).value)" /></td>
+            <td class="row-actions-cell">
+              <button class="btn btn-sm btn-success" [disabled]="isActionCancelled" (click)="markReady(item)" title="{{ 'CHECKLISTS.MARK_READY' | translate }}">✓</button>
+              <button class="btn btn-sm btn-danger" [disabled]="isActionCancelled" (click)="markNotReady(item)" title="{{ 'CHECKLISTS.MARK_NOT_READY' | translate }}">✕</button>
+              <span *ngIf="isDirty(item)" class="pending-indicator" title="Modification non enregistrée">●</span>
+            </td>
             <td>
               <select class="status-select" (change)="onStatusFieldChange(item, $any($event.target).value)">
                 <option *ngFor="let s of statuses" [value]="s" [selected]="s === displayStatusLabel(item)">{{ 'STATUS.' + s | translate }}</option>
@@ -79,11 +84,6 @@
             </td>
             <td><input type="text" [value]="displayRemark(item)" class="remark-input"
                        (change)="onRemarkFieldChange(item, $any($event.target).value)" /></td>
-            <td class="row-actions-cell">
-              <button class="btn btn-sm btn-success" [disabled]="isActionCancelled" (click)="markReady(item)" title="{{ 'CHECKLISTS.MARK_READY' | translate }}">✓</button>
-              <button class="btn btn-sm btn-danger" [disabled]="isActionCancelled" (click)="markNotReady(item)" title="{{ 'CHECKLISTS.MARK_NOT_READY' | translate }}">✕</button>
-              <span *ngIf="isDirty(item)" class="pending-indicator" title="Modification non enregistrée">●</span>
-            </td>
           </tr>
         </ng-container>
       </ng-container>
@@ -110,15 +110,14 @@
             <td><input type="text" #catInput [value]="item.category || ''" class="form-control form-control-sm" /></td>
             <td><input type="text" #notesInput [value]="item.notes || ''" class="form-control form-control-sm" /></td>
             <td><input type="number" #qtyInput [value]="item.quantityRequested" min="1" class="qty-input" /></td>
-            <td>—</td>
-            <td>—</td>
-            <td><input type="text" #locInput [value]="item.location || ''" class="form-control form-control-sm" /></td>
             <td class="edit-actions">
               <button class="btn btn-sm btn-success" (click)="saveDetails(item, nameInput.value, +qtyInput.value, catInput.value, notesInput.value, locInput.value)">
                 {{ 'COMMON.SAVE' | translate }}
               </button>
               <button class="btn btn-sm btn-danger" (click)="deleteItem(item)">🗑</button>
             </td>
+            <td>—</td>
+            <td><input type="text" #locInput [value]="item.location || ''" class="form-control form-control-sm" /></td>
           </tr>
         </ng-container>
 
@@ -130,12 +129,12 @@
           <td><input type="text" [(ngModel)]="newItem.category" placeholder="Catégorie" class="form-control form-control-sm" /></td>
           <td><input type="text" [(ngModel)]="newItem.notes" placeholder="Notes" class="form-control form-control-sm" /></td>
           <td><input type="number" [(ngModel)]="newItem.quantityRequested" min="1" class="qty-input" /></td>
-          <td></td><td></td>
-          <td><input type="text" [(ngModel)]="newItem.location" placeholder="Emplacement" class="form-control form-control-sm" /></td>
           <td class="edit-actions">
             <button class="btn btn-sm btn-success" (click)="addItem()">+ Ajouter</button>
             <button class="btn btn-sm btn-secondary" (click)="showAddForm = false">✕</button>
           </td>
+          <td></td>
+          <td><input type="text" [(ngModel)]="newItem.location" placeholder="Emplacement" class="form-control form-control-sm" /></td>
         </tr>
       </ng-container>
 
