@@ -90,7 +90,8 @@
     "RETURN_STATUS": "Retour",
     "RETURN_DONE": "Retour effectué",
     "RETURN_PENDING": "Retour non effectué",
-    "CANCEL_ACTION": "Annuler l'action"
+    "CANCEL_ACTION": "Annuler l'action",
+    "REACTIVATE_ACTION": "Réactiver"
   },
   "RETURNS": {
     "TITLE": "Retour de l'action",

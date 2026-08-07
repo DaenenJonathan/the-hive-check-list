@@ -90,7 +90,8 @@
     "RETURN_STATUS": "Return",
     "RETURN_DONE": "Return done",
     "RETURN_PENDING": "Return pending",
-    "CANCEL_ACTION": "Cancel action"
+    "CANCEL_ACTION": "Cancel action",
+    "REACTIVATE_ACTION": "Reactivate"
   },
   "RETURNS": {
     "TITLE": "Action return",

@@ -153,6 +153,12 @@
               (click)="cancelAction(action)"
             >{{ 'ACTIONS.CANCEL_ACTION' | translate }}</button>
             <button
+              *ngIf="authService.hasRole('Admin','Manager') && action.status === ActionStatus.Cancelled"
+              type="button"
+              class="btn btn-sm btn-success"
+              (click)="reactivateAction(action)"
+            >{{ 'ACTIONS.REACTIVATE_ACTION' | translate }}</button>
+            <button
               *ngIf="authService.hasRole('Admin','Manager')"
               type="button"
               class="btn btn-sm btn-danger"

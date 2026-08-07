@@ -5,6 +5,7 @@ using TheHive.Application.Features.Actions.Commands.CancelAction;
 using TheHive.Application.Features.Actions.Commands.CreateAction;
 using TheHive.Application.Features.Actions.Commands.DeleteAction;
 using TheHive.Application.Features.Actions.Commands.MarkActionAsSent;
+using TheHive.Application.Features.Actions.Commands.ReactivateAction;
 using TheHive.Application.Features.Actions.Commands.UpdateAction;
 using TheHive.Application.Features.Actions.Commands.ValidateActionReturn;
 using TheHive.Application.Features.Actions.Queries.GetActionReturns;
@@ -56,6 +57,15 @@ public class ActionsController : ControllerBase
     public async Task<IActionResult> Cancel(Guid id, CancellationToken cancellationToken)
     {
         var result = await _sender.Send(new CancelActionCommand(id), cancellationToken);
+        if (!result.Succeeded) return BadRequest(result.Errors);
+        return NoContent();
+    }
+
+    [HttpPost("{id:guid}/reactivate")]
+    [Authorize(Roles = "Admin,Manager")]
+    public async Task<IActionResult> Reactivate(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(new ReactivateActionCommand(id), cancellationToken);
         if (!result.Succeeded) return BadRequest(result.Errors);
         return NoContent();
     }

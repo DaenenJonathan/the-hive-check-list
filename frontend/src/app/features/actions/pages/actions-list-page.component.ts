@@ -118,8 +118,12 @@ export class ActionsListPageComponent implements OnInit {
   }
 
   cancelAction(action: ActionDto): void {
-    if (!confirm(`Annuler l'action "${action.name}" ? Cette opération est irréversible.`)) return;
+    if (!confirm(`Annuler l'action "${action.name}" ?`)) return;
     this.actionService.cancelAction(action.id).subscribe({ next: () => this.load() });
+  }
+
+  reactivateAction(action: ActionDto): void {
+    this.actionService.reactivateAction(action.id).subscribe({ next: () => this.load() });
   }
 
   deleteAction(action: ActionDto): void {

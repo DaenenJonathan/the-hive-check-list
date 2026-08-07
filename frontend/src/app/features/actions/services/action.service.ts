@@ -38,6 +38,10 @@ export class ActionService {
     return this.http.post<void>(`${this.base}/${actionId}/cancel`, {});
   }
 
+  reactivateAction(actionId: string): Observable<void> {
+    return this.http.post<void>(`${this.base}/${actionId}/reactivate`, {});
+  }
+
   deleteAction(actionId: string): Observable<void> {
     return this.http.delete<void>(`${this.base}/${actionId}`);
   }
