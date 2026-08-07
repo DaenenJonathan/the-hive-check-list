@@ -32,6 +32,38 @@ body {
   }
 }
 
+.notification-bell { position: relative; }
+.notification-bell-trigger {
+  position: relative; background: transparent; border: 1px solid rgba(255,255,255,0.3); color: rgba(255,255,255,0.9);
+  padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.95rem; line-height: 1;
+  &:hover { border-color: white; }
+}
+.notification-badge {
+  position: absolute; top: -6px; right: -6px; background: #ef4444; color: white;
+  border-radius: 999px; font-size: 0.65rem; font-weight: 700; line-height: 1;
+  min-width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; padding: 0 3px;
+}
+.dropdown-backdrop { position: fixed; inset: 0; z-index: 1090; background: transparent; }
+.notification-dropdown {
+  position: absolute; top: calc(100% + 8px); right: 0; width: 340px; max-height: 420px; overflow-y: auto;
+  background: white; color: #111827; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); z-index: 1100;
+}
+.notification-dropdown-header {
+  display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem;
+  border-bottom: 1px solid #f3f4f6; font-weight: 600; font-size: 0.9rem;
+  .link-button { background: none; border: none; color: #3b82f6; font-size: 0.8rem; font-weight: 500; cursor: pointer; padding: 0;
+    &:hover { text-decoration: underline; }
+  }
+}
+.notification-dropdown-empty { padding: 1.5rem 1rem; text-align: center; color: #9ca3af; font-size: 0.85rem; }
+.notification-item {
+  display: block; padding: 0.65rem 1rem; text-decoration: none; color: inherit; border-bottom: 1px solid #f9fafb;
+  &:hover { background: #f9fafb; }
+  &.unread { background: #eff6ff; }
+  .notification-message { display: block; font-size: 0.82rem; line-height: 1.35; }
+  .notification-date { display: block; margin-top: 2px; font-size: 0.7rem; color: #9ca3af; }
+}
+
 .main-content { padding: 1.5rem; max-width: 1400px; margin: 0 auto; }
 
 .page-container { }
@@ -205,17 +237,20 @@ body {
 .date-field {
   width: 180px;
   display: block;
-  .mat-mdc-form-field-flex { cursor: pointer; }
+  .mat-mdc-form-field-flex { cursor: pointer; height: 37px; }
+  .mat-mdc-text-field-wrapper { background: white; height: 37px; }
   input { cursor: pointer; }
-  .mat-mdc-text-field-wrapper { background: white; }
 }
-.date-field .mat-mdc-form-field-infix { min-height: unset; padding-top: 10px; padding-bottom: 10px; }
+.date-field .mat-mdc-form-field-infix { min-height: unset; padding-top: 8px; padding-bottom: 8px; }
 .mat-calendar-body-selected { background-color: #3b82f6 !important; }
 .mat-datepicker-toggle-active .mat-mdc-icon-button { color: #3b82f6 !important; }
 
 .filter-bar { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 1rem;
   .form-group { margin-bottom: 0; }
+  .form-control { height: 37px; }
+  .btn { height: 37px; display: inline-flex; align-items: center; }
   .filter-actions { display: flex; gap: 0.5rem; margin-top: 22px; }
+  .hint { margin-top: 4px; }
 }
 .hint { display: block; color: #9ca3af; font-size: 0.75rem; margin-top: -14px; margin-bottom: 8px; }
 

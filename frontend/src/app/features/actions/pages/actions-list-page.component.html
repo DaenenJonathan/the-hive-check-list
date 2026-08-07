@@ -64,7 +64,7 @@
     </div>
     <div class="form-group">
       <label>{{ 'ACTIONS.FILTER_FROM' | translate }}</label>
-      <mat-form-field appearance="outline" class="date-field">
+      <mat-form-field appearance="outline" class="date-field" subscriptSizing="dynamic">
         <input matInput readonly [matDatepicker]="fromPicker" [(ngModel)]="filterFrom" [ngModelOptions]="{standalone: true}" (click)="fromPicker.open()" />
         <mat-datepicker-toggle matIconSuffix [for]="fromPicker"></mat-datepicker-toggle>
         <mat-datepicker #fromPicker></mat-datepicker>
@@ -72,7 +72,7 @@
     </div>
     <div class="form-group">
       <label>{{ 'ACTIONS.FILTER_TO' | translate }}</label>
-      <mat-form-field appearance="outline" class="date-field">
+      <mat-form-field appearance="outline" class="date-field" subscriptSizing="dynamic">
         <input matInput readonly [disabled]="!filterFrom" [matDatepicker]="toPicker" [(ngModel)]="filterTo" [ngModelOptions]="{standalone: true}" (click)="filterFrom && toPicker.open()" />
         <mat-datepicker-toggle matIconSuffix [for]="toPicker"></mat-datepicker-toggle>
         <mat-datepicker #toPicker [startAt]="filterFrom"></mat-datepicker>
