@@ -1,7 +1,9 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TheHive.Application.Features.Actions.Commands.CancelAction;
 using TheHive.Application.Features.Actions.Commands.CreateAction;
+using TheHive.Application.Features.Actions.Commands.DeleteAction;
 using TheHive.Application.Features.Actions.Commands.MarkActionAsSent;
 using TheHive.Application.Features.Actions.Commands.UpdateAction;
 using TheHive.Application.Features.Actions.Commands.ValidateActionReturn;
@@ -46,6 +48,24 @@ public class ActionsController : ControllerBase
         var result = await _sender.Send(command, cancellationToken);
         if (!result.Succeeded)
             return BadRequest(result.Errors);
+        return NoContent();
+    }
+
+    [HttpPost("{id:guid}/cancel")]
+    [Authorize(Roles = "Admin,Manager")]
+    public async Task<IActionResult> Cancel(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(new CancelActionCommand(id), cancellationToken);
+        if (!result.Succeeded) return BadRequest(result.Errors);
+        return NoContent();
+    }
+
+    [HttpDelete("{id:guid}")]
+    [Authorize(Roles = "Admin,Manager")]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(new DeleteActionCommand(id), cancellationToken);
+        if (!result.Succeeded) return BadRequest(result.Errors);
         return NoContent();
     }
 

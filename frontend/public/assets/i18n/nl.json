@@ -89,7 +89,8 @@
     "NOT_READY_HINT": "Alle items moeten verwerkt zijn vóór verzending.",
     "RETURN_STATUS": "Retour",
     "RETURN_DONE": "Retour uitgevoerd",
-    "RETURN_PENDING": "Retour niet uitgevoerd"
+    "RETURN_PENDING": "Retour niet uitgevoerd",
+    "CANCEL_ACTION": "Actie annuleren"
   },
   "RETURNS": {
     "TITLE": "Retour van de actie",
@@ -123,7 +124,9 @@
     "NOTES": "Notities",
     "SAVE": "Opslaan",
     "PROGRESS": "Voortgang",
-    "ITEMS_COUNT": "{{count}} artikel(en)"
+    "ITEMS_COUNT": "{{count}} artikel(en)",
+    "MARK_READY": "Klaar",
+    "MARK_NOT_READY": "Niet klaar"
   },
   "IMPORT": {
     "TITLE": "Excel-checklist importeren",

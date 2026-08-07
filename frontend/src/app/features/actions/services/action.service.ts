@@ -33,4 +33,12 @@ export class ActionService {
   validateReturns(actionId: string): Observable<void> {
     return this.http.post<void>(`${this.base}/${actionId}/returns/validate`, {});
   }
+
+  cancelAction(actionId: string): Observable<void> {
+    return this.http.post<void>(`${this.base}/${actionId}/cancel`, {});
+  }
+
+  deleteAction(actionId: string): Observable<void> {
+    return this.http.delete<void>(`${this.base}/${actionId}`);
+  }
 }

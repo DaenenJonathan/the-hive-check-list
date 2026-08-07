@@ -46,6 +46,14 @@ public class BatchUpdateItemStatusCommandHandler : IRequestHandler<BatchUpdateIt
 
     public async Task<Result> Handle(BatchUpdateItemStatusCommand request, CancellationToken cancellationToken)
     {
+        var actionStatus = await _context.Checklists
+            .Where(c => c.Id == request.ChecklistId)
+            .Select(c => c.BrandAction!.Status)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (actionStatus == ActionStatus.Cancelled)
+            return Result.Failure("Impossible de modifier les articles : l'action associée est annulée.");
+
         var items = await _context.ChecklistItems
             .Where(i => i.ChecklistId == request.ChecklistId)
             .ToListAsync(cancellationToken);

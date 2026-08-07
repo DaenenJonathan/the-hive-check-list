@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActionDto } from '../models/action.model';
+import { ActionDto, ActionStatus } from '../models/action.model';
 import { ActionService } from '../services/action.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ChecklistDto } from '../../checklists/models/checklist.model';
@@ -14,6 +14,7 @@ type SortDirection = 'asc' | 'desc';
   standalone: false
 })
 export class ActionsListPageComponent implements OnInit {
+  ActionStatus = ActionStatus;
   actions: ActionDto[] = [];
   loading = false;
   showForm = false;
@@ -114,6 +115,16 @@ export class ActionsListPageComponent implements OnInit {
 
   markSent(action: ActionDto): void {
     this.actionService.markAsSent(action.id).subscribe({ next: () => this.load() });
+  }
+
+  cancelAction(action: ActionDto): void {
+    if (!confirm(`Annuler l'action "${action.name}" ? Cette opération est irréversible.`)) return;
+    this.actionService.cancelAction(action.id).subscribe({ next: () => this.load() });
+  }
+
+  deleteAction(action: ActionDto): void {
+    if (!confirm(`Supprimer définitivement l'action "${action.name}" et toutes ses checklists ? Cette opération est irréversible.`)) return;
+    this.actionService.deleteAction(action.id).subscribe({ next: () => this.load() });
   }
 
   toggleSortDirection(): void {

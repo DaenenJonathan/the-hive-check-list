@@ -89,7 +89,8 @@
     "NOT_READY_HINT": "All items must be processed before sending.",
     "RETURN_STATUS": "Return",
     "RETURN_DONE": "Return done",
-    "RETURN_PENDING": "Return pending"
+    "RETURN_PENDING": "Return pending",
+    "CANCEL_ACTION": "Cancel action"
   },
   "RETURNS": {
     "TITLE": "Action return",
@@ -123,7 +124,9 @@
     "NOTES": "Notes",
     "SAVE": "Save",
     "PROGRESS": "Progress",
-    "ITEMS_COUNT": "{{count}} item(s)"
+    "ITEMS_COUNT": "{{count}} item(s)",
+    "MARK_READY": "Ready",
+    "MARK_NOT_READY": "Not ready"
   },
   "IMPORT": {
     "TITLE": "Import Excel checklist",

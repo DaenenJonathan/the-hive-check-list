@@ -35,6 +35,7 @@ public class GetChecklistByIdQueryHandler : IRequestHandler<GetChecklistByIdQuer
             BrandActionName = checklist.BrandAction?.Name,
             BrandActionAddress = checklist.BrandAction?.Address,
             BrandActionCity = checklist.BrandAction?.City,
+            BrandActionStatus = checklist.BrandAction?.Status ?? Domain.Enums.ActionStatus.Planned,
             CreatedAt = checklist.CreatedAt,
             TotalItems = checklist.Items.Count,
             PreparedItems = checklist.Items.Count(i => i.Status == Domain.Enums.ChecklistItemStatus.Prepared),

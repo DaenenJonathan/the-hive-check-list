@@ -105,9 +105,10 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let action of group.items">
+        <tr *ngFor="let action of group.items" [class.status-cancelled]="action.status === ActionStatus.Cancelled">
           <td>
             {{ action.name }}
+            <span class="badge" *ngIf="action.status === ActionStatus.Cancelled">{{ 'ACTION_STATUS.Cancelled' | translate }}</span>
             <div class="action-link" *ngIf="action.address">📍 {{ action.address }}</div>
           </td>
           <td>{{ action.city || '—' }}</td>
@@ -145,6 +146,18 @@
               (click)="startEdit(action)"
             >{{ 'COMMON.EDIT' | translate }}</button>
             <a [routerLink]="['/actions', action.id, 'returns']" class="btn btn-sm btn-outline">{{ 'ACTIONS.RETURNS' | translate }}</a>
+            <button
+              *ngIf="authService.hasRole('Admin','Manager') && action.status !== ActionStatus.Cancelled"
+              type="button"
+              class="btn btn-sm btn-outline"
+              (click)="cancelAction(action)"
+            >{{ 'ACTIONS.CANCEL_ACTION' | translate }}</button>
+            <button
+              *ngIf="authService.hasRole('Admin','Manager')"
+              type="button"
+              class="btn btn-sm btn-danger"
+              (click)="deleteAction(action)"
+            >{{ 'COMMON.DELETE' | translate }}</button>
           </td>
         </tr>
       </tbody>

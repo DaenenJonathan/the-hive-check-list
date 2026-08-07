@@ -1,7 +1,7 @@
 import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { AddChecklistItemRequest, ChecklistDetailDto, ChecklistItemDto, ChecklistItemStatus } from '../models/checklist.model';
+import { AddChecklistItemRequest, BrandActionStatus, ChecklistDetailDto, ChecklistItemDto, ChecklistItemStatus } from '../models/checklist.model';
 import { ChecklistService } from '../services/checklist.service';
 import { ChecklistRealtimeService } from '../../../core/services/checklist-realtime.service';
 import { AuthService } from '../../../core/auth/auth.service';
@@ -100,6 +100,10 @@ export class ChecklistDetailPageComponent implements OnInit, OnDestroy {
     return this.pendingChanges.size > 0;
   }
 
+  get isActionCancelled(): boolean {
+    return this.checklist?.brandActionStatus === BrandActionStatus.Cancelled;
+  }
+
   get pendingChangesCount(): number {
     return this.pendingChanges.size;
   }
@@ -168,6 +172,29 @@ export class ChecklistDetailPageComponent implements OnInit, OnDestroy {
   deleteItem(item: ChecklistItemDto): void {
     if (!confirm(`Supprimer "${item.materialName}" ?`)) return;
     this.checklistService.deleteItem(item.id).subscribe({ next: () => this.load() });
+  }
+
+  markReady(item: ChecklistItemDto): void {
+    this.quickUpdateStatus(item, ChecklistItemStatus.Prepared, item.quantityRequested);
+  }
+
+  markNotReady(item: ChecklistItemDto): void {
+    this.quickUpdateStatus(item, ChecklistItemStatus.Missing, 0);
+  }
+
+  // Saves immediately, bypassing pendingChanges - unlike the dropdown/qty flow, one click = validated.
+  private quickUpdateStatus(item: ChecklistItemDto, status: ChecklistItemStatus, quantityPrepared: number): void {
+    this.checklistService.updateItemStatus(item.id, {
+      itemId: item.id,
+      status,
+      quantityPrepared,
+      remark: item.remark
+    }).subscribe({
+      next: () => {
+        this.pendingChanges.delete(item.id);
+        this.load();
+      }
+    });
   }
 
   addItem(): void {

@@ -2,6 +2,10 @@ export enum ChecklistStatus {
   Draft = 0, Active = 1, InProgress = 2, Completed = 3, Archived = 4
 }
 
+export enum BrandActionStatus {
+  Planned = 0, InProgress = 1, Completed = 2, Cancelled = 3
+}
+
 export enum ChecklistItemStatus {
   ToPrepare = 0, Prepared = 1, Missing = 2, PartiallyPrepared = 3,
   Loaded = 4, Cancelled = 5, Replaced = 6
@@ -19,6 +23,7 @@ export interface ChecklistDto {
   brandActionName: string | null;
   brandActionAddress: string | null;
   brandActionCity: string | null;
+  brandActionStatus: BrandActionStatus;
   createdAt: string;
   totalItems: number;
   preparedItems: number;

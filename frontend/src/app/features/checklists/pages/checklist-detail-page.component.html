@@ -54,7 +54,7 @@
           <tr *ngIf="showCategoryHeader(item, i)" class="category-row">
             <td colspan="10">{{ item.category }}</td>
           </tr>
-          <tr [class]="'status-' + statusLabel(item.status).toLowerCase()" [class.has-pending-change]="isDirty(item)" cdkDrag [cdkDragData]="item">
+          <tr [class]="isActionCancelled ? 'status-cancelled' : 'status-' + statusLabel(item.status).toLowerCase()" [class.has-pending-change]="isDirty(item)" cdkDrag [cdkDragData]="item">
             <td class="drag-handle-cell" cdkDragHandle title="Glisser pour réordonner">⠿</td>
             <td class="item-image-cell">
               <label class="item-image-label">
@@ -79,7 +79,9 @@
             </td>
             <td><input type="text" [value]="displayRemark(item)" class="remark-input"
                        (change)="onRemarkFieldChange(item, $any($event.target).value)" /></td>
-            <td class="pending-indicator-cell">
+            <td class="row-actions-cell">
+              <button class="btn btn-sm btn-success" [disabled]="isActionCancelled" (click)="markReady(item)" title="{{ 'CHECKLISTS.MARK_READY' | translate }}">✓</button>
+              <button class="btn btn-sm btn-danger" [disabled]="isActionCancelled" (click)="markNotReady(item)" title="{{ 'CHECKLISTS.MARK_NOT_READY' | translate }}">✕</button>
               <span *ngIf="isDirty(item)" class="pending-indicator" title="Modification non enregistrée">●</span>
             </td>
           </tr>

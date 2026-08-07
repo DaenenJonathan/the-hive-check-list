@@ -46,8 +46,12 @@ public class UpdateChecklistItemStatusCommandHandler : IRequestHandler<UpdateChe
     public async Task<Result> Handle(UpdateChecklistItemStatusCommand request, CancellationToken cancellationToken)
     {
         var item = await _context.ChecklistItems
+            .Include(i => i.Checklist).ThenInclude(c => c!.BrandAction)
             .FirstOrDefaultAsync(i => i.Id == request.ItemId, cancellationToken)
             ?? throw new NotFoundException("ChecklistItem", request.ItemId);
+
+        if (item.Checklist?.BrandAction?.Status == ActionStatus.Cancelled)
+            return Result.Failure("Impossible de modifier un article : l'action associée est annulée.");
 
         var oldStatus = item.Status.ToString();
         item.UpdateStatus(request.Status, request.QuantityPrepared, request.Remark, _currentUser.UserId!);
