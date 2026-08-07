@@ -5,6 +5,7 @@ import { ActionService } from '../services/action.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ChecklistDto } from '../../checklists/models/checklist.model';
 import { ChecklistService } from '../../checklists/services/checklist.service';
+import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 
 type SortDirection = 'asc' | 'desc';
 
@@ -31,6 +32,7 @@ export class ActionsListPageComponent implements OnInit {
     private actionService: ActionService,
     private checklistService: ChecklistService,
     private fb: FormBuilder,
+    private confirmDialogService: ConfirmDialogService,
     public authService: AuthService
   ) {
     this.form = this.fb.group({
@@ -118,17 +120,36 @@ export class ActionsListPageComponent implements OnInit {
     this.actionService.markAsSent(action.id).subscribe({ next: () => this.load() });
   }
 
-  cancelAction(action: ActionDto): void {
-    if (!confirm(`Annuler l'action "${action.name}" ?`)) return;
+  async cancelAction(action: ActionDto): Promise<void> {
+    const ok = await this.confirmDialogService.confirm({
+      title: 'Annuler l\'action',
+      message: `Annuler l'action "${action.name}" ?`,
+      confirmLabel: 'Annuler l\'action',
+      variant: 'primary'
+    });
+    if (!ok) return;
     this.actionService.cancelAction(action.id).subscribe({ next: () => this.load() });
   }
 
-  reactivateAction(action: ActionDto): void {
+  async reactivateAction(action: ActionDto): Promise<void> {
+    const ok = await this.confirmDialogService.confirm({
+      title: 'Réactiver l\'action',
+      message: `Réactiver l'action "${action.name}" ?`,
+      confirmLabel: 'Réactiver',
+      variant: 'success'
+    });
+    if (!ok) return;
     this.actionService.reactivateAction(action.id).subscribe({ next: () => this.load() });
   }
 
-  deleteAction(action: ActionDto): void {
-    if (!confirm(`Supprimer définitivement l'action "${action.name}" et toutes ses checklists ? Cette opération est irréversible.`)) return;
+  async deleteAction(action: ActionDto): Promise<void> {
+    const ok = await this.confirmDialogService.confirm({
+      title: 'Supprimer l\'action',
+      message: `Supprimer définitivement l'action "${action.name}" et toutes ses checklists ? Cette opération est irréversible.`,
+      confirmLabel: 'Supprimer',
+      variant: 'danger'
+    });
+    if (!ok) return;
     this.actionService.deleteAction(action.id).subscribe({ next: () => this.load() });
   }
 

@@ -5,6 +5,7 @@ import { AddChecklistItemRequest, BrandActionStatus, ChecklistDetailDto, Checkli
 import { ChecklistService } from '../services/checklist.service';
 import { ChecklistRealtimeService } from '../../../core/services/checklist-realtime.service';
 import { AuthService } from '../../../core/auth/auth.service';
+import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { Subscription } from 'rxjs';
 
 interface PendingItemChange {
@@ -42,6 +43,7 @@ export class ChecklistDetailPageComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private checklistService: ChecklistService,
     private realtimeService: ChecklistRealtimeService,
+    private confirmDialogService: ConfirmDialogService,
     public authService: AuthService
   ) {}
 
@@ -169,8 +171,14 @@ export class ChecklistDetailPageComponent implements OnInit, OnDestroy {
     }).subscribe({ next: () => this.load() });
   }
 
-  deleteItem(item: ChecklistItemDto): void {
-    if (!confirm(`Supprimer "${item.materialName}" ?`)) return;
+  async deleteItem(item: ChecklistItemDto): Promise<void> {
+    const ok = await this.confirmDialogService.confirm({
+      title: 'Supprimer l\'article',
+      message: `Supprimer "${item.materialName}" ?`,
+      confirmLabel: 'Supprimer',
+      variant: 'danger'
+    });
+    if (!ok) return;
     this.checklistService.deleteItem(item.id).subscribe({ next: () => this.load() });
   }
 
