@@ -94,8 +94,10 @@ body {
   tr.status-replaced td          { background: rgba(168, 85, 247, 0.10); }
   tr.has-pending-change td:first-child { box-shadow: inset 3px 0 0 #f59e0b; }
   .pending-indicator-cell { text-align: center; }
-  .pending-indicator { color: #f59e0b; font-size: 1.1rem; margin-left: 6px; }
-  .row-actions-cell { display: flex; align-items: center; gap: 10px; white-space: nowrap; }
+  .pending-indicator { color: #f59e0b; font-size: 1.1rem; margin-left: 10px; }
+  .row-actions-cell { white-space: nowrap;
+    button + button { margin-left: 10px; }
+  }
 }
 
 .page-header-actions { display: flex; align-items: center; gap: 0.5rem; }
