@@ -153,6 +153,12 @@
               (click)="startEdit(action)"
             >{{ 'COMMON.EDIT' | translate }}</button>
             <a [routerLink]="['/actions', action.id, 'returns']" class="btn btn-sm btn-outline">{{ 'ACTIONS.RETURNS' | translate }}</a>
+            <a
+              *ngIf="authService.hasRole('Admin','Manager')"
+              [routerLink]="['/audit', action.id]"
+              [queryParams]="{actionName: action.name}"
+              class="btn btn-sm btn-outline"
+            >{{ 'NAV.AUDIT' | translate }}</a>
             <button
               *ngIf="authService.hasRole('Admin','Manager') && action.status !== ActionStatus.Cancelled"
               type="button"

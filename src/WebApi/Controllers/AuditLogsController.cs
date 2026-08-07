@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TheHive.Application.Features.AuditLogs.Queries.GetAuditLogs;
+using TheHive.Application.Features.AuditLogs.Queries.GetAuditLogsByAction;
 
 namespace TheHive.WebApi.Controllers;
 
@@ -21,6 +22,13 @@ public class AuditLogsController : ControllerBase
         CancellationToken cancellationToken)
     {
         var result = await _sender.Send(new GetAuditLogsQuery(entityType, entityId), cancellationToken);
+        return Ok(result);
+    }
+
+    [HttpGet("action/{actionId:guid}")]
+    public async Task<IActionResult> GetByAction(Guid actionId, CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(new GetAuditLogsByActionQuery(actionId), cancellationToken);
         return Ok(result);
     }
 }

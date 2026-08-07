@@ -1,17 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../../environments/environment';
-
-interface AuditLogDto {
-  id: string;
-  userName: string;
-  action: string;
-  entityType: string;
-  entityId: string;
-  oldValue: string | null;
-  newValue: string | null;
-  occurredAt: string;
-}
+import { ActivatedRoute } from '@angular/router';
+import { AuditLogDto } from '../models/audit-log.model';
+import { AuditLogService } from '../services/audit-log.service';
 
 @Component({
   selector: 'app-audit-logs-page',
@@ -21,16 +11,19 @@ interface AuditLogDto {
 export class AuditLogsPageComponent implements OnInit {
   logs: AuditLogDto[] = [];
   loading = false;
+  actionName: string | null = null;
 
-  constructor(private http: HttpClient) {}
+  constructor(private route: ActivatedRoute, private auditLogService: AuditLogService) {}
 
   ngOnInit(): void {
-    this.load();
+    const actionId = this.route.snapshot.paramMap.get('actionId')!;
+    this.actionName = this.route.snapshot.queryParamMap.get('actionName');
+    this.load(actionId);
   }
 
-  load(): void {
+  load(actionId: string): void {
     this.loading = true;
-    this.http.get<AuditLogDto[]>(`${environment.apiUrl}/audit-logs`).subscribe({
+    this.auditLogService.getByAction(actionId).subscribe({
       next: data => { this.logs = data; this.loading = false; },
       error: () => { this.loading = false; }
     });

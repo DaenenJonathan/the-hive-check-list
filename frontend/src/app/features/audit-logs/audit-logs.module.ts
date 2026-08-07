@@ -3,7 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { SharedModule } from '../../shared/shared.module';
 import { AuditLogsPageComponent } from './pages/audit-logs-page.component';
 
-const routes: Routes = [{ path: '', component: AuditLogsPageComponent }];
+const routes: Routes = [{ path: '', pathMatch: 'full', component: AuditLogsPageComponent }];
 
 @NgModule({
   declarations: [AuditLogsPageComponent],

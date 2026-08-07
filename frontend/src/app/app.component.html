@@ -3,9 +3,7 @@
   <div class="navbar-links">
     <a routerLink="/actions" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">{{ 'NAV.ACTIONS' | translate }}</a>
     <a routerLink="/actions/returns" routerLinkActive="active">{{ 'NAV.RETURNS' | translate }}</a>
-    <a routerLink="/checklists" routerLinkActive="active">{{ 'NAV.CHECKLISTS' | translate }}</a>
     <a routerLink="/imports" routerLinkActive="active" *ngIf="authService.hasRole('Admin','Manager')">{{ 'NAV.IMPORTS' | translate }}</a>
-    <a routerLink="/audit" routerLinkActive="active" *ngIf="authService.hasRole('Admin','Manager')">{{ 'NAV.AUDIT' | translate }}</a>
   </div>
   <div class="navbar-right">
     <app-notification-bell></app-notification-bell>
