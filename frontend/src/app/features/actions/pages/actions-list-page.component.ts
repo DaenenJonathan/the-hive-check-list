@@ -24,6 +24,7 @@ export class ActionsListPageComponent implements OnInit {
   sortDirection: SortDirection = 'desc';
   filterFrom: Date | null = null;
   filterTo: Date | null = null;
+  filterClient: string | null = null;
   templates: ChecklistDto[] = [];
 
   constructor(
@@ -140,6 +141,11 @@ export class ActionsListPageComponent implements OnInit {
     this.filterTo = null;
   }
 
+  get availableClients(): string[] {
+    const clients = new Set(this.actions.map(a => a.client || 'Sans client'));
+    return Array.from(clients).sort((a, b) => a.localeCompare(b));
+  }
+
   progressPercent(a: ActionDto): number {
     return a.totalItems === 0 ? 0 : Math.round((a.preparedItems / a.totalItems) * 100);
   }
@@ -148,7 +154,8 @@ export class ActionsListPageComponent implements OnInit {
     // Default view hides actions whose planned date has already passed. As soon as the user picks
     // a manual "Du" date, that filter takes full control (including on past dates, on purpose).
     const base = this.filterFrom ? this.actions : this.actions.filter(a => this.isUpcoming(a));
-    const filtered = this.filterByDate(base);
+    const byDate = this.filterByDate(base);
+    const filtered = this.filterClient ? byDate.filter(a => (a.client || 'Sans client') === this.filterClient) : byDate;
     const map = new Map<string, ActionDto[]>();
     for (const a of filtered) {
       const key = a.client || 'Sans client';

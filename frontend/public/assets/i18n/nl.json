@@ -74,6 +74,8 @@
     "STATUS": "Status",
     "VIEW": "Bekijken",
     "CITY": "Stad",
+    "FILTER_CLIENT": "Klant",
+    "FILTER_CLIENT_ALL": "Alle klanten",
     "FILTER_FROM": "Van",
     "FILTER_TO": "Tot",
     "FILTER_HINT": "Laat \"Tot\" leeg om op één dag te filteren.",

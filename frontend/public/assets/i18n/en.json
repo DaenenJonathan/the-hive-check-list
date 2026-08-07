@@ -74,6 +74,8 @@
     "STATUS": "Status",
     "VIEW": "View",
     "CITY": "City",
+    "FILTER_CLIENT": "Client",
+    "FILTER_CLIENT_ALL": "All clients",
     "FILTER_FROM": "From",
     "FILTER_TO": "To",
     "FILTER_HINT": "Leave \"To\" empty to filter a single day.",

@@ -56,6 +56,13 @@
 
   <div class="card filter-bar">
     <div class="form-group">
+      <label>{{ 'ACTIONS.FILTER_CLIENT' | translate }}</label>
+      <select class="form-control" [(ngModel)]="filterClient" [ngModelOptions]="{standalone: true}">
+        <option [ngValue]="null">{{ 'ACTIONS.FILTER_CLIENT_ALL' | translate }}</option>
+        <option *ngFor="let c of availableClients" [ngValue]="c">{{ c }}</option>
+      </select>
+    </div>
+    <div class="form-group">
       <label>{{ 'ACTIONS.FILTER_FROM' | translate }}</label>
       <mat-form-field appearance="outline" class="date-field">
         <input matInput readonly [matDatepicker]="fromPicker" [(ngModel)]="filterFrom" [ngModelOptions]="{standalone: true}" (click)="fromPicker.open()" />

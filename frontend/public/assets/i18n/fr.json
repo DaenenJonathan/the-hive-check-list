@@ -74,6 +74,8 @@
     "STATUS": "Statut",
     "VIEW": "Voir",
     "CITY": "Ville",
+    "FILTER_CLIENT": "Client",
+    "FILTER_CLIENT_ALL": "Tous les clients",
     "FILTER_FROM": "Du",
     "FILTER_TO": "Au",
     "FILTER_HINT": "Laissez \"Au\" vide pour filtrer un jour précis.",
