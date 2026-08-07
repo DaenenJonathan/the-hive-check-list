@@ -8,6 +8,7 @@
     <a routerLink="/audit" routerLinkActive="active" *ngIf="authService.hasRole('Admin','Manager')">{{ 'NAV.AUDIT' | translate }}</a>
   </div>
   <div class="navbar-right">
+    <app-notification-bell></app-notification-bell>
     <div class="lang-switcher">
       <button *ngFor="let lang of languages"
               [class.active]="currentLang === lang"

@@ -5,6 +5,7 @@ using TheHive.Application.Common.Exceptions;
 using TheHive.Application.Common.Interfaces;
 using TheHive.Application.Common.Models;
 using TheHive.Domain.Entities;
+using TheHive.Domain.Enums;
 
 namespace TheHive.Application.Features.ChecklistItems.Commands.AddChecklistItem;
 
@@ -32,18 +33,25 @@ public class AddChecklistItemCommandHandler : IRequestHandler<AddChecklistItemCo
     private readonly IApplicationDbContext _context;
     private readonly IAuditService _auditService;
     private readonly ICurrentUserService _currentUser;
+    private readonly INotificationDispatcher _notificationDispatcher;
 
-    public AddChecklistItemCommandHandler(IApplicationDbContext context, IAuditService auditService, ICurrentUserService currentUser)
+    public AddChecklistItemCommandHandler(
+        IApplicationDbContext context,
+        IAuditService auditService,
+        ICurrentUserService currentUser,
+        INotificationDispatcher notificationDispatcher)
     {
         _context = context;
         _auditService = auditService;
         _currentUser = currentUser;
+        _notificationDispatcher = notificationDispatcher;
     }
 
     public async Task<Result<Guid>> Handle(AddChecklistItemCommand request, CancellationToken cancellationToken)
     {
         var checklist = await _context.Checklists
             .Include(c => c.Items)
+            .Include(c => c.BrandAction)
             .FirstOrDefaultAsync(c => c.Id == request.ChecklistId, cancellationToken)
             ?? throw new NotFoundException("Checklist", request.ChecklistId);
 
@@ -65,6 +73,14 @@ public class AddChecklistItemCommandHandler : IRequestHandler<AddChecklistItemCo
 
         await _auditService.LogAsync("AddItem", "ChecklistItem", item.Id,
             newValue: request.MaterialName, cancellationToken: cancellationToken);
+
+        if (checklist.BrandAction is not null)
+        {
+            await _notificationDispatcher.DispatchToRoleAsync(
+                "WarehouseUser", NotificationType.ItemsChangedOnAction,
+                checklist.BrandActionId, checklist.Id, checklist.BrandAction.Name, checklist.Name,
+                cancellationToken);
+        }
 
         return Result<Guid>.Success(item.Id);
     }

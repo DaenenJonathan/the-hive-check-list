@@ -9,5 +9,6 @@ public interface IApplicationDbContext
     DbSet<Checklist> Checklists { get; }
     DbSet<ChecklistItem> ChecklistItems { get; }
     DbSet<AuditLog> AuditLogs { get; }
+    DbSet<Notification> Notifications { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

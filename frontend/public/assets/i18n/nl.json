@@ -141,6 +141,15 @@
     "ERROR_PREVIEW": "Fout bij het lezen van het bestand.",
     "ERROR_CONFIRM": "Fout bij het importeren."
   },
+  "NOTIFICATIONS": {
+    "TITLE": "Meldingen",
+    "EMPTY": "Geen meldingen",
+    "MARK_ALL_READ": "Alles als gelezen markeren",
+    "ITEMS_CHANGED": "Er zijn artikelen toegevoegd of verwijderd bij de actie \"{{actionName}}\".",
+    "CHECKLIST_MISSING": "De checklist \"{{checklistName}}\" van actie \"{{actionName}}\" is volledig maar bevat ontbrekende artikelen.",
+    "ACTION_CANCELLED": "Actie \"{{actionName}}\" is geannuleerd.",
+    "ACTION_REACTIVATED": "Actie \"{{actionName}}\" is heractiveerd."
+  },
   "AUDIT": {
     "TITLE": "Wijzigingsgeschiedenis",
     "ACTION": "Actie",

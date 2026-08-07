@@ -45,6 +45,8 @@ public static class DependencyInjection
 
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
         services.AddScoped<IAuditService, AuditService>();
+        services.AddScoped<IUserDirectoryService, UserDirectoryService>();
+        services.AddScoped<INotificationDispatcher, NotificationDispatcher>();
         services.AddScoped<IExcelChecklistParser, ExcelChecklistParser>();
         services.AddScoped<IImageStorageService, LocalImageStorageService>();
         services.AddScoped<TokenService>();

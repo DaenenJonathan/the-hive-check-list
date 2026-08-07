@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using TheHive.Application.Common.Interfaces;
 using TheHive.Application.Common.Models;
+using TheHive.Application.Features.ChecklistItems.Commands.UpdateChecklistItemStatus;
 using TheHive.Domain.Enums;
 
 namespace TheHive.Application.Features.Checklists.Commands.BatchUpdateItemStatus;
@@ -31,27 +32,29 @@ public class BatchUpdateItemStatusCommandHandler : IRequestHandler<BatchUpdateIt
     private readonly IAuditService _auditService;
     private readonly ICurrentUserService _currentUser;
     private readonly IChecklistHub _hub;
+    private readonly INotificationDispatcher _notificationDispatcher;
 
     public BatchUpdateItemStatusCommandHandler(
         IApplicationDbContext context,
         IAuditService auditService,
         ICurrentUserService currentUser,
-        IChecklistHub hub)
+        IChecklistHub hub,
+        INotificationDispatcher notificationDispatcher)
     {
         _context = context;
         _auditService = auditService;
         _currentUser = currentUser;
         _hub = hub;
+        _notificationDispatcher = notificationDispatcher;
     }
 
     public async Task<Result> Handle(BatchUpdateItemStatusCommand request, CancellationToken cancellationToken)
     {
-        var actionStatus = await _context.Checklists
-            .Where(c => c.Id == request.ChecklistId)
-            .Select(c => c.BrandAction!.Status)
-            .FirstOrDefaultAsync(cancellationToken);
+        var checklist = await _context.Checklists
+            .Include(c => c.BrandAction)
+            .FirstOrDefaultAsync(c => c.Id == request.ChecklistId, cancellationToken);
 
-        if (actionStatus == ActionStatus.Cancelled)
+        if (checklist?.BrandAction?.Status == ActionStatus.Cancelled)
             return Result.Failure("Impossible de modifier les articles : l'action associée est annulée.");
 
         var items = await _context.ChecklistItems
@@ -72,6 +75,14 @@ public class BatchUpdateItemStatusCommandHandler : IRequestHandler<BatchUpdateIt
 
         await _context.SaveChangesAsync(cancellationToken);
         await _hub.NotifyChecklistUpdatedAsync(request.ChecklistId, cancellationToken);
+
+        if (checklist?.BrandAction is not null)
+        {
+            await UpdateChecklistItemStatusCommandHandler.NotifyIfCompletedWithMissingAsync(
+                _context, _notificationDispatcher, items,
+                checklist.BrandActionId, checklist.Id, checklist.BrandAction.Name, checklist.Name,
+                cancellationToken);
+        }
 
         return Result.Success();
     }

@@ -30,17 +30,20 @@ public class UpdateChecklistItemStatusCommandHandler : IRequestHandler<UpdateChe
     private readonly IAuditService _auditService;
     private readonly ICurrentUserService _currentUser;
     private readonly IChecklistHub _hub;
+    private readonly INotificationDispatcher _notificationDispatcher;
 
     public UpdateChecklistItemStatusCommandHandler(
         IApplicationDbContext context,
         IAuditService auditService,
         ICurrentUserService currentUser,
-        IChecklistHub hub)
+        IChecklistHub hub,
+        INotificationDispatcher notificationDispatcher)
     {
         _context = context;
         _auditService = auditService;
         _currentUser = currentUser;
         _hub = hub;
+        _notificationDispatcher = notificationDispatcher;
     }
 
     public async Task<Result> Handle(UpdateChecklistItemStatusCommand request, CancellationToken cancellationToken)
@@ -63,6 +66,43 @@ public class UpdateChecklistItemStatusCommandHandler : IRequestHandler<UpdateChe
 
         await _hub.NotifyItemUpdatedAsync(item.ChecklistId, item.Id, cancellationToken);
 
+        if (item.Checklist?.BrandAction is not null)
+        {
+            var siblingItems = await _context.ChecklistItems
+                .Where(i => i.ChecklistId == item.ChecklistId)
+                .ToListAsync(cancellationToken);
+
+            await NotifyIfCompletedWithMissingAsync(
+                _context, _notificationDispatcher, siblingItems,
+                item.Checklist.BrandActionId, item.Checklist.Id,
+                item.Checklist.BrandAction.Name, item.Checklist.Name, cancellationToken);
+        }
+
         return Result.Success();
+    }
+
+    internal static bool IsCompletedWithMissing(IEnumerable<Domain.Entities.ChecklistItem> items) =>
+        items.All(i => i.Status != ChecklistItemStatus.ToPrepare) && items.Any(i => i.Status == ChecklistItemStatus.Missing);
+
+    internal static async Task NotifyIfCompletedWithMissingAsync(
+        IApplicationDbContext context,
+        INotificationDispatcher notificationDispatcher,
+        IReadOnlyCollection<Domain.Entities.ChecklistItem> items,
+        Guid brandActionId,
+        Guid checklistId,
+        string actionName,
+        string checklistName,
+        CancellationToken cancellationToken)
+    {
+        if (!IsCompletedWithMissing(items)) return;
+
+        var alreadyNotified = await context.Notifications.AnyAsync(
+            n => n.ChecklistId == checklistId && n.Type == NotificationType.ChecklistCompletedWithMissing,
+            cancellationToken);
+        if (alreadyNotified) return;
+
+        await notificationDispatcher.DispatchToRoleAsync(
+            "Manager", NotificationType.ChecklistCompletedWithMissing,
+            brandActionId, checklistId, actionName, checklistName, cancellationToken);
     }
 }

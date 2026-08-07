@@ -13,16 +13,22 @@ public class ReactivateActionCommandHandler : IRequestHandler<ReactivateActionCo
 {
     private readonly IApplicationDbContext _context;
     private readonly IAuditService _auditService;
+    private readonly INotificationDispatcher _notificationDispatcher;
 
-    public ReactivateActionCommandHandler(IApplicationDbContext context, IAuditService auditService)
+    public ReactivateActionCommandHandler(
+        IApplicationDbContext context,
+        IAuditService auditService,
+        INotificationDispatcher notificationDispatcher)
     {
         _context = context;
         _auditService = auditService;
+        _notificationDispatcher = notificationDispatcher;
     }
 
     public async Task<Result> Handle(ReactivateActionCommand request, CancellationToken cancellationToken)
     {
         var action = await _context.BrandActions
+            .Include(a => a.Checklists)
             .FirstOrDefaultAsync(a => a.Id == request.ActionId, cancellationToken)
             ?? throw new NotFoundException("BrandAction", request.ActionId);
 
@@ -34,6 +40,13 @@ public class ReactivateActionCommandHandler : IRequestHandler<ReactivateActionCo
 
         await _auditService.LogAsync("ReactivateAction", "BrandAction", action.Id,
             oldValue: ActionStatus.Cancelled.ToString(), newValue: ActionStatus.Planned.ToString(), cancellationToken: cancellationToken);
+
+        foreach (var checklist in action.Checklists)
+        {
+            await _notificationDispatcher.DispatchToRoleAsync(
+                "WarehouseUser", NotificationType.ActionReactivated,
+                action.Id, checklist.Id, action.Name, checklist.Name, cancellationToken);
+        }
 
         return Result.Success();
     }

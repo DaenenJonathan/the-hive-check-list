@@ -141,6 +141,15 @@
     "ERROR_PREVIEW": "Erreur lors de la lecture du fichier.",
     "ERROR_CONFIRM": "Erreur lors de l'import."
   },
+  "NOTIFICATIONS": {
+    "TITLE": "Notifications",
+    "EMPTY": "Aucune notification",
+    "MARK_ALL_READ": "Tout marquer comme lu",
+    "ITEMS_CHANGED": "Des articles ont été ajoutés ou supprimés sur l'action \"{{actionName}}\".",
+    "CHECKLIST_MISSING": "La checklist \"{{checklistName}}\" de l'action \"{{actionName}}\" est complète mais contient des articles manquants.",
+    "ACTION_CANCELLED": "L'action \"{{actionName}}\" a été annulée.",
+    "ACTION_REACTIVATED": "L'action \"{{actionName}}\" a été réactivée."
+  },
   "AUDIT": {
     "TITLE": "Historique des modifications",
     "ACTION": "Action",

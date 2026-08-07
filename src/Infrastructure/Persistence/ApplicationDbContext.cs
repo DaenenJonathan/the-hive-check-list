@@ -14,6 +14,7 @@ public class ApplicationDbContext : IdentityDbContext<AppUser>, IApplicationDbCo
     public DbSet<Checklist> Checklists => Set<Checklist>();
     public DbSet<ChecklistItem> ChecklistItems => Set<ChecklistItem>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+    public DbSet<Notification> Notifications => Set<Notification>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

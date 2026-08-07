@@ -1,0 +1,32 @@
+<div class="notification-bell">
+  <button type="button" class="notification-bell-trigger" (click)="toggleOpen()" [title]="'NOTIFICATIONS.TITLE' | translate">
+    🔔
+    <span *ngIf="unreadCount > 0" class="notification-badge">{{ unreadCount }}</span>
+  </button>
+
+  <div class="dropdown-backdrop" *ngIf="open" (click)="open = false"></div>
+
+  <div class="notification-dropdown" *ngIf="open">
+    <div class="notification-dropdown-header">
+      <span>{{ 'NOTIFICATIONS.TITLE' | translate }}</span>
+      <button type="button" class="link-button" *ngIf="unreadCount > 0" (click)="markAllRead()">
+        {{ 'NOTIFICATIONS.MARK_ALL_READ' | translate }}
+      </button>
+    </div>
+
+    <div class="notification-dropdown-empty" *ngIf="notifications.length === 0">
+      {{ 'NOTIFICATIONS.EMPTY' | translate }}
+    </div>
+
+    <a *ngFor="let n of notifications"
+       class="notification-item"
+       [class.unread]="!n.isRead"
+       [routerLink]="['/checklists', n.checklistId]"
+       (click)="select(n)">
+      <span class="notification-message">
+        {{ messageKey(n.type) | translate:{ actionName: n.actionName, checklistName: n.checklistName } }}
+      </span>
+      <span class="notification-date">{{ n.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+    </a>
+  </div>
+</div>

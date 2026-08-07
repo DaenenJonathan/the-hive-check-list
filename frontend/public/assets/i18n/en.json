@@ -141,6 +141,15 @@
     "ERROR_PREVIEW": "Error reading the file.",
     "ERROR_CONFIRM": "Error during import."
   },
+  "NOTIFICATIONS": {
+    "TITLE": "Notifications",
+    "EMPTY": "No notifications",
+    "MARK_ALL_READ": "Mark all as read",
+    "ITEMS_CHANGED": "Items were added or removed on action \"{{actionName}}\".",
+    "CHECKLIST_MISSING": "Checklist \"{{checklistName}}\" for action \"{{actionName}}\" is complete but has missing items.",
+    "ACTION_CANCELLED": "Action \"{{actionName}}\" was cancelled.",
+    "ACTION_REACTIVATED": "Action \"{{actionName}}\" was reactivated."
+  },
   "AUDIT": {
     "TITLE": "Audit log",
     "ACTION": "Action",
