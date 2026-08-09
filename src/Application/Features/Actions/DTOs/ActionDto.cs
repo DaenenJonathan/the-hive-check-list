@@ -16,6 +16,7 @@ public class ActionDto
     public string? City { get; set; }
     public DateTime CreatedAt { get; set; }
     public int ChecklistCount { get; set; }
+    public Guid? SingleChecklistId { get; set; }
     public int TotalItems { get; set; }
     public int PreparedItems { get; set; }
     public bool Sent { get; set; }

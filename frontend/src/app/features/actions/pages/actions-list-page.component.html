@@ -34,15 +34,28 @@
           <input type="time" formControlName="plannedReturnTime" class="form-control" />
         </div>
       </div>
-      <div class="form-group" *ngIf="!editingId">
-        <label>{{ 'ACTIONS.TEMPLATE_CHECKLIST' | translate }}</label>
-        <select formControlName="templateChecklistId" class="form-control">
-          <option value="">{{ 'ACTIONS.TEMPLATE_CHECKLIST_NONE' | translate }}</option>
-          <option *ngFor="let t of templates" [value]="t.id">
-            {{ t.name }} ({{ t.brandActionName || '—' }}, {{ t.totalItems }})
-          </option>
-        </select>
+      <div class="form-row" *ngIf="!editingId">
+        <div class="form-group">
+          <label>{{ 'ACTIONS.TEMPLATE_CHECKLIST' | translate }}</label>
+          <select formControlName="templateChecklistId" class="form-control">
+            <option value="">{{ 'ACTIONS.TEMPLATE_CHECKLIST_NONE' | translate }}</option>
+            <option *ngFor="let t of templates" [value]="t.id">
+              {{ t.name }} ({{ t.brandActionName || '—' }}, {{ t.totalItems }})
+            </option>
+          </select>
+        </div>
+        <span class="import-or">{{ 'ACTIONS.IMPORT_CHECKLIST_OR' | translate }}</span>
+        <div class="form-group">
+          <label>{{ 'ACTIONS.IMPORT_CHECKLIST_FILE' | translate }}</label>
+          <div class="import-file-row">
+            <input #fileInput type="file" accept=".xlsx,.xlsm" class="form-control"
+                   [disabled]="!!form.value.templateChecklistId"
+                   (change)="onImportFileSelected($event)" />
+            <button type="button" class="btn btn-sm btn-outline" *ngIf="importFile" (click)="clearImportFile(fileInput)">✕</button>
+          </div>
+        </div>
       </div>
+      <div class="alert alert-danger" *ngIf="importError">{{ importError | translate }}</div>
       <div class="form-group">
         <label>{{ 'ACTIONS.DESCRIPTION' | translate }}</label>
         <textarea formControlName="description" class="form-control"></textarea>
@@ -98,88 +111,75 @@
       {{ group.client }}
       <span class="section-count">{{ group.items.length }}</span>
     </h2>
-    <table class="table" style="margin-bottom: 0.5rem">
-      <thead>
-        <tr>
-          <th>{{ 'ACTIONS.NAME' | translate }}</th>
-          <th>{{ 'ACTIONS.CITY' | translate }}</th>
-          <th>{{ 'ACTIONS.PLANNED_DATE' | translate }}</th>
-          <th>{{ 'ACTIONS.CHECKLISTS_COUNT' | translate }}</th>
-          <th>{{ 'ACTIONS.PROGRESS' | translate }}</th>
-          <th>{{ 'ACTIONS.SENT_STATUS' | translate }}</th>
-          <th>{{ 'ACTIONS.RETURN_STATUS' | translate }}</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let action of group.items" [class.status-cancelled]="action.status === ActionStatus.Cancelled">
-          <td>
-            {{ action.name }}
+    <div class="action-rows">
+      <div class="action-row" *ngFor="let action of group.items" [class.status-cancelled]="action.status === ActionStatus.Cancelled" (click)="viewAction(action)">
+        <div class="action-row-main">
+          <div class="action-row-title">
+            <h3>{{ action.name }}</h3>
             <span class="badge" *ngIf="action.status === ActionStatus.Cancelled">{{ 'ACTION_STATUS.Cancelled' | translate }}</span>
-            <div class="action-link" *ngIf="action.address">📍 {{ action.address }}</div>
-          </td>
-          <td>{{ action.city || '—' }}</td>
-          <td>{{ action.plannedDate | date:'dd/MM/yyyy' }}</td>
-          <td><span class="badge">{{ action.checklistCount }}</span></td>
-          <td>
-            <div class="progress-bar">
-              <div class="progress-fill" [style.width.%]="progressPercent(action)"></div>
-            </div>
-            <div class="progress-label">{{ action.preparedItems }} / {{ action.totalItems }} ({{ progressPercent(action) }}%)</div>
-          </td>
-          <td>
-            <span class="badge" [class.badge-success]="action.sent">
-              {{ (action.sent ? 'ACTIONS.SENT_DONE' : 'ACTIONS.SENT_PENDING') | translate }}
-            </span>
-            <button
-              *ngIf="canMarkSent(action) && authService.hasRole('Admin','Manager','WarehouseUser')"
-              type="button"
-              class="btn btn-sm btn-primary"
-              (click)="markSent(action)"
-            >{{ 'ACTIONS.MARK_SENT' | translate }}</button>
-            <small *ngIf="!action.sent && !action.isReadyToSend" class="hint">{{ 'ACTIONS.NOT_READY_HINT' | translate }}</small>
-          </td>
-          <td>
-            <span class="badge" [class.badge-success]="action.returnValidated">
-              {{ (action.returnValidated ? 'ACTIONS.RETURN_DONE' : 'ACTIONS.RETURN_PENDING') | translate }}
-            </span>
-          </td>
-          <td class="edit-actions">
-            <a [routerLink]="['/checklists']" [queryParams]="{brandActionId: action.id}" class="btn btn-sm btn-outline">{{ 'ACTIONS.VIEW' | translate }}</a>
-            <button
-              *ngIf="authService.hasRole('Admin','Manager')"
-              type="button"
-              class="btn btn-sm btn-outline"
-              (click)="startEdit(action)"
-            >{{ 'COMMON.EDIT' | translate }}</button>
-            <a [routerLink]="['/actions', action.id, 'returns']" class="btn btn-sm btn-outline">{{ 'ACTIONS.RETURNS' | translate }}</a>
-            <a
-              *ngIf="authService.hasRole('Admin','Manager')"
-              [routerLink]="['/audit', action.id]"
-              [queryParams]="{actionName: action.name}"
-              class="btn btn-sm btn-outline"
-            >{{ 'NAV.AUDIT' | translate }}</a>
-            <button
-              *ngIf="authService.hasRole('Admin','Manager') && action.status !== ActionStatus.Cancelled"
-              type="button"
-              class="btn btn-sm btn-outline"
-              (click)="cancelAction(action)"
-            >{{ 'ACTIONS.CANCEL_ACTION' | translate }}</button>
-            <button
-              *ngIf="authService.hasRole('Admin','Manager') && action.status === ActionStatus.Cancelled"
-              type="button"
-              class="btn btn-sm btn-success"
-              (click)="reactivateAction(action)"
-            >{{ 'ACTIONS.REACTIVATE_ACTION' | translate }}</button>
-            <button
-              *ngIf="authService.hasRole('Admin','Manager')"
-              type="button"
-              class="btn btn-sm btn-danger"
-              (click)="deleteAction(action)"
-            >{{ 'COMMON.DELETE' | translate }}</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+            <span class="status-icon" [ngClass]="sendStatusClass(action)"
+                  title="{{ action.sent ? ('ACTIONS.SENT_DONE' | translate) : (action.isReadyToSend ? ('ACTIONS.READY_TO_SEND' | translate) : ('ACTIONS.SENT_PENDING' | translate)) }}">📤</span>
+            <span class="status-icon" [ngClass]="returnStatusClass(action)"
+                  title="{{ action.returnValidated ? ('ACTIONS.RETURN_DONE' | translate) : (action.sent ? ('ACTIONS.RETURN_PENDING' | translate) : ('ACTIONS.RETURN_NA' | translate)) }}">📥</span>
+          </div>
+          <div class="action-row-meta">
+            <span>📅 {{ action.plannedDate | date:'dd/MM/yyyy' }}<ng-container *ngIf="action.plannedDepartureTime"> · 🕐 {{ formatTime(action.plannedDepartureTime) }}</ng-container></span>
+            <span *ngIf="action.city" title="{{ action.address }}">📍 {{ action.city }}</span>
+          </div>
+        </div>
+
+        <div class="action-row-progress">
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="progressPercent(action)"></div>
+          </div>
+          <div class="progress-label">{{ action.preparedItems }} / {{ action.totalItems }} ({{ progressPercent(action) }}%)</div>
+        </div>
+
+        <div class="action-row-actions" (click)="$event.stopPropagation()">
+          <button
+            *ngIf="canMarkSent(action) && authService.hasRole('Admin','Manager','WarehouseUser')"
+            type="button"
+            class="btn btn-sm btn-primary"
+            (click)="markSent(action)"
+          >📤 {{ 'ACTIONS.MARK_SENT' | translate }}</button>
+          <a [routerLink]="['/actions', action.id, 'returns']" class="btn-icon" title="{{ 'ACTIONS.RETURNS' | translate }}">📦</a>
+          <button
+            *ngIf="authService.hasRole('Admin','Manager')"
+            type="button"
+            class="btn-icon"
+            title="{{ 'COMMON.EDIT' | translate }}"
+            (click)="startEdit(action)"
+          >✏️</button>
+          <a
+            *ngIf="authService.hasRole('Admin','Manager')"
+            [routerLink]="['/audit', action.id]"
+            [queryParams]="{actionName: action.name}"
+            class="btn-icon"
+            title="{{ 'NAV.AUDIT' | translate }}"
+          >🕘</a>
+          <button
+            *ngIf="authService.hasRole('Admin','Manager') && action.status !== ActionStatus.Cancelled"
+            type="button"
+            class="btn-icon"
+            title="{{ 'ACTIONS.CANCEL_ACTION' | translate }}"
+            (click)="cancelAction(action)"
+          >⛔</button>
+          <button
+            *ngIf="authService.hasRole('Admin','Manager') && action.status === ActionStatus.Cancelled"
+            type="button"
+            class="btn-icon"
+            title="{{ 'ACTIONS.REACTIVATE_ACTION' | translate }}"
+            (click)="reactivateAction(action)"
+          >♻️</button>
+          <button
+            *ngIf="authService.hasRole('Admin','Manager')"
+            type="button"
+            class="btn-icon btn-icon-danger"
+            title="{{ 'COMMON.DELETE' | translate }}"
+            (click)="deleteAction(action)"
+          >🗑️</button>
+        </div>
+      </div>
+    </div>
   </ng-container>
 </div>

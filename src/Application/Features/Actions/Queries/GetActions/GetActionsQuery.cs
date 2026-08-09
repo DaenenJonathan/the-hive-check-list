@@ -33,6 +33,7 @@ public class GetActionsQueryHandler : IRequestHandler<GetActionsQuery, List<Acti
                 City = a.City,
                 CreatedAt = a.CreatedAt,
                 ChecklistCount = a.Checklists.Count,
+                SingleChecklistId = a.Checklists.Count == 1 ? a.Checklists.Select(c => c.Id).First() : (Guid?)null,
                 TotalItems = a.Checklists.SelectMany(c => c.Items).Count(),
                 PreparedItems = a.Checklists.SelectMany(c => c.Items).Count(i => i.Status == ChecklistItemStatus.Prepared),
                 Sent = a.Sent,

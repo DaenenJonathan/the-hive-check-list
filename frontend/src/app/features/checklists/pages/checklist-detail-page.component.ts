@@ -200,7 +200,14 @@ export class ChecklistDetailPageComponent implements OnInit, OnDestroy {
     }).subscribe({
       next: () => {
         this.pendingChanges.delete(item.id);
-        this.load();
+        // Patch the single item in place instead of reloading the whole checklist - a full
+        // load() re-renders the entire list and resets scroll position, which is disruptive
+        // for these rapid one-click actions on long lists (esp. on mobile).
+        item.status = status;
+        item.quantityPrepared = quantityPrepared;
+        if (this.checklist) {
+          this.checklist.preparedItems = this.checklist.items.filter(i => i.status === ChecklistItemStatus.Prepared).length;
+        }
       }
     });
   }

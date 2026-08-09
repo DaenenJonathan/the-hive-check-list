@@ -6,7 +6,8 @@
   <div *ngIf="loading" class="loading">{{ 'COMMON.LOADING' | translate }}</div>
   <div *ngIf="!loading && actions.length === 0">{{ 'COMMON.NO_DATA' | translate }}</div>
 
-  <table class="table" *ngIf="!loading && actions.length > 0">
+  <div class="table-wrapper" *ngIf="!loading && actions.length > 0">
+  <table class="table">
     <thead>
       <tr>
         <th>{{ 'ACTIONS.NAME' | translate }}</th>
@@ -33,4 +34,5 @@
       </tr>
     </tbody>
   </table>
+  </div>
 </div>

@@ -15,6 +15,7 @@ export interface ActionDto {
   city: string | null;
   createdAt: string;
   checklistCount: number;
+  singleChecklistId: string | null;
   totalItems: number;
   preparedItems: number;
   sent: boolean;

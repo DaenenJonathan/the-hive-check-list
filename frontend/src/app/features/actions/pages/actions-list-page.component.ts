@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActionDto, ActionStatus } from '../models/action.model';
 import { ActionService } from '../services/action.service';
@@ -6,6 +7,7 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { ChecklistDto } from '../../checklists/models/checklist.model';
 import { ChecklistService } from '../../checklists/services/checklist.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
+import { ImportService } from '../../imports/services/import.service';
 
 type SortDirection = 'asc' | 'desc';
 
@@ -27,12 +29,16 @@ export class ActionsListPageComponent implements OnInit {
   filterTo: Date | null = null;
   filterClient: string | null = null;
   templates: ChecklistDto[] = [];
+  importFile: File | null = null;
+  importError = '';
 
   constructor(
     private actionService: ActionService,
     private checklistService: ChecklistService,
+    private importService: ImportService,
     private fb: FormBuilder,
     private confirmDialogService: ConfirmDialogService,
+    private router: Router,
     public authService: AuthService
   ) {
     this.form = this.fb.group({
@@ -64,7 +70,27 @@ export class ActionsListPageComponent implements OnInit {
   startCreate(): void {
     this.editingId = null;
     this.form.reset();
+    this.form.get('templateChecklistId')!.enable();
+    this.importFile = null;
+    this.importError = '';
     this.showForm = true;
+  }
+
+  // A template checklist and an imported file both produce the checklist for the new action, so
+  // picking one disables the reactive form control for the other (a plain [disabled] binding on a
+  // formControlName element gets fought/reset by Angular's reactive-forms directive, hence .disable()).
+  onImportFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.importFile = input.files?.length ? input.files[0] : null;
+    const templateControl = this.form.get('templateChecklistId')!;
+    if (this.importFile) { templateControl.setValue(''); templateControl.disable(); }
+    else templateControl.enable();
+  }
+
+  clearImportFile(fileInput: HTMLInputElement): void {
+    this.importFile = null;
+    fileInput.value = '';
+    this.form.get('templateChecklistId')!.enable();
   }
 
   startEdit(action: ActionDto): void {
@@ -85,6 +111,9 @@ export class ActionsListPageComponent implements OnInit {
     this.showForm = false;
     this.editingId = null;
     this.form.reset();
+    this.form.get('templateChecklistId')!.enable();
+    this.importFile = null;
+    this.importError = '';
   }
 
   submit(): void {
@@ -106,8 +135,24 @@ export class ActionsListPageComponent implements OnInit {
       });
     } else {
       this.actionService.create(request).subscribe({
-        next: () => { this.cancel(); this.load(); }
+        next: newActionId => {
+          if (!this.importFile) { this.cancel(); this.load(); return; }
+          this.importService.confirm(this.importFile, newActionId).subscribe({
+            next: () => { this.cancel(); this.load(); },
+            error: () => { this.importError = 'ACTIONS.IMPORT_CHECKLIST_ERROR'; this.load(); }
+          });
+        }
       });
+    }
+  }
+
+  // Clicking a card jumps straight to its checklist when there's exactly one (the common case) -
+  // skips the intermediate checklists-list page the user would otherwise have to click through again.
+  viewAction(action: ActionDto): void {
+    if (action.singleChecklistId) {
+      this.router.navigate(['/checklists', action.singleChecklistId]);
+    } else {
+      this.router.navigate(['/checklists'], { queryParams: { brandActionId: action.id } });
     }
   }
 
@@ -169,6 +214,23 @@ export class ActionsListPageComponent implements OnInit {
 
   progressPercent(a: ActionDto): number {
     return a.totalItems === 0 ? 0 : Math.round((a.preparedItems / a.totalItems) * 100);
+  }
+
+  // Backend TimeSpan comes over as "HH:mm:ss" - trim to "HH:mm" for display.
+  formatTime(time: string | null): string {
+    return time ? time.substring(0, 5) : '';
+  }
+
+  sendStatusClass(action: ActionDto): string {
+    if (action.sent) return 'status-icon-success';
+    if (action.isReadyToSend) return 'status-icon-warn';
+    return 'status-icon-muted';
+  }
+
+  returnStatusClass(action: ActionDto): string {
+    if (action.returnValidated) return 'status-icon-success';
+    if (action.sent) return 'status-icon-warn';
+    return 'status-icon-muted';
   }
 
   get clientGroups(): { client: string; items: ActionDto[] }[] {

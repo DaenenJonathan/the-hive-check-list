@@ -6,7 +6,8 @@
 
   <div *ngIf="loading">{{ 'COMMON.LOADING' | translate }}</div>
 
-  <table class="table" *ngIf="!loading && logs.length > 0">
+  <div class="table-wrapper" *ngIf="!loading && logs.length > 0">
+  <table class="table">
     <thead>
       <tr>
         <th>{{ 'AUDIT.DATE' | translate }}</th>
@@ -28,6 +29,7 @@
       </tr>
     </tbody>
   </table>
+  </div>
 
   <p *ngIf="!loading && logs.length === 0">{{ 'COMMON.NO_DATA' | translate }}</p>
 </div>

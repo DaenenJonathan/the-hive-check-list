@@ -30,6 +30,7 @@
 
   <ng-container *ngFor="let group of checklistGroups">
     <h2 class="section-header">{{ group.checklistName }}</h2>
+    <div class="table-wrapper">
     <table class="table" style="margin-bottom: 1rem">
       <thead>
         <tr>
@@ -68,5 +69,6 @@
         </tr>
       </tbody>
     </table>
+    </div>
   </ng-container>
 </div>
