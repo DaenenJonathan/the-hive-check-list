@@ -5,7 +5,14 @@
     "IMPORTS": "Importer",
     "AUDIT": "Historique",
     "RETURNS": "Retours",
-    "LOGOUT": "Déconnexion"
+    "LOGOUT": "Déconnexion",
+    "VERSION": "Version"
+  },
+  "ROLES": {
+    "ADMIN": "Administrateur",
+    "MANAGER": "Brand manager",
+    "WAREHOUSEUSER": "Préparateur",
+    "VIEWER": "Lecteur"
   },
   "COMMON": {
     "SAVE": "Enregistrer",

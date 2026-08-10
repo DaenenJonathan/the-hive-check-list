@@ -1,5 +1,5 @@
 <nav class="navbar" *ngIf="authService.isAuthenticated">
-  <div class="navbar-brand">TheHive</div>
+  <div class="navbar-brand">TheHive<span class="navbar-version">v{{ appVersion }}</span></div>
   <div class="navbar-links">
     <a routerLink="/actions" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">{{ 'NAV.ACTIONS' | translate }}</a>
     <a routerLink="/actions/returns" routerLinkActive="active">{{ 'NAV.RETURNS' | translate }}</a>
@@ -7,10 +7,19 @@
   </div>
   <div class="navbar-right">
     <app-notification-bell></app-notification-bell>
+    <div class="user-info" *ngIf="authService.currentUser as user">
+      <span class="user-name">{{ user.firstName }} {{ user.lastName }}</span>
+      <span class="user-role">{{ ('ROLES.' + user.role.toUpperCase()) | translate }}</span>
+    </div>
     <div class="lang-switcher">
-      <button *ngFor="let lang of languages"
-              [class.active]="currentLang === lang"
-              (click)="setLang(lang)">{{ lang.toUpperCase() }}</button>
+      <button type="button" class="lang-switcher-trigger" (click)="langMenuOpen = !langMenuOpen">{{ currentLang.toUpperCase() }}</button>
+      <div class="dropdown-backdrop" *ngIf="langMenuOpen" (click)="langMenuOpen = false"></div>
+      <div class="lang-dropdown" *ngIf="langMenuOpen">
+        <button *ngFor="let lang of languages"
+                type="button"
+                [class.active]="currentLang === lang"
+                (click)="setLang(lang)">{{ lang.toUpperCase() }}</button>
+      </div>
     </div>
     <button class="btn btn-sm btn-logout" (click)="authService.logout()">{{ 'NAV.LOGOUT' | translate }}</button>
   </div>

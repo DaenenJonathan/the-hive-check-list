@@ -2,5 +2,6 @@ export const environment = {
   production: true,
   apiUrl: '/api',
   hubUrl: '',
-  filesBaseUrl: ''
+  filesBaseUrl: '',
+  appVersion: '1.0.0.7'
 };

@@ -5,7 +5,14 @@
     "IMPORTS": "Importeren",
     "AUDIT": "Geschiedenis",
     "RETURNS": "Retours",
-    "LOGOUT": "Uitloggen"
+    "LOGOUT": "Uitloggen",
+    "VERSION": "Versie"
+  },
+  "ROLES": {
+    "ADMIN": "Beheerder",
+    "MANAGER": "Brand manager",
+    "WAREHOUSEUSER": "Magazijnmedewerker",
+    "VIEWER": "Kijker"
   },
   "COMMON": {
     "SAVE": "Opslaan",

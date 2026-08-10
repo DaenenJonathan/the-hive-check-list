@@ -5,7 +5,14 @@
     "IMPORTS": "Import",
     "AUDIT": "Audit log",
     "RETURNS": "Returns",
-    "LOGOUT": "Logout"
+    "LOGOUT": "Logout",
+    "VERSION": "Version"
+  },
+  "ROLES": {
+    "ADMIN": "Administrator",
+    "MANAGER": "Brand manager",
+    "WAREHOUSEUSER": "Warehouse preparer",
+    "VIEWER": "Viewer"
   },
   "COMMON": {
     "SAVE": "Save",
