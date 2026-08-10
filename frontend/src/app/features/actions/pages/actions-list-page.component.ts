@@ -136,10 +136,23 @@ export class ActionsListPageComponent implements OnInit {
     } else {
       this.actionService.create(request).subscribe({
         next: newActionId => {
-          if (!this.importFile) { this.cancel(); this.load(); return; }
-          this.importService.confirm(this.importFile, newActionId).subscribe({
-            next: result => { this.cancel(); this.router.navigate(['/checklists', result.checklistId]); },
-            error: () => { this.importError = 'ACTIONS.IMPORT_CHECKLIST_ERROR'; this.load(); }
+          if (this.importFile) {
+            this.importService.confirm(this.importFile, newActionId).subscribe({
+              next: result => { this.cancel(); this.router.navigate(['/checklists', result.checklistId]); },
+              error: () => { this.importError = 'ACTIONS.IMPORT_CHECKLIST_ERROR'; this.load(); }
+            });
+            return;
+          }
+
+          this.cancel();
+          if (!request.templateChecklistId) { this.load(); return; }
+
+          // The template produced exactly one checklist for this brand-new action - jump straight to it.
+          this.checklistService.getAll(newActionId).subscribe({
+            next: checklists => {
+              if (checklists.length === 1) this.router.navigate(['/checklists', checklists[0].id]);
+              else this.load();
+            }
           });
         }
       });
