@@ -3,5 +3,5 @@ export const environment = {
   apiUrl: '/api',
   hubUrl: '',
   filesBaseUrl: '',
-  appVersion: '1.0.0.8'
+  appVersion: '1.0.1.0'
 };
