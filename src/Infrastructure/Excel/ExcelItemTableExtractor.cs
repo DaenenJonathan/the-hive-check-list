@@ -49,11 +49,10 @@ public static class ExcelItemTableExtractor
                 continue;
             }
 
-            // 2. Footer: stop the table entirely once we hit the legal/signature boilerplate.
-            if (cells.Any(c => IsFooterText(c.Text)))
-                break;
-
-            // 3. Item row: only possible once a column mapping is known.
+            // 2. Item row: checked before the footer so a real item is never mistaken for footer
+            // boilerplate just because some other cell (e.g. PREP BY = "Warehouse") happens to
+            // start with a footer keyword - a genuine item always has text in the NAME column,
+            // which footer/signature rows structurally never do.
             if (currentMapping is { } mapping && mapping.TryGetValue(ItemColumn.Name, out var nameCol))
             {
                 var nameText = GetCellText(cells, nameCol);
@@ -88,6 +87,10 @@ public static class ExcelItemTableExtractor
                     continue;
                 }
             }
+
+            // 3. Footer: stop the table entirely once we hit the legal/signature boilerplate.
+            if (cells.Any(c => IsFooterText(c.Text)))
+                break;
 
             // 4. Category header row: exactly one meaningful cell (ignoring image placeholders).
             var meaningful = cells.Where(c => !IsImagePlaceholder(c.Text)).ToList();
