@@ -138,7 +138,7 @@ export class ActionsListPageComponent implements OnInit {
         next: newActionId => {
           if (!this.importFile) { this.cancel(); this.load(); return; }
           this.importService.confirm(this.importFile, newActionId).subscribe({
-            next: () => { this.cancel(); this.load(); },
+            next: result => { this.cancel(); this.router.navigate(['/checklists', result.checklistId]); },
             error: () => { this.importError = 'ACTIONS.IMPORT_CHECKLIST_ERROR'; this.load(); }
           });
         }
