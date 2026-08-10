@@ -141,3 +141,14 @@ API calls stay inside the feature's service. Components only display data and de
 /imports
 /users
 ```
+
+## Versioning
+
+App version shown in the navbar comes from `appVersion` in
+`frontend/src/environments/environment.ts` and `environment.prod.ts`
+(keep both in sync). Scheme: `MAJOR.MINOR.PATCH.BUILD` — still `1.x.x.x`
+until a real v2 milestone.
+
+**Bump `BUILD` before every merge from `dev` into `main`** (bump
+`PATCH`/`MINOR`/`MAJOR` instead when the change warrants it). Never merge
+to `main` with the same version already released.
