@@ -71,6 +71,7 @@
     <button type="button" class="btn btn-sm" [class.btn-primary]="viewMode==='list'" [class.btn-outline]="viewMode!=='list'" (click)="setViewMode('list')">{{ 'ACTIONS.VIEW_LIST' | translate }}</button>
     <button type="button" class="btn btn-sm" [class.btn-primary]="viewMode==='day'" [class.btn-outline]="viewMode!=='day'" (click)="setViewMode('day')">{{ 'ACTIONS.VIEW_DAY' | translate }}</button>
     <button type="button" class="btn btn-sm" [class.btn-primary]="viewMode==='week'" [class.btn-outline]="viewMode!=='week'" (click)="setViewMode('week')">{{ 'ACTIONS.VIEW_WEEK' | translate }}</button>
+    <button type="button" class="btn btn-sm" [class.btn-primary]="viewMode==='month'" [class.btn-outline]="viewMode!=='month'" (click)="setViewMode('month')">{{ 'ACTIONS.VIEW_MONTH' | translate }}</button>
   </div>
 
   <div class="card filter-bar">
@@ -119,10 +120,16 @@
       <ng-container *ngIf="viewMode === 'week'">
         {{ 'ACTIONS.WEEK_RANGE' | translate:{ from: (weekStart | date:'dd/MM/yyyy'), to: (weekEnd | date:'dd/MM/yyyy') } }}
       </ng-container>
+      <ng-container *ngIf="viewMode === 'month'">
+        {{ monthLabelKey(referenceDate) | translate }} {{ referenceDate | date:'yyyy' }}
+      </ng-container>
+      <span class="period-count">
+        · {{ periodActionCount }} {{ (periodActionCount === 1 ? 'ACTIONS.ACTION_SINGULAR' : 'ACTIONS.ACTION_PLURAL') | translate }}
+      </span>
     </div>
     <button type="button" class="btn-icon" (click)="nextPeriod()">▶</button>
     <button type="button" class="btn btn-outline btn-sm" (click)="goToToday()">
-      {{ (viewMode === 'day' ? 'ACTIONS.TODAY' : 'ACTIONS.THIS_WEEK') | translate }}
+      {{ (viewMode === 'day' ? 'ACTIONS.TODAY' : viewMode === 'week' ? 'ACTIONS.THIS_WEEK' : 'ACTIONS.THIS_MONTH') | translate }}
     </button>
   </div>
 
@@ -158,12 +165,29 @@
       <h3 class="week-column-header">
         <span>{{ weekdayLabelKey(col.date) | translate }}</span>
         <span class="week-column-date">{{ col.date | date:'dd/MM' }}</span>
+        <span class="count-badge" *ngIf="col.items.length > 0">{{ col.items.length }}</span>
       </h3>
       <div class="week-column-body">
         <p class="week-column-empty" *ngIf="col.items.length === 0">{{ 'ACTIONS.NO_ACTIONS_DAY' | translate }}</p>
         <ng-container *ngFor="let action of col.items">
           <ng-container *ngTemplateOutlet="actionRow; context:{ action: action }"></ng-container>
         </ng-container>
+      </div>
+    </div>
+  </div>
+
+  <div class="month-calendar" *ngIf="!loading && actions.length > 0 && viewMode === 'month'">
+    <div class="month-weekday-header">
+      <span *ngFor="let d of monthWeeks[0]">{{ weekdayLabelKey(d) | translate }}</span>
+    </div>
+    <div class="month-week" *ngFor="let week of monthWeeks">
+      <div class="month-day"
+           *ngFor="let day of week"
+           [class.month-day-outside]="!isCurrentMonthDay(day)"
+           [class.month-day-today]="isToday(day)"
+           (click)="goToDay(day)">
+        <span class="month-day-number">{{ day | date:'d' }}</span>
+        <span class="count-badge" *ngIf="monthActionCount(day) > 0">{{ monthActionCount(day) }}</span>
       </div>
     </div>
   </div>

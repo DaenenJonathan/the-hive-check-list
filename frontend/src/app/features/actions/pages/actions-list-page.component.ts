@@ -10,7 +10,7 @@ import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.se
 import { ImportService } from '../../imports/services/import.service';
 
 type SortDirection = 'asc' | 'desc';
-type ViewMode = 'list' | 'day' | 'week';
+type ViewMode = 'list' | 'day' | 'week' | 'month';
 
 @Component({
   selector: 'app-actions-list-page',
@@ -231,26 +231,57 @@ export class ActionsListPageComponent implements OnInit {
   }
 
   previousPeriod(): void {
-    this.referenceDate = this.addDays(this.referenceDate, this.viewMode === 'week' ? -7 : -1);
+    if (this.viewMode === 'week') this.referenceDate = this.addDays(this.referenceDate, -7);
+    else if (this.viewMode === 'month') this.referenceDate = this.addMonths(this.referenceDate, -1);
+    else this.referenceDate = this.addDays(this.referenceDate, -1);
   }
 
   nextPeriod(): void {
-    this.referenceDate = this.addDays(this.referenceDate, this.viewMode === 'week' ? 7 : 1);
+    if (this.viewMode === 'week') this.referenceDate = this.addDays(this.referenceDate, 7);
+    else if (this.viewMode === 'month') this.referenceDate = this.addMonths(this.referenceDate, 1);
+    else this.referenceDate = this.addDays(this.referenceDate, 1);
   }
 
   goToToday(): void {
     this.referenceDate = new Date();
   }
 
-  // Angular's date pipe has no LOCALE_ID override in main.ts (always en-US), so weekday names must
-  // come from our own i18n files, not date:'EEEE' - this just resolves which key to translate.
+  // Jumping from a month cell straight to its Day view, without resetting to "today" the way
+  // setViewMode does - the whole point is landing on the day the user clicked.
+  goToDay(date: Date): void {
+    this.viewMode = 'day';
+    this.referenceDate = date;
+  }
+
+  // Angular's date pipe has no LOCALE_ID override in main.ts (always en-US), so weekday/month
+  // names must come from our own i18n files, not date:'EEEE'/'MMMM' - these just resolve keys.
   weekdayLabelKey(date: Date): string {
     const keys = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
     return `ACTIONS.WEEKDAY_${keys[date.getDay()]}`;
   }
 
+  monthLabelKey(date: Date): string {
+    return `ACTIONS.MONTH_${date.getMonth() + 1}`;
+  }
+
   get dayActions(): ActionDto[] {
     return this.actionsOnDate(this.referenceDate);
+  }
+
+  // Total for whichever period is currently shown - day count, week count across all 7 columns,
+  // or month count restricted to days actually in that month (excludes the grid's padding days
+  // borrowed from the adjacent months).
+  get periodActionCount(): number {
+    if (this.viewMode === 'week') {
+      return this.weekColumns.reduce((sum, col) => sum + col.items.length, 0);
+    }
+    if (this.viewMode === 'month') {
+      return this.monthWeeks
+        .flat()
+        .filter(d => this.isCurrentMonthDay(d))
+        .reduce((sum, d) => sum + this.monthActionCount(d), 0);
+    }
+    return this.dayActions.length;
   }
 
   get weekStart(): Date {
@@ -267,6 +298,31 @@ export class ActionsListPageComponent implements OnInit {
       const date = this.addDays(monday, i);
       return { date, items: this.actionsOnDate(date) };
     });
+  }
+
+  // Full Monday-Sunday weeks covering the whole month, including the leading/trailing days
+  // borrowed from the adjacent months so every week row is complete.
+  get monthWeeks(): Date[][] {
+    const year = this.referenceDate.getFullYear();
+    const month = this.referenceDate.getMonth();
+    const gridStart = this.startOfWeek(new Date(year, month, 1));
+    const gridEnd = this.startOfWeek(new Date(year, month + 1, 0));
+    const weekCount = Math.round((gridEnd.getTime() - gridStart.getTime()) / (7 * 86400000)) + 1;
+    return Array.from({ length: weekCount }, (_, w) =>
+      Array.from({ length: 7 }, (_, d) => this.addDays(gridStart, w * 7 + d))
+    );
+  }
+
+  monthActionCount(date: Date): number {
+    return this.actionsOnDate(date).length;
+  }
+
+  isCurrentMonthDay(date: Date): boolean {
+    return date.getMonth() === this.referenceDate.getMonth();
+  }
+
+  isToday(date: Date): boolean {
+    return this.startOfDay(date) === this.startOfDay(new Date());
   }
 
   get availableClients(): string[] {
@@ -386,5 +442,11 @@ export class ActionsListPageComponent implements OnInit {
     const date = new Date(d);
     date.setDate(date.getDate() + n);
     return date;
+  }
+
+  // Collapses to day 1 of the target month - month view only cares which month/year is shown,
+  // and this sidesteps overflow bugs (e.g. Jan 31 + 1 month landing on Mar 3 instead of Feb).
+  private addMonths(d: Date, n: number): Date {
+    return new Date(d.getFullYear(), d.getMonth() + n, 1);
   }
 }
