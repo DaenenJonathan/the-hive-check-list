@@ -105,7 +105,21 @@
     "RETURN_PENDING": "Return pending",
     "RETURN_NA": "Return not applicable",
     "CANCEL_ACTION": "Cancel action",
-    "REACTIVATE_ACTION": "Reactivate"
+    "REACTIVATE_ACTION": "Reactivate",
+    "VIEW_LIST": "List",
+    "VIEW_DAY": "Day",
+    "VIEW_WEEK": "Week",
+    "TODAY": "Today",
+    "THIS_WEEK": "This week",
+    "NO_ACTIONS_DAY": "No actions on this day.",
+    "WEEK_RANGE": "Week of {{from}} to {{to}}",
+    "WEEKDAY_MON": "Monday",
+    "WEEKDAY_TUE": "Tuesday",
+    "WEEKDAY_WED": "Wednesday",
+    "WEEKDAY_THU": "Thursday",
+    "WEEKDAY_FRI": "Friday",
+    "WEEKDAY_SAT": "Saturday",
+    "WEEKDAY_SUN": "Sunday"
   },
   "RETURNS": {
     "TITLE": "Action return",

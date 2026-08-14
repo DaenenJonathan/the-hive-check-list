@@ -10,6 +10,7 @@ import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.se
 import { ImportService } from '../../imports/services/import.service';
 
 type SortDirection = 'asc' | 'desc';
+type ViewMode = 'list' | 'day' | 'week';
 
 @Component({
   selector: 'app-actions-list-page',
@@ -28,6 +29,8 @@ export class ActionsListPageComponent implements OnInit {
   filterFrom: Date | null = null;
   filterTo: Date | null = null;
   filterClient: string | null = null;
+  viewMode: ViewMode = 'list';
+  referenceDate: Date = new Date();
   templates: ChecklistDto[] = [];
   importFile: File | null = null;
   importError = '';
@@ -220,8 +223,54 @@ export class ActionsListPageComponent implements OnInit {
     this.filterTo = null;
   }
 
+  setViewMode(mode: ViewMode): void {
+    this.viewMode = mode;
+    // Day/Week always default to "now" when you switch into them - the same guarantee as loading
+    // the page fresh - even though prev/next can then move away from it.
+    if (mode !== 'list') this.referenceDate = new Date();
+  }
+
+  previousPeriod(): void {
+    this.referenceDate = this.addDays(this.referenceDate, this.viewMode === 'week' ? -7 : -1);
+  }
+
+  nextPeriod(): void {
+    this.referenceDate = this.addDays(this.referenceDate, this.viewMode === 'week' ? 7 : 1);
+  }
+
+  goToToday(): void {
+    this.referenceDate = new Date();
+  }
+
+  // Angular's date pipe has no LOCALE_ID override in main.ts (always en-US), so weekday names must
+  // come from our own i18n files, not date:'EEEE' - this just resolves which key to translate.
+  weekdayLabelKey(date: Date): string {
+    const keys = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+    return `ACTIONS.WEEKDAY_${keys[date.getDay()]}`;
+  }
+
+  get dayActions(): ActionDto[] {
+    return this.actionsOnDate(this.referenceDate);
+  }
+
+  get weekStart(): Date {
+    return this.startOfWeek(this.referenceDate);
+  }
+
+  get weekEnd(): Date {
+    return this.addDays(this.weekStart, 6);
+  }
+
+  get weekColumns(): { date: Date; items: ActionDto[] }[] {
+    const monday = this.weekStart;
+    return Array.from({ length: 7 }, (_, i) => {
+      const date = this.addDays(monday, i);
+      return { date, items: this.actionsOnDate(date) };
+    });
+  }
+
   get availableClients(): string[] {
-    const clients = new Set(this.actions.map(a => a.client || 'Sans client'));
+    const clients = new Set(this.actions.map(a => this.clientLabel(a)));
     return Array.from(clients).sort((a, b) => a.localeCompare(b));
   }
 
@@ -252,7 +301,7 @@ export class ActionsListPageComponent implements OnInit {
     // picking a client should surface that client's whole history, with dates as an optional add-on.
     const base = (this.filterFrom || this.filterClient) ? this.actions : this.actions.filter(a => this.isUpcoming(a));
     const byDate = this.filterByDate(base);
-    const filtered = this.filterClient ? byDate.filter(a => (a.client || 'Sans client') === this.filterClient) : byDate;
+    const filtered = this.applyClientFilter(byDate);
     const map = new Map<string, ActionDto[]>();
     for (const a of filtered) {
       const key = a.client || 'Sans client';
@@ -301,5 +350,41 @@ export class ActionsListPageComponent implements OnInit {
   private startOfDay(d: Date | string): number {
     const date = new Date(d);
     return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+  }
+
+  private actionsOnDate(date: Date): ActionDto[] {
+    const target = this.startOfDay(date);
+    const sameDay = this.actions.filter(a => this.startOfDay(a.plannedDate) === target);
+    return this.sortByTime(this.applyClientFilter(sameDay));
+  }
+
+  private applyClientFilter(items: ActionDto[]): ActionDto[] {
+    return this.filterClient ? items.filter(a => this.clientLabel(a) === this.filterClient) : items;
+  }
+
+  private clientLabel(a: ActionDto): string {
+    return a.client || 'Sans client';
+  }
+
+  // Actions without a departure time aren't tied to a specific moment - list them first ("all day"),
+  // then timed actions ascending. "" sorts before any "HH:mm:ss" string lexicographically, and the
+  // backend's zero-padded HH:mm:ss format sorts correctly as a plain string (no Date parsing needed).
+  private sortByTime(items: ActionDto[]): ActionDto[] {
+    return [...items].sort((a, b) =>
+      (a.plannedDepartureTime ?? '').localeCompare(b.plannedDepartureTime ?? '')
+    );
+  }
+
+  private startOfWeek(d: Date): Date {
+    const date = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    const day = date.getDay(); // 0 = Sunday .. 6 = Saturday
+    date.setDate(date.getDate() + (day === 0 ? -6 : 1 - day));
+    return date;
+  }
+
+  private addDays(d: Date, n: number): Date {
+    const date = new Date(d);
+    date.setDate(date.getDate() + n);
+    return date;
   }
 }

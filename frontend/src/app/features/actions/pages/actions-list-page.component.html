@@ -67,6 +67,12 @@
     </form>
   </div>
 
+  <div class="view-mode-toggle">
+    <button type="button" class="btn btn-sm" [class.btn-primary]="viewMode==='list'" [class.btn-outline]="viewMode!=='list'" (click)="setViewMode('list')">{{ 'ACTIONS.VIEW_LIST' | translate }}</button>
+    <button type="button" class="btn btn-sm" [class.btn-primary]="viewMode==='day'" [class.btn-outline]="viewMode!=='day'" (click)="setViewMode('day')">{{ 'ACTIONS.VIEW_DAY' | translate }}</button>
+    <button type="button" class="btn btn-sm" [class.btn-primary]="viewMode==='week'" [class.btn-outline]="viewMode!=='week'" (click)="setViewMode('week')">{{ 'ACTIONS.VIEW_WEEK' | translate }}</button>
+  </div>
+
   <div class="card filter-bar">
     <div class="form-group">
       <label>{{ 'ACTIONS.FILTER_CLIENT' | translate }}</label>
@@ -75,111 +81,161 @@
         <option *ngFor="let c of availableClients" [ngValue]="c">{{ c }}</option>
       </select>
     </div>
-    <div class="form-group">
-      <label>{{ 'ACTIONS.FILTER_FROM' | translate }}</label>
-      <mat-form-field appearance="outline" class="date-field" subscriptSizing="dynamic">
-        <input matInput readonly [matDatepicker]="fromPicker" [(ngModel)]="filterFrom" [ngModelOptions]="{standalone: true}" (click)="fromPicker.open()" />
-        <mat-datepicker-toggle matIconSuffix [for]="fromPicker"></mat-datepicker-toggle>
-        <mat-datepicker #fromPicker></mat-datepicker>
-      </mat-form-field>
+    <ng-container *ngIf="viewMode === 'list'">
+      <div class="form-group">
+        <label>{{ 'ACTIONS.FILTER_FROM' | translate }}</label>
+        <mat-form-field appearance="outline" class="date-field" subscriptSizing="dynamic">
+          <input matInput readonly [matDatepicker]="fromPicker" [(ngModel)]="filterFrom" [ngModelOptions]="{standalone: true}" (click)="fromPicker.open()" />
+          <mat-datepicker-toggle matIconSuffix [for]="fromPicker"></mat-datepicker-toggle>
+          <mat-datepicker #fromPicker></mat-datepicker>
+        </mat-form-field>
+      </div>
+      <div class="form-group">
+        <label>{{ 'ACTIONS.FILTER_TO' | translate }}</label>
+        <mat-form-field appearance="outline" class="date-field" subscriptSizing="dynamic">
+          <input matInput readonly [disabled]="!filterFrom" [matDatepicker]="toPicker" [(ngModel)]="filterTo" [ngModelOptions]="{standalone: true}" (click)="filterFrom && toPicker.open()" />
+          <mat-datepicker-toggle matIconSuffix [for]="toPicker"></mat-datepicker-toggle>
+          <mat-datepicker #toPicker [startAt]="filterFrom"></mat-datepicker>
+        </mat-form-field>
+        <small class="hint">{{ 'ACTIONS.FILTER_HINT' | translate }}</small>
+      </div>
+      <div class="form-group filter-actions">
+        <button type="button" class="btn btn-outline" (click)="clearDateFilter()" [disabled]="!filterFrom && !filterTo">
+          {{ 'ACTIONS.FILTER_RESET' | translate }}
+        </button>
+        <button type="button" class="btn btn-outline" (click)="toggleSortDirection()">
+          {{ 'ACTIONS.SORT_DATE' | translate }} {{ sortDirection === 'asc' ? '↑' : '↓' }}
+        </button>
+      </div>
+    </ng-container>
+  </div>
+
+  <div class="card period-nav" *ngIf="viewMode !== 'list'">
+    <button type="button" class="btn-icon" (click)="previousPeriod()">◀</button>
+    <div class="period-label">
+      <ng-container *ngIf="viewMode === 'day'">
+        {{ weekdayLabelKey(referenceDate) | translate }} {{ referenceDate | date:'dd/MM/yyyy' }}
+      </ng-container>
+      <ng-container *ngIf="viewMode === 'week'">
+        {{ 'ACTIONS.WEEK_RANGE' | translate:{ from: (weekStart | date:'dd/MM/yyyy'), to: (weekEnd | date:'dd/MM/yyyy') } }}
+      </ng-container>
     </div>
-    <div class="form-group">
-      <label>{{ 'ACTIONS.FILTER_TO' | translate }}</label>
-      <mat-form-field appearance="outline" class="date-field" subscriptSizing="dynamic">
-        <input matInput readonly [disabled]="!filterFrom" [matDatepicker]="toPicker" [(ngModel)]="filterTo" [ngModelOptions]="{standalone: true}" (click)="filterFrom && toPicker.open()" />
-        <mat-datepicker-toggle matIconSuffix [for]="toPicker"></mat-datepicker-toggle>
-        <mat-datepicker #toPicker [startAt]="filterFrom"></mat-datepicker>
-      </mat-form-field>
-      <small class="hint">{{ 'ACTIONS.FILTER_HINT' | translate }}</small>
-    </div>
-    <div class="form-group filter-actions">
-      <button type="button" class="btn btn-outline" (click)="clearDateFilter()" [disabled]="!filterFrom && !filterTo">
-        {{ 'ACTIONS.FILTER_RESET' | translate }}
-      </button>
-      <button type="button" class="btn btn-outline" (click)="toggleSortDirection()">
-        {{ 'ACTIONS.SORT_DATE' | translate }} {{ sortDirection === 'asc' ? '↑' : '↓' }}
-      </button>
-    </div>
+    <button type="button" class="btn-icon" (click)="nextPeriod()">▶</button>
+    <button type="button" class="btn btn-outline btn-sm" (click)="goToToday()">
+      {{ (viewMode === 'day' ? 'ACTIONS.TODAY' : 'ACTIONS.THIS_WEEK') | translate }}
+    </button>
   </div>
 
   <div *ngIf="loading" class="loading">{{ 'COMMON.LOADING' | translate }}</div>
 
   <div *ngIf="!loading && actions.length === 0">{{ 'COMMON.NO_DATA' | translate }}</div>
 
-  <ng-container *ngFor="let group of clientGroups">
-    <h2 class="section-header">
-      {{ group.client }}
-      <span class="section-count">{{ group.items.length }}</span>
-    </h2>
-    <div class="action-rows">
-      <div class="action-row" *ngFor="let action of group.items" [class.status-cancelled]="action.status === ActionStatus.Cancelled" (click)="viewAction(action)">
-        <div class="action-row-main">
-          <div class="action-row-title">
-            <h3>{{ action.name }}</h3>
-            <span class="badge" *ngIf="action.status === ActionStatus.Cancelled">{{ 'ACTION_STATUS.Cancelled' | translate }}</span>
-            <span class="status-icon" [ngClass]="sendStatusClass(action)"
-                  title="{{ action.sent ? ('ACTIONS.SENT_DONE' | translate) : (action.isReadyToSend ? ('ACTIONS.READY_TO_SEND' | translate) : ('ACTIONS.SENT_PENDING' | translate)) }}">📤</span>
-            <span class="status-icon" [ngClass]="returnStatusClass(action)"
-                  title="{{ action.returnValidated ? ('ACTIONS.RETURN_DONE' | translate) : (action.sent ? ('ACTIONS.RETURN_PENDING' | translate) : ('ACTIONS.RETURN_NA' | translate)) }}">📥</span>
-          </div>
-          <div class="action-row-meta">
-            <span>📅 {{ action.plannedDate | date:'dd/MM/yyyy' }}<ng-container *ngIf="action.plannedDepartureTime"> · 🕐 {{ formatTime(action.plannedDepartureTime) }}</ng-container></span>
-            <span *ngIf="action.city" title="{{ action.address }}">📍 {{ action.city }}</span>
-          </div>
-        </div>
-
-        <div class="action-row-progress">
-          <div class="progress-bar">
-            <div class="progress-fill" [style.width.%]="progressPercent(action)"></div>
-          </div>
-          <div class="progress-label">{{ action.preparedItems }} / {{ action.totalItems }} ({{ progressPercent(action) }}%)</div>
-        </div>
-
-        <div class="action-row-actions" (click)="$event.stopPropagation()">
-          <button
-            *ngIf="canMarkSent(action) && authService.hasRole('Admin','Manager','WarehouseUser')"
-            type="button"
-            class="btn btn-sm btn-primary"
-            (click)="markSent(action)"
-          >📤 {{ 'ACTIONS.MARK_SENT' | translate }}</button>
-          <a [routerLink]="['/actions', action.id, 'returns']" class="btn-icon" title="{{ 'ACTIONS.RETURNS' | translate }}">📦</a>
-          <button
-            *ngIf="authService.hasRole('Admin','Manager')"
-            type="button"
-            class="btn-icon"
-            title="{{ 'COMMON.EDIT' | translate }}"
-            (click)="startEdit(action)"
-          >✏️</button>
-          <a
-            *ngIf="authService.hasRole('Admin','Manager')"
-            [routerLink]="['/audit', action.id]"
-            [queryParams]="{actionName: action.name}"
-            class="btn-icon"
-            title="{{ 'NAV.AUDIT' | translate }}"
-          >🕘</a>
-          <button
-            *ngIf="authService.hasRole('Admin','Manager') && action.status !== ActionStatus.Cancelled"
-            type="button"
-            class="btn-icon"
-            title="{{ 'ACTIONS.CANCEL_ACTION' | translate }}"
-            (click)="cancelAction(action)"
-          >⛔</button>
-          <button
-            *ngIf="authService.hasRole('Admin','Manager') && action.status === ActionStatus.Cancelled"
-            type="button"
-            class="btn-icon"
-            title="{{ 'ACTIONS.REACTIVATE_ACTION' | translate }}"
-            (click)="reactivateAction(action)"
-          >♻️</button>
-          <button
-            *ngIf="authService.hasRole('Admin','Manager')"
-            type="button"
-            class="btn-icon btn-icon-danger"
-            title="{{ 'COMMON.DELETE' | translate }}"
-            (click)="deleteAction(action)"
-          >🗑️</button>
-        </div>
+  <ng-container *ngIf="!loading && actions.length > 0 && viewMode === 'list'">
+    <ng-container *ngFor="let group of clientGroups">
+      <h2 class="section-header">
+        {{ group.client }}
+        <span class="section-count">{{ group.items.length }}</span>
+      </h2>
+      <div class="action-rows">
+        <ng-container *ngFor="let action of group.items">
+          <ng-container *ngTemplateOutlet="actionRow; context:{ action: action }"></ng-container>
+        </ng-container>
       </div>
+    </ng-container>
+  </ng-container>
+
+  <ng-container *ngIf="!loading && actions.length > 0 && viewMode === 'day'">
+    <div *ngIf="dayActions.length === 0" class="loading">{{ 'ACTIONS.NO_ACTIONS_DAY' | translate }}</div>
+    <div class="action-rows" *ngIf="dayActions.length > 0">
+      <ng-container *ngFor="let action of dayActions">
+        <ng-container *ngTemplateOutlet="actionRow; context:{ action: action }"></ng-container>
+      </ng-container>
     </div>
   </ng-container>
+
+  <div class="week-columns" *ngIf="!loading && actions.length > 0 && viewMode === 'week'">
+    <div class="week-column" *ngFor="let col of weekColumns">
+      <h3 class="week-column-header">
+        <span>{{ weekdayLabelKey(col.date) | translate }}</span>
+        <span class="week-column-date">{{ col.date | date:'dd/MM' }}</span>
+      </h3>
+      <div class="week-column-body">
+        <p class="week-column-empty" *ngIf="col.items.length === 0">{{ 'ACTIONS.NO_ACTIONS_DAY' | translate }}</p>
+        <ng-container *ngFor="let action of col.items">
+          <ng-container *ngTemplateOutlet="actionRow; context:{ action: action }"></ng-container>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #actionRow let-action="action">
+    <div class="action-row" [class.status-cancelled]="action.status === ActionStatus.Cancelled" (click)="viewAction(action)">
+      <div class="action-row-main">
+        <div class="action-row-title">
+          <h3>{{ action.name }}</h3>
+          <span class="badge" *ngIf="action.status === ActionStatus.Cancelled">{{ 'ACTION_STATUS.Cancelled' | translate }}</span>
+          <span class="status-icon" [ngClass]="sendStatusClass(action)"
+                title="{{ action.sent ? ('ACTIONS.SENT_DONE' | translate) : (action.isReadyToSend ? ('ACTIONS.READY_TO_SEND' | translate) : ('ACTIONS.SENT_PENDING' | translate)) }}">📤</span>
+          <span class="status-icon" [ngClass]="returnStatusClass(action)"
+                title="{{ action.returnValidated ? ('ACTIONS.RETURN_DONE' | translate) : (action.sent ? ('ACTIONS.RETURN_PENDING' | translate) : ('ACTIONS.RETURN_NA' | translate)) }}">📥</span>
+        </div>
+        <div class="action-row-meta">
+          <span>📅 {{ action.plannedDate | date:'dd/MM/yyyy' }}<ng-container *ngIf="action.plannedDepartureTime"> · 🕐 {{ formatTime(action.plannedDepartureTime) }}</ng-container></span>
+          <span *ngIf="action.city" title="{{ action.address }}">📍 {{ action.city }}</span>
+        </div>
+      </div>
+
+      <div class="action-row-progress">
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width.%]="progressPercent(action)"></div>
+        </div>
+        <div class="progress-label">{{ action.preparedItems }} / {{ action.totalItems }} ({{ progressPercent(action) }}%)</div>
+      </div>
+
+      <div class="action-row-actions" (click)="$event.stopPropagation()">
+        <button
+          *ngIf="canMarkSent(action) && authService.hasRole('Admin','Manager','WarehouseUser')"
+          type="button"
+          class="btn btn-sm btn-primary"
+          (click)="markSent(action)"
+        >📤 {{ 'ACTIONS.MARK_SENT' | translate }}</button>
+        <a [routerLink]="['/actions', action.id, 'returns']" class="btn-icon" title="{{ 'ACTIONS.RETURNS' | translate }}">📦</a>
+        <button
+          *ngIf="authService.hasRole('Admin','Manager')"
+          type="button"
+          class="btn-icon"
+          title="{{ 'COMMON.EDIT' | translate }}"
+          (click)="startEdit(action)"
+        >✏️</button>
+        <a
+          *ngIf="authService.hasRole('Admin','Manager')"
+          [routerLink]="['/audit', action.id]"
+          [queryParams]="{actionName: action.name}"
+          class="btn-icon"
+          title="{{ 'NAV.AUDIT' | translate }}"
+        >🕘</a>
+        <button
+          *ngIf="authService.hasRole('Admin','Manager') && action.status !== ActionStatus.Cancelled"
+          type="button"
+          class="btn-icon"
+          title="{{ 'ACTIONS.CANCEL_ACTION' | translate }}"
+          (click)="cancelAction(action)"
+        >⛔</button>
+        <button
+          *ngIf="authService.hasRole('Admin','Manager') && action.status === ActionStatus.Cancelled"
+          type="button"
+          class="btn-icon"
+          title="{{ 'ACTIONS.REACTIVATE_ACTION' | translate }}"
+          (click)="reactivateAction(action)"
+        >♻️</button>
+        <button
+          *ngIf="authService.hasRole('Admin','Manager')"
+          type="button"
+          class="btn-icon btn-icon-danger"
+          title="{{ 'COMMON.DELETE' | translate }}"
+          (click)="deleteAction(action)"
+        >🗑️</button>
+      </div>
+    </div>
+  </ng-template>
 </div>

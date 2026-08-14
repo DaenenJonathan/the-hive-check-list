@@ -105,7 +105,21 @@
     "RETURN_PENDING": "Retour niet uitgevoerd",
     "RETURN_NA": "Retour niet van toepassing",
     "CANCEL_ACTION": "Actie annuleren",
-    "REACTIVATE_ACTION": "Heractiveren"
+    "REACTIVATE_ACTION": "Heractiveren",
+    "VIEW_LIST": "Lijst",
+    "VIEW_DAY": "Dag",
+    "VIEW_WEEK": "Week",
+    "TODAY": "Vandaag",
+    "THIS_WEEK": "Deze week",
+    "NO_ACTIONS_DAY": "Geen acties op deze dag.",
+    "WEEK_RANGE": "Week van {{from}} tot {{to}}",
+    "WEEKDAY_MON": "Maandag",
+    "WEEKDAY_TUE": "Dinsdag",
+    "WEEKDAY_WED": "Woensdag",
+    "WEEKDAY_THU": "Donderdag",
+    "WEEKDAY_FRI": "Vrijdag",
+    "WEEKDAY_SAT": "Zaterdag",
+    "WEEKDAY_SUN": "Zondag"
   },
   "RETURNS": {
     "TITLE": "Retour van de actie",
