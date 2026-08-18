@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActionDto, ActionStatus } from '../models/action.model';
 import { ActionService } from '../services/action.service';
@@ -8,6 +8,8 @@ import { ChecklistDto } from '../../checklists/models/checklist.model';
 import { ChecklistService } from '../../checklists/services/checklist.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { ImportService } from '../../imports/services/import.service';
+import { BrandDto } from '../../brands/models/brand.model';
+import { BrandService } from '../../brands/services/brand.service';
 
 type SortDirection = 'asc' | 'desc';
 type ViewMode = 'list' | 'day' | 'week' | 'month';
@@ -28,10 +30,11 @@ export class ActionsListPageComponent implements OnInit {
   sortDirection: SortDirection = 'desc';
   filterFrom: Date | null = null;
   filterTo: Date | null = null;
-  filterClient: string | null = null;
+  filterBrand: string | null = null;
   viewMode: ViewMode = 'list';
   referenceDate: Date = new Date();
   templates: ChecklistDto[] = [];
+  brands: BrandDto[] = [];
   importFile: File | null = null;
   importError = '';
 
@@ -39,14 +42,16 @@ export class ActionsListPageComponent implements OnInit {
     private actionService: ActionService,
     private checklistService: ChecklistService,
     private importService: ImportService,
+    private brandService: BrandService,
     private fb: FormBuilder,
     private confirmDialogService: ConfirmDialogService,
     private router: Router,
+    private route: ActivatedRoute,
     public authService: AuthService
   ) {
     this.form = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(200)]],
-      client: ['', [Validators.required, Validators.maxLength(200)]],
+      brandId: ['', Validators.required],
       plannedDate: ['', Validators.required],
       plannedDepartureTime: [''],
       plannedReturnTime: [''],
@@ -56,9 +61,13 @@ export class ActionsListPageComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.restoreFromQueryParams();
     this.load();
     this.checklistService.getAll().subscribe({
       next: data => { this.templates = data; }
+    });
+    this.brandService.getAll().subscribe({
+      next: data => { this.brands = data; }
     });
   }
 
@@ -100,7 +109,7 @@ export class ActionsListPageComponent implements OnInit {
     this.editingId = action.id;
     this.form.setValue({
       name: action.name,
-      client: action.client,
+      brandId: action.brandId,
       plannedDate: new Date(action.plannedDate),
       plannedDepartureTime: action.plannedDepartureTime ?? '',
       plannedReturnTime: action.plannedReturnTime ?? '',
@@ -216,11 +225,28 @@ export class ActionsListPageComponent implements OnInit {
 
   toggleSortDirection(): void {
     this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    this.syncQueryParams();
   }
 
   clearDateFilter(): void {
     this.filterFrom = null;
     this.filterTo = null;
+    this.syncQueryParams();
+  }
+
+  onFilterBrandChange(value: string | null): void {
+    this.filterBrand = value;
+    this.syncQueryParams();
+  }
+
+  onFilterFromChange(value: Date | null): void {
+    this.filterFrom = value;
+    this.syncQueryParams();
+  }
+
+  onFilterToChange(value: Date | null): void {
+    this.filterTo = value;
+    this.syncQueryParams();
   }
 
   setViewMode(mode: ViewMode): void {
@@ -228,22 +254,26 @@ export class ActionsListPageComponent implements OnInit {
     // Day/Week always default to "now" when you switch into them - the same guarantee as loading
     // the page fresh - even though prev/next can then move away from it.
     if (mode !== 'list') this.referenceDate = new Date();
+    this.syncQueryParams();
   }
 
   previousPeriod(): void {
     if (this.viewMode === 'week') this.referenceDate = this.addDays(this.referenceDate, -7);
     else if (this.viewMode === 'month') this.referenceDate = this.addMonths(this.referenceDate, -1);
     else this.referenceDate = this.addDays(this.referenceDate, -1);
+    this.syncQueryParams();
   }
 
   nextPeriod(): void {
     if (this.viewMode === 'week') this.referenceDate = this.addDays(this.referenceDate, 7);
     else if (this.viewMode === 'month') this.referenceDate = this.addMonths(this.referenceDate, 1);
     else this.referenceDate = this.addDays(this.referenceDate, 1);
+    this.syncQueryParams();
   }
 
   goToToday(): void {
     this.referenceDate = new Date();
+    this.syncQueryParams();
   }
 
   // Jumping from a month cell straight to its Day view, without resetting to "today" the way
@@ -251,6 +281,7 @@ export class ActionsListPageComponent implements OnInit {
   goToDay(date: Date): void {
     this.viewMode = 'day';
     this.referenceDate = date;
+    this.syncQueryParams();
   }
 
   // Angular's date pipe has no LOCALE_ID override in main.ts (always en-US), so weekday/month
@@ -325,9 +356,9 @@ export class ActionsListPageComponent implements OnInit {
     return this.startOfDay(date) === this.startOfDay(new Date());
   }
 
-  get availableClients(): string[] {
-    const clients = new Set(this.actions.map(a => this.clientLabel(a)));
-    return Array.from(clients).sort((a, b) => a.localeCompare(b));
+  get availableBrands(): string[] {
+    const brands = new Set(this.actions.map(a => this.brandLabel(a)));
+    return Array.from(brands).sort((a, b) => a.localeCompare(b));
   }
 
   progressPercent(a: ActionDto): number {
@@ -351,22 +382,22 @@ export class ActionsListPageComponent implements OnInit {
     return 'status-icon-muted';
   }
 
-  get clientGroups(): { client: string; items: ActionDto[] }[] {
+  get brandGroups(): { brand: string; items: ActionDto[] }[] {
     // Default view hides actions whose planned date has already passed. As soon as the user picks
-    // a manual "Du" date, or a client, that takes full control (including past dates, on purpose) -
-    // picking a client should surface that client's whole history, with dates as an optional add-on.
-    const base = (this.filterFrom || this.filterClient) ? this.actions : this.actions.filter(a => this.isUpcoming(a));
+    // a manual "Du" date, or a brand, that takes full control (including past dates, on purpose) -
+    // picking a brand should surface that brand's whole history, with dates as an optional add-on.
+    const base = (this.filterFrom || this.filterBrand) ? this.actions : this.actions.filter(a => this.isUpcoming(a));
     const byDate = this.filterByDate(base);
-    const filtered = this.applyClientFilter(byDate);
+    const filtered = this.applyBrandFilter(byDate);
     const map = new Map<string, ActionDto[]>();
     for (const a of filtered) {
-      const key = a.client || 'Sans client';
+      const key = this.brandLabel(a);
       if (!map.has(key)) map.set(key, []);
       map.get(key)!.push(a);
     }
     const direction = this.sortDirection === 'asc' ? 1 : -1;
-    return Array.from(map.entries()).map(([client, items]) => ({
-      client,
+    return Array.from(map.entries()).map(([brand, items]) => ({
+      brand,
       items: [...items].sort((a, b) =>
         direction * (new Date(a.plannedDate).getTime() - new Date(b.plannedDate).getTime())
       )
@@ -387,6 +418,41 @@ export class ActionsListPageComponent implements OnInit {
 
   private isUpcoming(action: ActionDto): boolean {
     return this.startOfDay(action.plannedDate) >= this.startOfDay(new Date());
+  }
+
+  // Restores the list's view/filters from the URL so "back" from a checklist/returns/audit page
+  // (Location.back()) lands on the exact same view instead of the defaults - see syncQueryParams.
+  private restoreFromQueryParams(): void {
+    const params = this.route.snapshot.queryParamMap;
+    const view = params.get('view');
+    if (view === 'list' || view === 'day' || view === 'week' || view === 'month') this.viewMode = view;
+    const date = params.get('date');
+    if (date) this.referenceDate = new Date(date);
+    this.filterBrand = params.get('brand');
+    const from = params.get('from');
+    if (from) this.filterFrom = new Date(from);
+    const to = params.get('to');
+    if (to) this.filterTo = new Date(to);
+    const sort = params.get('sort');
+    if (sort === 'asc' || sort === 'desc') this.sortDirection = sort;
+  }
+
+  // Mirrors the current view/filters into the URL (replacing the current history entry, so filter
+  // tweaks don't spam back-stack) so Location.back() from a page reached by clicking through
+  // restores this exact state, not just the bare /actions route.
+  private syncQueryParams(): void {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      replaceUrl: true,
+      queryParams: {
+        view: this.viewMode !== 'list' ? this.viewMode : null,
+        date: this.viewMode !== 'list' ? this.toDateOnlyString(this.referenceDate) : null,
+        brand: this.filterBrand,
+        from: this.filterFrom ? this.toDateOnlyString(this.filterFrom) : null,
+        to: this.filterTo ? this.toDateOnlyString(this.filterTo) : null,
+        sort: this.sortDirection !== 'desc' ? this.sortDirection : null
+      }
+    });
   }
 
   private toDateOnlyString(date: Date): string {
@@ -411,15 +477,15 @@ export class ActionsListPageComponent implements OnInit {
   private actionsOnDate(date: Date): ActionDto[] {
     const target = this.startOfDay(date);
     const sameDay = this.actions.filter(a => this.startOfDay(a.plannedDate) === target);
-    return this.sortByTime(this.applyClientFilter(sameDay));
+    return this.sortByTime(this.applyBrandFilter(sameDay));
   }
 
-  private applyClientFilter(items: ActionDto[]): ActionDto[] {
-    return this.filterClient ? items.filter(a => this.clientLabel(a) === this.filterClient) : items;
+  private applyBrandFilter(items: ActionDto[]): ActionDto[] {
+    return this.filterBrand ? items.filter(a => this.brandLabel(a) === this.filterBrand) : items;
   }
 
-  private clientLabel(a: ActionDto): string {
-    return a.client || 'Sans client';
+  private brandLabel(a: ActionDto): string {
+    return a.brandName || 'Sans marque';
   }
 
   // Actions without a departure time aren't tied to a specific moment - list them first ("all day"),

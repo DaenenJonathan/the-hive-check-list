@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Location } from '@angular/common';
 import { ActionDto, ActionReturnItemDto } from '../models/action.model';
 import { ActionService } from '../services/action.service';
 import { ChecklistService } from '../../checklists/services/checklist.service';
@@ -26,8 +27,13 @@ export class ActionReturnsPageComponent implements OnInit {
     private route: ActivatedRoute,
     private actionService: ActionService,
     private checklistService: ChecklistService,
+    private location: Location,
     public authService: AuthService
   ) {}
+
+  goBack(): void {
+    this.location.back();
+  }
 
   ngOnInit(): void {
     this.actionId = this.route.snapshot.paramMap.get('id')!;

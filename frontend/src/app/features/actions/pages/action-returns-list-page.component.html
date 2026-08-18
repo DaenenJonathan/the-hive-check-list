@@ -1,6 +1,7 @@
 <div class="page-container">
   <div class="page-header">
     <h1>{{ 'RETURNS.LIST_TITLE' | translate }}</h1>
+    <button type="button" class="btn btn-sm btn-outline" [disabled]="loading" (click)="load()" title="{{ 'COMMON.REFRESH' | translate }}">🔄</button>
   </div>
 
   <div *ngIf="loading" class="loading">{{ 'COMMON.LOADING' | translate }}</div>
@@ -11,7 +12,7 @@
     <thead>
       <tr>
         <th>{{ 'ACTIONS.NAME' | translate }}</th>
-        <th>{{ 'ACTIONS.CLIENT' | translate }}</th>
+        <th>{{ 'ACTIONS.BRAND' | translate }}</th>
         <th>{{ 'ACTIONS.CITY' | translate }}</th>
         <th>{{ 'ACTIONS.PLANNED_DATE' | translate }}</th>
         <th>{{ 'ACTIONS.SENT_ON' | translate }}</th>
@@ -24,7 +25,7 @@
           {{ action.name }}
           <div class="action-link" *ngIf="action.address">📍 {{ action.address }}</div>
         </td>
-        <td>{{ action.client }}</td>
+        <td>{{ action.brandName }}</td>
         <td>{{ action.city || '—' }}</td>
         <td>{{ action.plannedDate | date:'dd/MM/yyyy' }}</td>
         <td>{{ action.sentAt | date:'dd/MM/yyyy HH:mm' }}</td>

@@ -1,11 +1,14 @@
 <div class="page-container">
   <div class="page-header">
     <h1>{{ 'CHECKLISTS.TITLE' | translate }}</h1>
-    <button *ngIf="authService.hasRole('Admin','Manager') && !showForm"
-            class="btn btn-primary"
-            (click)="showForm = true">
-      + {{ 'CHECKLISTS.NEW' | translate }}
-    </button>
+    <div class="page-header-actions">
+      <button type="button" class="btn btn-sm btn-outline" [disabled]="loading" (click)="load()" title="{{ 'COMMON.REFRESH' | translate }}">🔄</button>
+      <button *ngIf="authService.hasRole('Admin','Manager') && !showForm"
+              class="btn btn-primary"
+              (click)="showForm = true">
+        + {{ 'CHECKLISTS.NEW' | translate }}
+      </button>
+    </div>
   </div>
 
   <div *ngIf="showForm && authService.hasRole('Admin','Manager')" class="card">

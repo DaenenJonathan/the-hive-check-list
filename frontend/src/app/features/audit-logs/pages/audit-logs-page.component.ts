@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Location } from '@angular/common';
 import { AuditLogDto } from '../models/audit-log.model';
 import { AuditLogService } from '../services/audit-log.service';
 
@@ -13,7 +14,11 @@ export class AuditLogsPageComponent implements OnInit {
   loading = false;
   actionName: string | null = null;
 
-  constructor(private route: ActivatedRoute, private auditLogService: AuditLogService) {}
+  constructor(private route: ActivatedRoute, private auditLogService: AuditLogService, private location: Location) {}
+
+  goBack(): void {
+    this.location.back();
+  }
 
   ngOnInit(): void {
     const actionId = this.route.snapshot.paramMap.get('actionId')!;

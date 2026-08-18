@@ -2,9 +2,9 @@
   <div class="page-header">
     <div>
       <h1>{{ 'RETURNS.TITLE' | translate }}</h1>
-      <span class="action-link" *ngIf="action">{{ action.name }} · {{ action.client }}</span>
+      <span class="action-link" *ngIf="action">{{ action.name }} · {{ action.brandName }}</span>
     </div>
-    <a [routerLink]="['/actions']" class="btn btn-outline">{{ 'COMMON.BACK' | translate }}</a>
+    <button type="button" class="btn btn-outline" (click)="goBack()">{{ 'COMMON.BACK' | translate }}</button>
   </div>
 
   <div class="card return-status-bar">

@@ -1,5 +1,6 @@
 import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Location } from '@angular/common';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { AddChecklistItemRequest, BrandActionStatus, ChecklistDetailDto, ChecklistItemDto, ChecklistItemStatus } from '../models/checklist.model';
 import { ChecklistService } from '../services/checklist.service';
@@ -44,8 +45,13 @@ export class ChecklistDetailPageComponent implements OnInit, OnDestroy {
     private checklistService: ChecklistService,
     private realtimeService: ChecklistRealtimeService,
     private confirmDialogService: ConfirmDialogService,
+    private location: Location,
     public authService: AuthService
   ) {}
+
+  goBack(): void {
+    this.location.back();
+  }
 
   ngOnInit(): void {
     this.checklistId = this.route.snapshot.paramMap.get('id')!;

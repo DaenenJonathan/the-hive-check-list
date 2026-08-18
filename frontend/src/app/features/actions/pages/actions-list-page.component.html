@@ -1,9 +1,12 @@
 <div class="page-container">
   <div class="page-header">
     <h1>{{ 'ACTIONS.TITLE' | translate }}</h1>
-    <button *ngIf="authService.hasRole('Admin','Manager')" class="btn btn-primary" (click)="showForm ? cancel() : startCreate()">
-      {{ showForm ? ('COMMON.CANCEL' | translate) : ('ACTIONS.CREATE' | translate) }}
-    </button>
+    <div class="page-header-actions">
+      <button type="button" class="btn btn-sm btn-outline" [disabled]="loading" (click)="load()" title="{{ 'COMMON.REFRESH' | translate }}">🔄</button>
+      <button *ngIf="authService.hasRole('Admin','Manager','AgencyManager')" class="btn btn-primary" (click)="showForm ? cancel() : startCreate()">
+        {{ showForm ? ('COMMON.CANCEL' | translate) : ('ACTIONS.CREATE' | translate) }}
+      </button>
+    </div>
   </div>
 
   <div class="card" *ngIf="showForm">
@@ -14,8 +17,11 @@
           <input type="text" formControlName="name" class="form-control" />
         </div>
         <div class="form-group">
-          <label>{{ 'ACTIONS.CLIENT' | translate }}</label>
-          <input type="text" formControlName="client" class="form-control" />
+          <label>{{ 'ACTIONS.BRAND' | translate }}</label>
+          <select formControlName="brandId" class="form-control">
+            <option value="" disabled>{{ 'ACTIONS.SELECT_BRAND' | translate }}</option>
+            <option *ngFor="let b of brands" [value]="b.id">{{ b.name }} ({{ b.agencyName }})</option>
+          </select>
         </div>
         <div class="form-group">
           <label>{{ 'ACTIONS.PLANNED_DATE' | translate }}</label>
@@ -76,17 +82,17 @@
 
   <div class="card filter-bar">
     <div class="form-group">
-      <label>{{ 'ACTIONS.FILTER_CLIENT' | translate }}</label>
-      <select class="form-control" [(ngModel)]="filterClient" [ngModelOptions]="{standalone: true}">
-        <option [ngValue]="null">{{ 'ACTIONS.FILTER_CLIENT_ALL' | translate }}</option>
-        <option *ngFor="let c of availableClients" [ngValue]="c">{{ c }}</option>
+      <label>{{ 'ACTIONS.FILTER_BRAND' | translate }}</label>
+      <select class="form-control" [ngModel]="filterBrand" [ngModelOptions]="{standalone: true}" (ngModelChange)="onFilterBrandChange($event)">
+        <option [ngValue]="null">{{ 'ACTIONS.FILTER_BRAND_ALL' | translate }}</option>
+        <option *ngFor="let b of availableBrands" [ngValue]="b">{{ b }}</option>
       </select>
     </div>
     <ng-container *ngIf="viewMode === 'list'">
       <div class="form-group">
         <label>{{ 'ACTIONS.FILTER_FROM' | translate }}</label>
         <mat-form-field appearance="outline" class="date-field" subscriptSizing="dynamic">
-          <input matInput readonly [matDatepicker]="fromPicker" [(ngModel)]="filterFrom" [ngModelOptions]="{standalone: true}" (click)="fromPicker.open()" />
+          <input matInput readonly [matDatepicker]="fromPicker" [ngModel]="filterFrom" [ngModelOptions]="{standalone: true}" (ngModelChange)="onFilterFromChange($event)" (click)="fromPicker.open()" />
           <mat-datepicker-toggle matIconSuffix [for]="fromPicker"></mat-datepicker-toggle>
           <mat-datepicker #fromPicker></mat-datepicker>
         </mat-form-field>
@@ -94,7 +100,7 @@
       <div class="form-group">
         <label>{{ 'ACTIONS.FILTER_TO' | translate }}</label>
         <mat-form-field appearance="outline" class="date-field" subscriptSizing="dynamic">
-          <input matInput readonly [disabled]="!filterFrom" [matDatepicker]="toPicker" [(ngModel)]="filterTo" [ngModelOptions]="{standalone: true}" (click)="filterFrom && toPicker.open()" />
+          <input matInput readonly [disabled]="!filterFrom" [matDatepicker]="toPicker" [ngModel]="filterTo" [ngModelOptions]="{standalone: true}" (ngModelChange)="onFilterToChange($event)" (click)="filterFrom && toPicker.open()" />
           <mat-datepicker-toggle matIconSuffix [for]="toPicker"></mat-datepicker-toggle>
           <mat-datepicker #toPicker [startAt]="filterFrom"></mat-datepicker>
         </mat-form-field>
@@ -138,9 +144,9 @@
   <div *ngIf="!loading && actions.length === 0">{{ 'COMMON.NO_DATA' | translate }}</div>
 
   <ng-container *ngIf="!loading && actions.length > 0 && viewMode === 'list'">
-    <ng-container *ngFor="let group of clientGroups">
+    <ng-container *ngFor="let group of brandGroups">
       <h2 class="section-header">
-        {{ group.client }}
+        {{ group.brand }}
         <span class="section-count">{{ group.items.length }}</span>
       </h2>
       <div class="action-rows">

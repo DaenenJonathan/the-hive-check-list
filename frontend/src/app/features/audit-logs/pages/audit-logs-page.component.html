@@ -1,7 +1,7 @@
 <div class="page-container">
   <div class="page-header">
     <h1>{{ 'AUDIT.TITLE' | translate }}<span class="action-link" *ngIf="actionName"> — {{ actionName }}</span></h1>
-    <a routerLink="/actions" class="btn btn-sm btn-outline">{{ 'COMMON.BACK' | translate }}</a>
+    <button type="button" class="btn btn-sm btn-outline" (click)="goBack()">{{ 'COMMON.BACK' | translate }}</button>
   </div>
 
   <div *ngIf="loading">{{ 'COMMON.LOADING' | translate }}</div>
