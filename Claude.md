@@ -71,7 +71,7 @@ An `Agency` owns a portfolio of `Brand`s (1-N); every `BrandAction` belongs to a
 
 Roles: `Admin`, `Manager`, `WarehouseUser`, `Viewer`, `AgencyManager`
 
-`AgencyManager` is scoped to a single `Agency` (`User.AgencyId`): can create `BrandAction`s only for brands in their own agency, and can only view/follow (never edit, cancel, send, or validate returns for) actions belonging to their own agency's brands. Row-level isolation is enforced server-side via `AgencyAccessGuard` (`src/Application/Common/Security/AgencyAccessGuard.cs`) — any new query/command that exposes a single `BrandAction`/`Checklist` by ID must call it, or list-filter by agency, to avoid an IDOR hole for this role.
+`AgencyManager` is scoped to a single `Agency` (`User.AgencyId`): can create and delete `BrandAction`s only for brands in their own agency, and can only view/follow (never edit, cancel, send, or validate returns for) actions belonging to their own agency's brands. Row-level isolation is enforced server-side via `AgencyAccessGuard` (`src/Application/Common/Security/AgencyAccessGuard.cs`) — any new query/command that exposes a single `BrandAction`/`Checklist` by ID must call it, or list-filter by agency, to avoid an IDOR hole for this role.
 
 ### Application (`src/Application/`)
 CQRS via MediatR. Every feature folder contains Commands/, Queries/, DTOs/.

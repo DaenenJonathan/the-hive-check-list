@@ -11,6 +11,11 @@ const routes: Routes = [
   },
   { path: 'register', redirectTo: 'login/register' },
   {
+    path: 'change-password',
+    canActivate: [AuthGuard],
+    loadChildren: () => import('./features/account/account.module').then(m => m.AccountModule)
+  },
+  {
     path: 'actions',
     canActivate: [AuthGuard],
     loadChildren: () => import('./features/actions/actions.module').then(m => m.ActionsModule)

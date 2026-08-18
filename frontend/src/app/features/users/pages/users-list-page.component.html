@@ -98,6 +98,7 @@
             <td class="table-actions">
               <button type="button" class="btn-icon" title="{{ 'COMMON.EDIT' | translate }}" (click)="startEdit(user)">✏️</button>
               <button type="button" class="btn-icon" title="{{ 'USERS.RESET_PASSWORD' | translate }}" (click)="resetPassword(user)">🔑</button>
+              <button type="button" class="btn-icon btn-icon-danger" *ngIf="!isSelf(user)" title="{{ 'COMMON.DELETE' | translate }}" (click)="deleteUser(user)">🗑️</button>
             </td>
           </tr>
           <tr *ngIf="editingId === user.id">

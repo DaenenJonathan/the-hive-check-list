@@ -6,6 +6,7 @@ export interface User {
   lastName: string;
   role: UserRole;
   agencyId?: string | null;
+  mustChangePassword: boolean;
 }
 
 export enum UserRole {
@@ -19,6 +20,11 @@ export enum UserRole {
 export interface LoginRequest {
   email: string;
   password: string;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
 }
 
 export interface RequestAccountRequest {

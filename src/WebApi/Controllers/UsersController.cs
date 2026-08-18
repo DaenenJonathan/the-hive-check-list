@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TheHive.Application.Features.Users.Commands.CreateUser;
+using TheHive.Application.Features.Users.Commands.DeleteUser;
 using TheHive.Application.Features.Users.Commands.ResetUserPassword;
 using TheHive.Application.Features.Users.Commands.UpdateUserRole;
 using TheHive.Application.Features.Users.Queries.GetUsers;
@@ -51,6 +52,15 @@ public class UsersController : ControllerBase
         if (!result.Succeeded)
             return BadRequest(result.Errors);
         return Ok(new { temporaryPassword = result.Value });
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(string id, CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(new DeleteUserCommand(id), cancellationToken);
+        if (!result.Succeeded)
+            return BadRequest(result.Errors);
+        return NoContent();
     }
 }
 

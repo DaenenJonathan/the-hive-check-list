@@ -1,4 +1,5 @@
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using TheHive.Application.Common.Interfaces;
@@ -66,9 +67,28 @@ public class AuthController : ControllerBase
                 email = user.Email,
                 firstName = user.FirstName,
                 lastName = user.LastName,
-                role = user.Role
+                role = user.Role,
+                mustChangePassword = user.MustChangePassword
             }
         });
+    }
+
+    [HttpPost("change-password")]
+    [Authorize]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user is null)
+            return Unauthorized();
+
+        var result = await _userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
+        if (!result.Succeeded)
+            return BadRequest(new { errors = result.Errors.Select(e => e.Description) });
+
+        user.MustChangePassword = false;
+        await _userManager.UpdateAsync(user);
+
+        return NoContent();
     }
 
     [HttpPost("request-account")]
@@ -87,4 +107,5 @@ public class AuthController : ControllerBase
 }
 
 public record LoginRequest(string Email, string Password);
+public record ChangePasswordRequest(string CurrentPassword, string NewPassword);
 public record RequestAccountRequest(string FirstName, string LastName, string Email, string? Message);

@@ -109,7 +109,8 @@ public class UserAdminService : IUserAdminService
             Role = role,
             AgencyId = agencyId,
             ManagedBrands = brands,
-            EmailConfirmed = true
+            EmailConfirmed = true,
+            MustChangePassword = true
         };
 
         var createResult = await _userManager.CreateAsync(user, password);
@@ -151,7 +152,23 @@ public class UserAdminService : IUserAdminService
         if (!addResult.Succeeded)
             return Result<string>.Failure(addResult.Errors.Select(e => e.Description).ToArray());
 
+        user.MustChangePassword = true;
+        await _userManager.UpdateAsync(user);
+
         return Result<string>.Success(password);
+    }
+
+    public async Task<Result> DeleteUserAsync(string userId, CancellationToken cancellationToken = default)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user is null)
+            return Result.Failure("Utilisateur introuvable.");
+
+        var deleteResult = await _userManager.DeleteAsync(user);
+        if (!deleteResult.Succeeded)
+            return Result.Failure(deleteResult.Errors.Select(e => e.Description).ToArray());
+
+        return Result.Success();
     }
 
     // Null return signals "some requested brand id doesn't exist" to the caller, distinct from

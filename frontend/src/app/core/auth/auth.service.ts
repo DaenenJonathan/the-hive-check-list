@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { Router } from '@angular/router';
-import { AuthResponse, LoginRequest, RequestAccountRequest, User } from '../models/user.model';
+import { AuthResponse, ChangePasswordRequest, LoginRequest, RequestAccountRequest, User } from '../models/user.model';
 import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -27,6 +27,18 @@ export class AuthService {
 
   requestAccount(request: RequestAccountRequest): Observable<void> {
     return this.http.post<void>(`${environment.apiUrl}/auth/request-account`, request);
+  }
+
+  changePassword(request: ChangePasswordRequest): Observable<void> {
+    return this.http.post<void>(`${environment.apiUrl}/auth/change-password`, request).pipe(
+      tap(() => {
+        const user = this.currentUser;
+        if (!user) return;
+        const updated = { ...user, mustChangePassword: false };
+        localStorage.setItem(this.USER_KEY, JSON.stringify(updated));
+        this.currentUserSubject.next(updated);
+      })
+    );
   }
 
   logout(): void {

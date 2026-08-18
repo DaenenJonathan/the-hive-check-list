@@ -14,6 +14,7 @@
       <span class="user-name">{{ user.firstName }} {{ user.lastName }}</span>
       <span class="user-role">{{ ('ROLES.' + user.role.toUpperCase()) | translate }}</span>
     </div>
+    <a routerLink="/change-password" class="btn-icon" title="{{ 'NAV.CHANGE_PASSWORD' | translate }}">🔒</a>
     <div class="lang-switcher">
       <button type="button" class="lang-switcher-trigger" (click)="langMenuOpen = !langMenuOpen">{{ currentLang.toUpperCase() }}</button>
       <div class="dropdown-backdrop" *ngIf="langMenuOpen" (click)="langMenuOpen = false"></div>

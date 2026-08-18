@@ -231,6 +231,12 @@
         >📤 {{ 'ACTIONS.MARK_SENT' | translate }}</button>
         <a [routerLink]="['/actions', action.id, 'returns']" class="btn-icon" title="{{ 'ACTIONS.RETURNS' | translate }}">📦</a>
         <button
+          *ngIf="canConfirmReturn(action) && authService.hasRole('Admin','Manager','WarehouseUser')"
+          type="button"
+          class="btn btn-sm btn-success"
+          (click)="confirmReturn(action)"
+        >📥 {{ 'ACTIONS.CONFIRM_RETURN' | translate }}</button>
+        <button
           *ngIf="authService.hasRole('Admin','Manager')"
           type="button"
           class="btn-icon"
@@ -259,7 +265,7 @@
           (click)="reactivateAction(action)"
         >♻️</button>
         <button
-          *ngIf="authService.hasRole('Admin','Manager')"
+          *ngIf="authService.hasRole('Admin','Manager','AgencyManager')"
           type="button"
           class="btn-icon btn-icon-danger"
           title="{{ 'COMMON.DELETE' | translate }}"

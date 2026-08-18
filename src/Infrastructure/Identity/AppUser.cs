@@ -9,5 +9,6 @@ public class AppUser : IdentityUser
     public string LastName { get; set; } = string.Empty;
     public string Role { get; set; } = "Viewer";
     public Guid? AgencyId { get; set; }
+    public bool MustChangePassword { get; set; }
     public ICollection<Brand> ManagedBrands { get; set; } = new List<Brand>();
 }

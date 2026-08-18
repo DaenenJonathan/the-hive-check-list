@@ -25,4 +25,8 @@ export class UserAdminService {
   resetPassword(userId: string): Observable<{ temporaryPassword: string }> {
     return this.http.post<{ temporaryPassword: string }>(`${this.base}/${userId}/reset-password`, {});
   }
+
+  deleteUser(userId: string): Observable<void> {
+    return this.http.delete<void>(`${this.base}/${userId}`);
+  }
 }

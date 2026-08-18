@@ -190,6 +190,14 @@ export class ActionsListPageComponent implements OnInit {
     this.actionService.markAsSent(action.id).subscribe({ next: () => this.load() });
   }
 
+  canConfirmReturn(action: ActionDto): boolean {
+    return action.sent && !action.returnValidated;
+  }
+
+  confirmReturn(action: ActionDto): void {
+    this.actionService.validateReturns(action.id).subscribe({ next: () => this.load() });
+  }
+
   async cancelAction(action: ActionDto): Promise<void> {
     const ok = await this.confirmDialogService.confirm({
       title: 'Annuler l\'action',

@@ -9,7 +9,8 @@
     "BRANDS": "Merken",
     "USERS": "Gebruikers",
     "LOGOUT": "Uitloggen",
-    "VERSION": "Versie"
+    "VERSION": "Versie",
+    "CHANGE_PASSWORD": "Wachtwoord wijzigen"
   },
   "ROLES": {
     "ADMIN": "Beheerder",
@@ -44,6 +45,19 @@
     "ERROR_NETWORK": "Kan de server niet bereiken. Controleer uw verbinding.",
     "NO_ACCOUNT": "Nog geen account?",
     "REGISTER_LINK": "Account aanmaken"
+  },
+  "CHANGE_PASSWORD": {
+    "TITLE": "Wachtwoord wijzigen",
+    "FORCED_HINT": "U moet uw tijdelijke wachtwoord wijzigen voordat u verdergaat.",
+    "CURRENT": "Huidig wachtwoord",
+    "NEW": "Nieuw wachtwoord",
+    "CONFIRM": "Bevestig nieuw wachtwoord",
+    "RULES": "Minstens 6 tekens, met een hoofdletter en een cijfer.",
+    "MISMATCH": "De wachtwoorden komen niet overeen.",
+    "SUBMIT": "Wachtwoord wijzigen",
+    "SUCCESS": "Wachtwoord succesvol gewijzigd.",
+    "ERROR": "Kon het wachtwoord niet wijzigen. Controleer uw huidige wachtwoord.",
+    "CANCEL_LINK": "Terug"
   },
   "REGISTER": {
     "FIRSTNAME": "Voornaam",
@@ -106,6 +120,7 @@
     "SENT_PENDING": "Niet verzonden",
     "SENT_ON": "Verzonden op",
     "MARK_SENT": "Markeren als verzonden",
+    "CONFIRM_RETURN": "Retour bevestigen",
     "NOT_READY_HINT": "Alle items moeten verwerkt zijn vóór verzending.",
     "READY_TO_SEND": "Klaar om te verzenden",
     "RETURN_STATUS": "Retour",

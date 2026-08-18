@@ -9,7 +9,8 @@
     "BRANDS": "Brands",
     "USERS": "Users",
     "LOGOUT": "Logout",
-    "VERSION": "Version"
+    "VERSION": "Version",
+    "CHANGE_PASSWORD": "Change password"
   },
   "ROLES": {
     "ADMIN": "Administrator",
@@ -44,6 +45,19 @@
     "ERROR_NETWORK": "Could not reach the server. Check your connection.",
     "NO_ACCOUNT": "No account yet?",
     "REGISTER_LINK": "Create an account"
+  },
+  "CHANGE_PASSWORD": {
+    "TITLE": "Change password",
+    "FORCED_HINT": "You must change your temporary password before continuing.",
+    "CURRENT": "Current password",
+    "NEW": "New password",
+    "CONFIRM": "Confirm new password",
+    "RULES": "At least 6 characters, with an uppercase letter and a digit.",
+    "MISMATCH": "Passwords do not match.",
+    "SUBMIT": "Change password",
+    "SUCCESS": "Password changed successfully.",
+    "ERROR": "Could not change the password. Check your current password.",
+    "CANCEL_LINK": "Back"
   },
   "REGISTER": {
     "FIRSTNAME": "First name",
@@ -106,6 +120,7 @@
     "SENT_PENDING": "Not sent",
     "SENT_ON": "Sent on",
     "MARK_SENT": "Mark as sent",
+    "CONFIRM_RETURN": "Confirm return",
     "NOT_READY_HINT": "All items must be processed before sending.",
     "READY_TO_SEND": "Ready to send",
     "RETURN_STATUS": "Return",

@@ -8,6 +8,7 @@ import { AgencyService } from '../../agencies/services/agency.service';
 import { BrandDto } from '../../brands/models/brand.model';
 import { BrandService } from '../../brands/services/brand.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
+import { AuthService } from '../../../core/auth/auth.service';
 
 interface PasswordBanner {
   email: string;
@@ -62,7 +63,8 @@ export class UsersListPageComponent implements OnInit {
     private agencyService: AgencyService,
     private brandService: BrandService,
     private fb: FormBuilder,
-    private confirmDialogService: ConfirmDialogService
+    private confirmDialogService: ConfirmDialogService,
+    private authService: AuthService
   ) {
     const agencyRequiredRoles = [UserRole.AgencyManager, UserRole.Manager];
     this.form = this.fb.group({
@@ -239,6 +241,25 @@ export class UsersListPageComponent implements OnInit {
       next: result => {
         this.passwordBanner = { email: user.email, password: result.temporaryPassword, emailSent: false };
       }
+    });
+  }
+
+  isSelf(user: UserAdminDto): boolean {
+    return user.id === this.authService.currentUser?.id;
+  }
+
+  async deleteUser(user: UserAdminDto): Promise<void> {
+    const ok = await this.confirmDialogService.confirm({
+      title: 'Supprimer l\'utilisateur',
+      message: `Supprimer définitivement le compte de ${user.firstName} ${user.lastName} (${user.email}) ?`,
+      confirmLabel: 'Supprimer',
+      variant: 'danger'
+    });
+    if (!ok) return;
+
+    this.userAdminService.deleteUser(user.id).subscribe({
+      next: () => this.load(),
+      error: () => { this.error = 'COMMON.ERROR_GENERIC'; }
     });
   }
 

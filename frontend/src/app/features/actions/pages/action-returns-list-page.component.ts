@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActionDto } from '../models/action.model';
 import { ActionService } from '../services/action.service';
+import { AuthService } from '../../../core/auth/auth.service';
 
 @Component({
   selector: 'app-action-returns-list-page',
@@ -10,8 +11,9 @@ import { ActionService } from '../services/action.service';
 export class ActionReturnsListPageComponent implements OnInit {
   actions: ActionDto[] = [];
   loading = false;
+  confirmingId: string | null = null;
 
-  constructor(private actionService: ActionService) {}
+  constructor(private actionService: ActionService, public authService: AuthService) {}
 
   ngOnInit(): void {
     this.load();
@@ -27,6 +29,14 @@ export class ActionReturnsListPageComponent implements OnInit {
         this.loading = false;
       },
       error: () => { this.loading = false; }
+    });
+  }
+
+  confirmReturn(action: ActionDto): void {
+    this.confirmingId = action.id;
+    this.actionService.validateReturns(action.id).subscribe({
+      next: () => { this.confirmingId = null; this.load(); },
+      error: () => { this.confirmingId = null; }
     });
   }
 }

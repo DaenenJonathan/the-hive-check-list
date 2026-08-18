@@ -31,6 +31,13 @@
         <td>{{ action.sentAt | date:'dd/MM/yyyy HH:mm' }}</td>
         <td class="edit-actions">
           <a [routerLink]="['/actions', action.id, 'returns']" class="btn btn-sm btn-primary">{{ 'ACTIONS.RETURNS' | translate }}</a>
+          <button
+            *ngIf="authService.hasRole('Admin','Manager','WarehouseUser')"
+            type="button"
+            class="btn btn-sm btn-success"
+            [disabled]="confirmingId === action.id"
+            (click)="confirmReturn(action)"
+          >📥 {{ 'ACTIONS.CONFIRM_RETURN' | translate }}</button>
         </td>
       </tr>
     </tbody>

@@ -26,7 +26,7 @@ export class LoginPageComponent {
     this.loading = true;
     this.error = '';
     this.authService.login(this.form.value).subscribe({
-      next: () => this.router.navigate(['/actions']),
+      next: response => this.router.navigate([response.user.mustChangePassword ? '/change-password' : '/actions']),
       error: (err: HttpErrorResponse) => {
         this.error = err.status === 0 ? 'LOGIN.ERROR_NETWORK' : 'LOGIN.ERROR';
         this.loading = false;

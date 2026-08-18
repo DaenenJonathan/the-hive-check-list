@@ -12,4 +12,6 @@ public interface IUserAdminService
     Task<Result<CreateUserResult>> CreateUserAsync(string email, string firstName, string lastName, string role, Guid? agencyId, IReadOnlyList<Guid> brandIds, CancellationToken cancellationToken = default);
 
     Task<Result<string>> ResetPasswordAsync(string userId, CancellationToken cancellationToken = default);
+
+    Task<Result> DeleteUserAsync(string userId, CancellationToken cancellationToken = default);
 }

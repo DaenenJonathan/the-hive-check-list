@@ -9,7 +9,8 @@
     "BRANDS": "Marques",
     "USERS": "Utilisateurs",
     "LOGOUT": "Déconnexion",
-    "VERSION": "Version"
+    "VERSION": "Version",
+    "CHANGE_PASSWORD": "Changer le mot de passe"
   },
   "ROLES": {
     "ADMIN": "Administrateur",
@@ -44,6 +45,19 @@
     "ERROR_NETWORK": "Impossible de contacter le serveur. Vérifiez votre connexion.",
     "NO_ACCOUNT": "Pas encore de compte ?",
     "REGISTER_LINK": "Créer un compte"
+  },
+  "CHANGE_PASSWORD": {
+    "TITLE": "Changer le mot de passe",
+    "FORCED_HINT": "Vous devez changer votre mot de passe temporaire avant de continuer.",
+    "CURRENT": "Mot de passe actuel",
+    "NEW": "Nouveau mot de passe",
+    "CONFIRM": "Confirmer le nouveau mot de passe",
+    "RULES": "Au moins 6 caractères, avec une majuscule et un chiffre.",
+    "MISMATCH": "Les mots de passe ne correspondent pas.",
+    "SUBMIT": "Changer le mot de passe",
+    "SUCCESS": "Mot de passe changé avec succès.",
+    "ERROR": "Impossible de changer le mot de passe. Vérifiez votre mot de passe actuel.",
+    "CANCEL_LINK": "Retour"
   },
   "REGISTER": {
     "FIRSTNAME": "Prénom",
@@ -112,6 +126,7 @@
     "RETURN_DONE": "Retour effectué",
     "RETURN_PENDING": "Retour non effectué",
     "RETURN_NA": "Retour non applicable",
+    "CONFIRM_RETURN": "Confirmer le retour",
     "CANCEL_ACTION": "Annuler l'action",
     "REACTIVATE_ACTION": "Réactiver",
     "VIEW_LIST": "Liste",
