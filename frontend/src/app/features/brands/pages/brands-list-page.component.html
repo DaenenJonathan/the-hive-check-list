@@ -1,0 +1,71 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1>{{ 'BRANDS.TITLE' | translate }}</h1>
+    <button class="btn btn-primary" (click)="showForm ? cancel() : startCreate()">
+      {{ showForm ? ('COMMON.CANCEL' | translate) : ('BRANDS.CREATE' | translate) }}
+    </button>
+  </div>
+
+  <div class="card" *ngIf="showForm">
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="form-row">
+        <div class="form-group">
+          <label>{{ 'BRANDS.NAME' | translate }}</label>
+          <input type="text" formControlName="name" class="form-control" />
+        </div>
+        <div class="form-group" *ngIf="isAdmin">
+          <label>{{ 'BRANDS.AGENCY' | translate }}</label>
+          <select formControlName="agencyId" class="form-control">
+            <option value="" disabled>{{ 'BRANDS.SELECT_AGENCY' | translate }}</option>
+            <option *ngFor="let a of agencies" [value]="a.id">{{ a.name }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="alert alert-danger" *ngIf="error">{{ error | translate }}</div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-success" [disabled]="form.invalid">{{ 'COMMON.SAVE' | translate }}</button>
+        <button type="button" class="btn btn-secondary" (click)="cancel()">{{ 'COMMON.CANCEL' | translate }}</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card filter-bar" *ngIf="isAdmin">
+    <div class="form-group">
+      <label>{{ 'BRANDS.AGENCY' | translate }}</label>
+      <select class="form-control" [(ngModel)]="filterAgencyId" [ngModelOptions]="{standalone: true}" (ngModelChange)="load()">
+        <option [ngValue]="null">{{ 'ACTIONS.FILTER_BRAND_ALL' | translate }}</option>
+        <option *ngFor="let a of agencies" [ngValue]="a.id">{{ a.name }}</option>
+      </select>
+    </div>
+  </div>
+
+  <div *ngIf="loading">{{ 'COMMON.LOADING' | translate }}</div>
+
+  <div class="table-wrapper" *ngIf="!loading && brands.length > 0">
+    <table class="table">
+      <thead>
+        <tr>
+          <th></th>
+          <th>{{ 'BRANDS.NAME' | translate }}</th>
+          <th>{{ 'BRANDS.AGENCY' | translate }}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let brand of brands">
+          <td><span class="color-swatch" [style.background-color]="brand.agencyColor"></span></td>
+          <td>{{ brand.name }}</td>
+          <td>{{ brand.agencyName }}</td>
+          <td class="table-actions">
+            <ng-container *ngIf="isAdmin">
+              <button type="button" class="btn-icon" title="{{ 'COMMON.EDIT' | translate }}" (click)="startEdit(brand)">✏️</button>
+              <button type="button" class="btn-icon btn-icon-danger" title="{{ 'COMMON.DELETE' | translate }}" (click)="delete(brand)">🗑️</button>
+            </ng-container>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p *ngIf="!loading && brands.length === 0">{{ 'COMMON.NO_DATA' | translate }}</p>
+</div>

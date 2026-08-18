@@ -5,6 +5,9 @@
     "IMPORTS": "Importer",
     "AUDIT": "Historique",
     "RETURNS": "Retours",
+    "AGENCIES": "Agences",
+    "BRANDS": "Marques",
+    "USERS": "Utilisateurs",
     "LOGOUT": "Déconnexion",
     "VERSION": "Version"
   },
@@ -12,7 +15,8 @@
     "ADMIN": "Administrateur",
     "MANAGER": "Brand manager",
     "WAREHOUSEUSER": "Préparateur",
-    "VIEWER": "Lecteur"
+    "VIEWER": "Lecteur",
+    "AGENCYMANAGER": "Responsable d'agence"
   },
   "COMMON": {
     "SAVE": "Enregistrer",
@@ -24,9 +28,12 @@
     "DELETE": "Supprimer",
     "EDIT": "Modifier",
     "BACK": "Retour",
+    "REFRESH": "Actualiser",
+    "COLOR": "Couleur",
     "SEARCH": "Rechercher",
     "YES": "Oui",
-    "NO": "Non"
+    "NO": "Non",
+    "ERROR_GENERIC": "Une erreur est survenue. Réessayez."
   },
   "LOGIN": {
     "TITLE": "Connexion",
@@ -39,17 +46,17 @@
     "REGISTER_LINK": "Créer un compte"
   },
   "REGISTER": {
-    "TITLE": "Créer un compte",
     "FIRSTNAME": "Prénom",
     "LASTNAME": "Nom",
-    "CONFIRM_PASSWORD": "Confirmer le mot de passe",
-    "PASSWORD_HINT": "6 caractères minimum, avec majuscule, minuscule et chiffre.",
-    "PASSWORD_MISMATCH": "Les mots de passe ne correspondent pas.",
-    "SUBMIT": "Créer mon compte",
-    "ERROR": "Impossible de créer le compte. Réessayez.",
-    "ERROR_EMAIL_TAKEN": "Un compte existe déjà avec cet email.",
     "HAVE_ACCOUNT": "Déjà un compte ?",
     "LOGIN_LINK": "Se connecter"
+  },
+  "REQUEST_ACCOUNT": {
+    "TITLE": "Demander un compte",
+    "MESSAGE": "Message (optionnel)",
+    "SUBMIT": "Envoyer la demande",
+    "SUCCESS": "Votre demande a été envoyée. Un administrateur créera votre compte et vous contactera.",
+    "ERROR": "Impossible d'envoyer la demande. Réessayez."
   },
   "STATUS": {
     "ToPrepare": "À préparer",
@@ -70,7 +77,8 @@
     "TITLE": "Actions",
     "CREATE": "Nouvelle action",
     "NAME": "Nom",
-    "CLIENT": "Client",
+    "BRAND": "Marque",
+    "SELECT_BRAND": "Sélectionner une marque",
     "PLANNED_DATE": "Date prévue",
     "PLANNED_DEPARTURE_TIME": "Heure de départ prévue",
     "PLANNED_RETURN_TIME": "Heure de retour prévue",
@@ -84,8 +92,8 @@
     "STATUS": "Statut",
     "VIEW": "Voir",
     "CITY": "Ville",
-    "FILTER_CLIENT": "Client",
-    "FILTER_CLIENT_ALL": "Tous les clients",
+    "FILTER_BRAND": "Marque",
+    "FILTER_BRAND_ALL": "Toutes les marques",
     "FILTER_FROM": "Du",
     "FILTER_TO": "Au",
     "FILTER_HINT": "Laissez \"Au\" vide pour filtrer un jour précis.",
@@ -190,7 +198,8 @@
     "ITEMS_CHANGED": "Des articles ont été ajoutés ou supprimés sur l'action \"{{actionName}}\".",
     "CHECKLIST_MISSING": "La checklist \"{{checklistName}}\" de l'action \"{{actionName}}\" est complète mais contient des articles manquants.",
     "ACTION_CANCELLED": "L'action \"{{actionName}}\" a été annulée.",
-    "ACTION_REACTIVATED": "L'action \"{{actionName}}\" a été réactivée."
+    "ACTION_REACTIVATED": "L'action \"{{actionName}}\" a été réactivée.",
+    "ACCOUNT_REQUESTED": "Nouvelle demande de compte de {{name}} ({{email}})."
   },
   "AUDIT": {
     "TITLE": "Historique des modifications",
@@ -200,5 +209,45 @@
     "DATE": "Date",
     "OLD_VALUE": "Avant",
     "NEW_VALUE": "Après"
+  },
+  "AGENCIES": {
+    "TITLE": "Agences",
+    "CREATE": "Nouvelle agence",
+    "NAME": "Nom",
+    "BRAND_COUNT": "Marques",
+    "DELETE_CONFIRM_TITLE": "Supprimer l'agence",
+    "DELETE_CONFIRM_MESSAGE": "Supprimer l'agence \"{{name}}\" ?",
+    "DELETE_HAS_BRANDS": "Cette agence possède encore des marques et ne peut pas être supprimée."
+  },
+  "BRANDS": {
+    "TITLE": "Marques",
+    "CREATE": "Nouvelle marque",
+    "NAME": "Nom",
+    "AGENCY": "Agence",
+    "SELECT_AGENCY": "Sélectionner une agence",
+    "DELETE_CONFIRM_TITLE": "Supprimer la marque",
+    "DELETE_CONFIRM_MESSAGE": "Supprimer la marque \"{{name}}\" ?",
+    "DELETE_HAS_ACTIONS": "Cette marque est encore utilisée par des actions et ne peut pas être supprimée."
+  },
+  "USERS": {
+    "TITLE": "Utilisateurs",
+    "NAME": "Nom",
+    "EMAIL": "Email",
+    "ROLE": "Rôle",
+    "AGENCY": "Agence",
+    "NO_AGENCY": "Aucune agence",
+    "AGENCY_REQUIRED": "Une agence doit être sélectionnée pour un responsable d'agence.",
+    "MANAGED_BRANDS": "Marques gérées",
+    "NO_BRANDS": "Aucune marque",
+    "BRANDS_REQUIRED": "Au moins une marque doit être sélectionnée pour un Manager.",
+    "SELECT_AGENCY_FIRST": "Sélectionnez d'abord une agence.",
+    "SELECT_ALL_BRANDS": "Tout sélectionner",
+    "DESELECT_ALL_BRANDS": "Tout désélectionner",
+    "SAVE": "Enregistrer",
+    "CREATE": "Nouvel utilisateur",
+    "RESET_PASSWORD": "Réinitialiser le mot de passe",
+    "PASSWORD_GENERATED_EMAIL_SENT": "Compte créé — un mot de passe temporaire a été envoyé par email à {{email}}.",
+    "PASSWORD_GENERATED_MANUAL": "Nouveau mot de passe pour {{email}} : {{password}} (l'email n'a pas pu être envoyé — copiez-le maintenant, il ne sera plus affiché).",
+    "COPY": "Copier"
   }
 }

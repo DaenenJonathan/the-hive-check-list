@@ -6,7 +6,10 @@ public class ActionDto
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;
-    public string Client { get; set; } = string.Empty;
+    public Guid BrandId { get; set; }
+    public string BrandName { get; set; } = string.Empty;
+    public Guid AgencyId { get; set; }
+    public string AgencyName { get; set; } = string.Empty;
     public DateTime PlannedDate { get; set; }
     public TimeSpan? PlannedDepartureTime { get; set; }
     public TimeSpan? PlannedReturnTime { get; set; }

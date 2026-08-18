@@ -22,6 +22,21 @@ namespace TheHive.Infrastructure.Migrations.Postgres
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("AppUserBrand", b =>
+                {
+                    b.Property<string>("AppUserId")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("ManagedBrandsId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("AppUserId", "ManagedBrandsId");
+
+                    b.HasIndex("ManagedBrandsId");
+
+                    b.ToTable("UserManagedBrands", (string)null);
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -154,6 +169,42 @@ namespace TheHive.Infrastructure.Migrations.Postgres
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("TheHive.Domain.Entities.Agency", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasMaxLength(7)
+                        .HasColumnType("character varying(7)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Agencies");
+                });
+
             modelBuilder.Entity("TheHive.Domain.Entities.AuditLog", b =>
                 {
                     b.Property<Guid>("Id")
@@ -215,6 +266,39 @@ namespace TheHive.Infrastructure.Migrations.Postgres
                     b.ToTable("AuditLogs");
                 });
 
+            modelBuilder.Entity("TheHive.Domain.Entities.Brand", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AgencyId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AgencyId");
+
+                    b.ToTable("Brands");
+                });
+
             modelBuilder.Entity("TheHive.Domain.Entities.BrandAction", b =>
                 {
                     b.Property<Guid>("Id")
@@ -225,12 +309,10 @@ namespace TheHive.Infrastructure.Migrations.Postgres
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
-                    b.Property<string>("City")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
+                    b.Property<Guid>("BrandId")
+                        .HasColumnType("uuid");
 
-                    b.Property<string>("Client")
-                        .IsRequired()
+                    b.Property<string>("City")
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
@@ -286,6 +368,8 @@ namespace TheHive.Infrastructure.Migrations.Postgres
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BrandId");
 
                     b.ToTable("BrandActions");
                 });
@@ -414,18 +498,16 @@ namespace TheHive.Infrastructure.Migrations.Postgres
                         .HasColumnType("uuid");
 
                     b.Property<string>("ActionName")
-                        .IsRequired()
                         .HasMaxLength(300)
                         .HasColumnType("character varying(300)");
 
-                    b.Property<Guid>("BrandActionId")
+                    b.Property<Guid?>("BrandActionId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("ChecklistId")
+                    b.Property<Guid?>("ChecklistId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("ChecklistName")
-                        .IsRequired()
                         .HasMaxLength(300)
                         .HasColumnType("character varying(300)");
 
@@ -438,6 +520,10 @@ namespace TheHive.Infrastructure.Migrations.Postgres
                     b.Property<bool>("IsRead")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("Message")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
                     b.Property<DateTime?>("ReadAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -445,6 +531,14 @@ namespace TheHive.Infrastructure.Migrations.Postgres
                         .IsRequired()
                         .HasMaxLength(450)
                         .HasColumnType("character varying(450)");
+
+                    b.Property<string>("RequesterEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("RequesterName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.Property<int>("Type")
                         .HasColumnType("integer");
@@ -471,6 +565,9 @@ namespace TheHive.Infrastructure.Migrations.Postgres
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("integer");
+
+                    b.Property<Guid?>("AgencyId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -530,6 +627,8 @@ namespace TheHive.Infrastructure.Migrations.Postgres
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AgencyId");
+
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
 
@@ -538,6 +637,21 @@ namespace TheHive.Infrastructure.Migrations.Postgres
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("AppUserBrand", b =>
+                {
+                    b.HasOne("TheHive.Infrastructure.Identity.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("AppUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TheHive.Domain.Entities.Brand", null)
+                        .WithMany()
+                        .HasForeignKey("ManagedBrandsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -591,6 +705,28 @@ namespace TheHive.Infrastructure.Migrations.Postgres
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("TheHive.Domain.Entities.Brand", b =>
+                {
+                    b.HasOne("TheHive.Domain.Entities.Agency", "Agency")
+                        .WithMany("Brands")
+                        .HasForeignKey("AgencyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Agency");
+                });
+
+            modelBuilder.Entity("TheHive.Domain.Entities.BrandAction", b =>
+                {
+                    b.HasOne("TheHive.Domain.Entities.Brand", "Brand")
+                        .WithMany()
+                        .HasForeignKey("BrandId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Brand");
+                });
+
             modelBuilder.Entity("TheHive.Domain.Entities.Checklist", b =>
                 {
                     b.HasOne("TheHive.Domain.Entities.BrandAction", "BrandAction")
@@ -611,6 +747,19 @@ namespace TheHive.Infrastructure.Migrations.Postgres
                         .IsRequired();
 
                     b.Navigation("Checklist");
+                });
+
+            modelBuilder.Entity("TheHive.Infrastructure.Identity.AppUser", b =>
+                {
+                    b.HasOne("TheHive.Domain.Entities.Agency", null)
+                        .WithMany()
+                        .HasForeignKey("AgencyId")
+                        .OnDelete(DeleteBehavior.SetNull);
+                });
+
+            modelBuilder.Entity("TheHive.Domain.Entities.Agency", b =>
+                {
+                    b.Navigation("Brands");
                 });
 
             modelBuilder.Entity("TheHive.Domain.Entities.BrandAction", b =>

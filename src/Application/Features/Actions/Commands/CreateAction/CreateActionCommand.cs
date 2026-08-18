@@ -1,15 +1,17 @@
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using TheHive.Application.Common.Exceptions;
 using TheHive.Application.Common.Interfaces;
 using TheHive.Application.Common.Models;
+using TheHive.Application.Common.Security;
 using TheHive.Domain.Entities;
 
 namespace TheHive.Application.Features.Actions.Commands.CreateAction;
 
 public record CreateActionCommand(
     string Name,
-    string Client,
+    Guid BrandId,
     DateTime PlannedDate,
     string? Description,
     TimeSpan? PlannedDepartureTime = null,
@@ -22,7 +24,7 @@ public class CreateActionCommandValidator : AbstractValidator<CreateActionComman
     public CreateActionCommandValidator()
     {
         RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
-        RuleFor(x => x.Client).NotEmpty().MaximumLength(200);
+        RuleFor(x => x.BrandId).NotEmpty();
         RuleFor(x => x.PlannedDate).GreaterThan(DateTime.UtcNow.AddDays(-1));
     }
 }
@@ -45,7 +47,14 @@ public class CreateActionCommandHandler : IRequestHandler<CreateActionCommand, R
 
     public async Task<Result<Guid>> Handle(CreateActionCommand request, CancellationToken cancellationToken)
     {
-        var action = BrandAction.Create(request.Name, request.Client, request.PlannedDate, request.Description,
+        var brand = await _context.Brands
+            .FirstOrDefaultAsync(b => b.Id == request.BrandId, cancellationToken)
+            ?? throw new NotFoundException("Brand", request.BrandId);
+
+        AgencyAccessGuard.EnsureCanAccessAgency(_currentUser, brand.AgencyId);
+        BrandAccessGuard.EnsureCanAccessBrand(_currentUser, brand.Id);
+
+        var action = BrandAction.Create(request.Name, request.BrandId, request.PlannedDate, request.Description,
             plannedDepartureTime: request.PlannedDepartureTime, plannedReturnTime: request.PlannedReturnTime);
         action.SetCreated(_currentUser.UserId!);
         _context.BrandActions.Add(action);

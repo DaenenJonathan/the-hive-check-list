@@ -10,5 +10,7 @@ public interface IApplicationDbContext
     DbSet<ChecklistItem> ChecklistItems { get; }
     DbSet<AuditLog> AuditLogs { get; }
     DbSet<Notification> Notifications { get; }
+    DbSet<Agency> Agencies { get; }
+    DbSet<Brand> Brands { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

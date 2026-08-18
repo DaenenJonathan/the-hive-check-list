@@ -12,4 +12,10 @@ public interface INotificationDispatcher
         string actionName,
         string checklistName,
         CancellationToken cancellationToken = default);
+
+    Task DispatchAccountRequestAsync(
+        string requesterName,
+        string requesterEmail,
+        string? message,
+        CancellationToken cancellationToken = default);
 }

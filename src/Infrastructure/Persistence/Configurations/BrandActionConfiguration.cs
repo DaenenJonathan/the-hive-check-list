@@ -10,10 +10,10 @@ public class BrandActionConfiguration : IEntityTypeConfiguration<BrandAction>
     {
         builder.HasKey(a => a.Id);
         builder.Property(a => a.Name).IsRequired().HasMaxLength(200);
-        builder.Property(a => a.Client).IsRequired().HasMaxLength(200);
         builder.Property(a => a.Description).HasMaxLength(1000);
         builder.Property(a => a.Address).HasMaxLength(500);
         builder.Property(a => a.City).HasMaxLength(200);
+        builder.HasOne(a => a.Brand).WithMany().HasForeignKey(a => a.BrandId).OnDelete(DeleteBehavior.Restrict);
         builder.HasMany(a => a.Checklists).WithOne(c => c.BrandAction).HasForeignKey(c => c.BrandActionId);
     }
 }

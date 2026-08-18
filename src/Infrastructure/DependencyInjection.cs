@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TheHive.Application.Common.Interfaces;
+using TheHive.Infrastructure.Common.Email;
 using TheHive.Infrastructure.Excel;
 using TheHive.Infrastructure.Identity;
 using TheHive.Infrastructure.Persistence;
@@ -46,6 +47,9 @@ public static class DependencyInjection
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
         services.AddScoped<IAuditService, AuditService>();
         services.AddScoped<IUserDirectoryService, UserDirectoryService>();
+        services.AddScoped<IUserAdminService, UserAdminService>();
+        services.Configure<SmtpSettings>(configuration.GetSection("Smtp"));
+        services.AddScoped<IEmailSender, SmtpEmailSender>();
         services.AddScoped<INotificationDispatcher, NotificationDispatcher>();
         services.AddScoped<IExcelChecklistParser, ExcelChecklistParser>();
         services.AddScoped<IImageStorageService, LocalImageStorageService>();

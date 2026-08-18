@@ -1,0 +1,56 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1>{{ 'AGENCIES.TITLE' | translate }}</h1>
+    <button class="btn btn-primary" (click)="showForm ? cancel() : startCreate()">
+      {{ showForm ? ('COMMON.CANCEL' | translate) : ('AGENCIES.CREATE' | translate) }}
+    </button>
+  </div>
+
+  <div class="card" *ngIf="showForm">
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="form-row">
+        <div class="form-group">
+          <label>{{ 'AGENCIES.NAME' | translate }}</label>
+          <input type="text" formControlName="name" class="form-control" />
+        </div>
+        <div class="form-group">
+          <label>{{ 'COMMON.COLOR' | translate }}</label>
+          <input type="color" formControlName="color" class="color-input" />
+        </div>
+      </div>
+      <div class="alert alert-danger" *ngIf="error">{{ error | translate }}</div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-success" [disabled]="form.invalid">{{ 'COMMON.SAVE' | translate }}</button>
+        <button type="button" class="btn btn-secondary" (click)="cancel()">{{ 'COMMON.CANCEL' | translate }}</button>
+      </div>
+    </form>
+  </div>
+
+  <div *ngIf="loading">{{ 'COMMON.LOADING' | translate }}</div>
+
+  <div class="table-wrapper" *ngIf="!loading && agencies.length > 0">
+    <table class="table">
+      <thead>
+        <tr>
+          <th></th>
+          <th>{{ 'AGENCIES.NAME' | translate }}</th>
+          <th>{{ 'AGENCIES.BRAND_COUNT' | translate }}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let agency of agencies">
+          <td><span class="color-swatch" [style.background-color]="agency.color"></span></td>
+          <td>{{ agency.name }}</td>
+          <td>{{ agency.brandCount }}</td>
+          <td class="table-actions">
+            <button type="button" class="btn-icon" title="{{ 'COMMON.EDIT' | translate }}" (click)="startEdit(agency)">✏️</button>
+            <button type="button" class="btn-icon btn-icon-danger" title="{{ 'COMMON.DELETE' | translate }}" (click)="delete(agency)">🗑️</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p *ngIf="!loading && agencies.length === 0">{{ 'COMMON.NO_DATA' | translate }}</p>
+</div>

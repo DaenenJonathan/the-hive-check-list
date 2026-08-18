@@ -10,18 +10,29 @@ public record GetChecklistsQuery(Guid? BrandActionId = null) : IRequest<List<Che
 public class GetChecklistsQueryHandler : IRequestHandler<GetChecklistsQuery, List<ChecklistDto>>
 {
     private readonly IApplicationDbContext _context;
+    private readonly ICurrentUserService _currentUser;
 
-    public GetChecklistsQueryHandler(IApplicationDbContext context) => _context = context;
+    public GetChecklistsQueryHandler(IApplicationDbContext context, ICurrentUserService currentUser)
+    {
+        _context = context;
+        _currentUser = currentUser;
+    }
 
     public async Task<List<ChecklistDto>> Handle(GetChecklistsQuery request, CancellationToken cancellationToken)
     {
         var query = _context.Checklists
-            .Include(c => c.BrandAction)
+            .Include(c => c.BrandAction).ThenInclude(a => a!.Brand)
             .Include(c => c.Items)
             .AsQueryable();
 
         if (request.BrandActionId.HasValue)
             query = query.Where(c => c.BrandActionId == request.BrandActionId.Value);
+
+        if (_currentUser.Role == "AgencyManager" && Guid.TryParse(_currentUser.AgencyId, out var agencyId))
+            query = query.Where(c => c.BrandAction!.Brand!.AgencyId == agencyId);
+
+        if (_currentUser.Role == "Manager")
+            query = query.Where(c => _currentUser.BrandIds.Contains(c.BrandAction!.BrandId));
 
         return await query
             .OrderByDescending(c => c.CreatedAt)

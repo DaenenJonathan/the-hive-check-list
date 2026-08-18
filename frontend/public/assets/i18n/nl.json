@@ -5,6 +5,9 @@
     "IMPORTS": "Importeren",
     "AUDIT": "Geschiedenis",
     "RETURNS": "Retours",
+    "AGENCIES": "Agentschappen",
+    "BRANDS": "Merken",
+    "USERS": "Gebruikers",
     "LOGOUT": "Uitloggen",
     "VERSION": "Versie"
   },
@@ -12,7 +15,8 @@
     "ADMIN": "Beheerder",
     "MANAGER": "Brand manager",
     "WAREHOUSEUSER": "Magazijnmedewerker",
-    "VIEWER": "Kijker"
+    "VIEWER": "Kijker",
+    "AGENCYMANAGER": "Agentschapsbeheerder"
   },
   "COMMON": {
     "SAVE": "Opslaan",
@@ -24,9 +28,12 @@
     "DELETE": "Verwijderen",
     "EDIT": "Bewerken",
     "BACK": "Terug",
+    "REFRESH": "Vernieuwen",
+    "COLOR": "Kleur",
     "SEARCH": "Zoeken",
     "YES": "Ja",
-    "NO": "Nee"
+    "NO": "Nee",
+    "ERROR_GENERIC": "Er is een fout opgetreden. Probeer het opnieuw."
   },
   "LOGIN": {
     "TITLE": "Aanmelden",
@@ -39,17 +46,17 @@
     "REGISTER_LINK": "Account aanmaken"
   },
   "REGISTER": {
-    "TITLE": "Account aanmaken",
     "FIRSTNAME": "Voornaam",
     "LASTNAME": "Achternaam",
-    "CONFIRM_PASSWORD": "Bevestig wachtwoord",
-    "PASSWORD_HINT": "Minstens 6 tekens, met een hoofdletter, kleine letter en cijfer.",
-    "PASSWORD_MISMATCH": "Wachtwoorden komen niet overeen.",
-    "SUBMIT": "Account aanmaken",
-    "ERROR": "Kon het account niet aanmaken. Probeer opnieuw.",
-    "ERROR_EMAIL_TAKEN": "Er bestaat al een account met dit e-mailadres.",
     "HAVE_ACCOUNT": "Al een account?",
     "LOGIN_LINK": "Inloggen"
+  },
+  "REQUEST_ACCOUNT": {
+    "TITLE": "Account aanvragen",
+    "MESSAGE": "Bericht (optioneel)",
+    "SUBMIT": "Aanvraag versturen",
+    "SUCCESS": "Uw aanvraag is verzonden. Een beheerder maakt uw account aan en neemt contact met u op.",
+    "ERROR": "Kon de aanvraag niet versturen. Probeer opnieuw."
   },
   "STATUS": {
     "ToPrepare": "Te bereiden",
@@ -70,7 +77,8 @@
     "TITLE": "Acties",
     "CREATE": "Nieuwe actie",
     "NAME": "Naam",
-    "CLIENT": "Klant",
+    "BRAND": "Merk",
+    "SELECT_BRAND": "Selecteer een merk",
     "PLANNED_DATE": "Geplande datum",
     "PLANNED_DEPARTURE_TIME": "Geplande vertrektijd",
     "PLANNED_RETURN_TIME": "Geplande retourtijd",
@@ -84,8 +92,8 @@
     "STATUS": "Status",
     "VIEW": "Bekijken",
     "CITY": "Stad",
-    "FILTER_CLIENT": "Klant",
-    "FILTER_CLIENT_ALL": "Alle klanten",
+    "FILTER_BRAND": "Merk",
+    "FILTER_BRAND_ALL": "Alle merken",
     "FILTER_FROM": "Van",
     "FILTER_TO": "Tot",
     "FILTER_HINT": "Laat \"Tot\" leeg om op één dag te filteren.",
@@ -190,7 +198,8 @@
     "ITEMS_CHANGED": "Er zijn artikelen toegevoegd of verwijderd bij de actie \"{{actionName}}\".",
     "CHECKLIST_MISSING": "De checklist \"{{checklistName}}\" van actie \"{{actionName}}\" is volledig maar bevat ontbrekende artikelen.",
     "ACTION_CANCELLED": "Actie \"{{actionName}}\" is geannuleerd.",
-    "ACTION_REACTIVATED": "Actie \"{{actionName}}\" is heractiveerd."
+    "ACTION_REACTIVATED": "Actie \"{{actionName}}\" is heractiveerd.",
+    "ACCOUNT_REQUESTED": "Nieuwe accountaanvraag van {{name}} ({{email}})."
   },
   "AUDIT": {
     "TITLE": "Wijzigingsgeschiedenis",
@@ -200,5 +209,45 @@
     "DATE": "Datum",
     "OLD_VALUE": "Vorig",
     "NEW_VALUE": "Nieuw"
+  },
+  "AGENCIES": {
+    "TITLE": "Agentschappen",
+    "CREATE": "Nieuw agentschap",
+    "NAME": "Naam",
+    "BRAND_COUNT": "Merken",
+    "DELETE_CONFIRM_TITLE": "Agentschap verwijderen",
+    "DELETE_CONFIRM_MESSAGE": "Agentschap \"{{name}}\" verwijderen?",
+    "DELETE_HAS_BRANDS": "Dit agentschap heeft nog merken en kan niet worden verwijderd."
+  },
+  "BRANDS": {
+    "TITLE": "Merken",
+    "CREATE": "Nieuw merk",
+    "NAME": "Naam",
+    "AGENCY": "Agentschap",
+    "SELECT_AGENCY": "Selecteer een agentschap",
+    "DELETE_CONFIRM_TITLE": "Merk verwijderen",
+    "DELETE_CONFIRM_MESSAGE": "Merk \"{{name}}\" verwijderen?",
+    "DELETE_HAS_ACTIONS": "Dit merk wordt nog gebruikt door acties en kan niet worden verwijderd."
+  },
+  "USERS": {
+    "TITLE": "Gebruikers",
+    "NAME": "Naam",
+    "EMAIL": "E-mail",
+    "ROLE": "Rol",
+    "AGENCY": "Agentschap",
+    "NO_AGENCY": "Geen agentschap",
+    "AGENCY_REQUIRED": "Er moet een agentschap worden geselecteerd voor een agentschapsbeheerder.",
+    "MANAGED_BRANDS": "Beheerde merken",
+    "NO_BRANDS": "Geen merken",
+    "BRANDS_REQUIRED": "Er moet minstens één merk worden geselecteerd voor een Manager.",
+    "SELECT_AGENCY_FIRST": "Selecteer eerst een agentschap.",
+    "SELECT_ALL_BRANDS": "Alles selecteren",
+    "DESELECT_ALL_BRANDS": "Alles deselecteren",
+    "SAVE": "Opslaan",
+    "CREATE": "Nieuwe gebruiker",
+    "RESET_PASSWORD": "Wachtwoord resetten",
+    "PASSWORD_GENERATED_EMAIL_SENT": "Account aangemaakt — een tijdelijk wachtwoord is verzonden naar {{email}}.",
+    "PASSWORD_GENERATED_MANUAL": "Nieuw wachtwoord voor {{email}}: {{password}} (kon niet per e-mail worden verzonden — kopieer het nu, het wordt niet opnieuw getoond).",
+    "COPY": "Kopiëren"
   }
 }

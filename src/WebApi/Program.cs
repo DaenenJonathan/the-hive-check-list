@@ -24,7 +24,7 @@ builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<IChecklistHub, SignalRChecklistHub>();
 
 builder.Services.AddScoped<IValidator<LoginRequest>, LoginRequestValidator>();
-builder.Services.AddScoped<IValidator<RegisterRequest>, RegisterRequestValidator>();
+builder.Services.AddScoped<IValidator<RequestAccountRequest>, RequestAccountRequestValidator>();
 
 builder.Services.AddControllers();
 builder.Services.AddSignalR();
@@ -98,7 +98,7 @@ using (var scope = app.Services.CreateScope())
 
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    await DatabaseSeeder.SeedAsync(userManager, roleManager, seedDemoUsers: app.Environment.IsDevelopment());
+    await DatabaseSeeder.SeedAsync(userManager, roleManager, context, seedDemoUsers: app.Environment.IsDevelopment());
 }
 
 app.UseMiddleware<GlobalExceptionMiddleware>();

@@ -1,6 +1,7 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using TheHive.Application.Common.Interfaces;
 using TheHive.Infrastructure.Identity;
 using ValidationException = TheHive.Application.Common.Exceptions.ValidationException;
 
@@ -13,21 +14,24 @@ public class AuthController : ControllerBase
     private readonly UserManager<AppUser> _userManager;
     private readonly SignInManager<AppUser> _signInManager;
     private readonly TokenService _tokenService;
+    private readonly INotificationDispatcher _notificationDispatcher;
     private readonly IValidator<LoginRequest> _loginValidator;
-    private readonly IValidator<RegisterRequest> _registerValidator;
+    private readonly IValidator<RequestAccountRequest> _requestAccountValidator;
 
     public AuthController(
         UserManager<AppUser> userManager,
         SignInManager<AppUser> signInManager,
         TokenService tokenService,
+        INotificationDispatcher notificationDispatcher,
         IValidator<LoginRequest> loginValidator,
-        IValidator<RegisterRequest> registerValidator)
+        IValidator<RequestAccountRequest> requestAccountValidator)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _tokenService = tokenService;
+        _notificationDispatcher = notificationDispatcher;
         _loginValidator = loginValidator;
-        _registerValidator = registerValidator;
+        _requestAccountValidator = requestAccountValidator;
     }
 
     [HttpPost("login")]
@@ -49,7 +53,7 @@ public class AuthController : ControllerBase
         if (!result.Succeeded)
             return Unauthorized(new { message = "Email ou mot de passe incorrect." });
 
-        var token = _tokenService.GenerateToken(user);
+        var token = await _tokenService.GenerateTokenAsync(user);
 
         return Ok(new
         {
@@ -67,52 +71,20 @@ public class AuthController : ControllerBase
         });
     }
 
-    [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegisterRequest request)
+    [HttpPost("request-account")]
+    public async Task<IActionResult> RequestAccount([FromBody] RequestAccountRequest request)
     {
-        var validation = await _registerValidator.ValidateAsync(request);
+        var validation = await _requestAccountValidator.ValidateAsync(request);
         if (!validation.IsValid)
             throw new ValidationException(validation.Errors);
 
-        var email = request.Email.Trim().ToLowerInvariant();
+        var requesterName = $"{request.FirstName.Trim()} {request.LastName.Trim()}";
+        await _notificationDispatcher.DispatchAccountRequestAsync(
+            requesterName, request.Email.Trim().ToLowerInvariant(), request.Message?.Trim());
 
-        if (await _userManager.FindByEmailAsync(email) != null)
-            return BadRequest(new { status = 400, message = "Un compte existe déjà avec cet email.", errors = Array.Empty<string>() });
-
-        var user = new AppUser
-        {
-            UserName = email,
-            Email = email,
-            FirstName = request.FirstName.Trim(),
-            LastName = request.LastName.Trim(),
-            Role = "WarehouseUser",
-            EmailConfirmed = true
-        };
-
-        var result = await _userManager.CreateAsync(user, request.Password);
-        if (!result.Succeeded)
-            return BadRequest(new { status = 400, message = "Impossible de créer le compte.", errors = result.Errors.Select(e => e.Description).ToArray() });
-
-        await _userManager.AddToRoleAsync(user, user.Role);
-
-        var token = _tokenService.GenerateToken(user);
-
-        return Ok(new
-        {
-            token,
-            expiresAt = DateTime.UtcNow.AddHours(8),
-            user = new
-            {
-                id = user.Id,
-                userName = user.UserName,
-                email = user.Email,
-                firstName = user.FirstName,
-                lastName = user.LastName,
-                role = user.Role
-            }
-        });
+        return NoContent();
     }
 }
 
 public record LoginRequest(string Email, string Password);
-public record RegisterRequest(string Email, string Password, string ConfirmPassword, string FirstName, string LastName);
+public record RequestAccountRequest(string FirstName, string LastName, string Email, string? Message);

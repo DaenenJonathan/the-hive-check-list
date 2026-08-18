@@ -6,7 +6,8 @@ namespace TheHive.Domain.Entities;
 public class BrandAction : BaseEntity
 {
     public string Name { get; private set; } = string.Empty;
-    public string Client { get; private set; } = string.Empty;
+    public Guid BrandId { get; private set; }
+    public Brand? Brand { get; private set; }
     public DateTime PlannedDate { get; private set; }
     public TimeSpan? PlannedDepartureTime { get; private set; }
     public TimeSpan? PlannedReturnTime { get; private set; }
@@ -28,7 +29,7 @@ public class BrandAction : BaseEntity
 
     public static BrandAction Create(
         string name,
-        string client,
+        Guid brandId,
         DateTime plannedDate,
         string? description = null,
         string? address = null,
@@ -37,12 +38,13 @@ public class BrandAction : BaseEntity
         TimeSpan? plannedReturnTime = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
-        ArgumentException.ThrowIfNullOrWhiteSpace(client);
+        if (brandId == Guid.Empty)
+            throw new ArgumentException("A brand is required.", nameof(brandId));
 
         return new BrandAction
         {
             Name = name,
-            Client = client,
+            BrandId = brandId,
             PlannedDate = plannedDate,
             Description = description,
             Address = address,
@@ -54,16 +56,17 @@ public class BrandAction : BaseEntity
 
     public void Update(
         string name,
-        string client,
+        Guid brandId,
         DateTime plannedDate,
         string? description,
         TimeSpan? plannedDepartureTime = null,
         TimeSpan? plannedReturnTime = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
-        ArgumentException.ThrowIfNullOrWhiteSpace(client);
+        if (brandId == Guid.Empty)
+            throw new ArgumentException("A brand is required.", nameof(brandId));
         Name = name;
-        Client = client;
+        BrandId = brandId;
         PlannedDate = plannedDate;
         Description = description;
         PlannedDepartureTime = plannedDepartureTime;

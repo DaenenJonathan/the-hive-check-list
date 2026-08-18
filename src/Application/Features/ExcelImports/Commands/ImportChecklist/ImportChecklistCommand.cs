@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using TheHive.Application.Common.Interfaces;
 using TheHive.Application.Common.Models;
 using TheHive.Domain.Entities;
@@ -45,10 +46,28 @@ public class ImportChecklistCommandHandler : IRequestHandler<ImportChecklistComm
 
         if (brandActionId == null)
         {
+            var clientName = preview.Client.Length > 0 ? preview.Client : "Unknown";
+            var brand = await _context.Brands
+                .FirstOrDefaultAsync(b => b.Name.ToLower() == clientName.ToLower(), cancellationToken);
+            if (brand is null)
+            {
+                var fallbackAgency = await _context.Agencies
+                    .FirstOrDefaultAsync(a => a.Name == "Non assignée", cancellationToken);
+                if (fallbackAgency is null)
+                {
+                    fallbackAgency = Agency.Create("Non assignée", "#6B7280");
+                    _context.Agencies.Add(fallbackAgency);
+                }
+
+                brand = Brand.Create(clientName, fallbackAgency.Id);
+                brand.SetCreated(_currentUser.UserId!);
+                _context.Brands.Add(brand);
+            }
+
             var eventDate = preview.EventDate ?? DateTime.UtcNow;
             var action = BrandAction.Create(
                 preview.ProjectName.Length > 0 ? preview.ProjectName : preview.SuggestedChecklistName,
-                preview.Client.Length > 0 ? preview.Client : "Unknown",
+                brand.Id,
                 eventDate,
                 $"{preview.ActionType} | {preview.Brand}".Trim(' ', '|'),
                 address: preview.AddressAction,

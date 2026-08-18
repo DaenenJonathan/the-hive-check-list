@@ -5,13 +5,15 @@ export interface User {
   firstName: string;
   lastName: string;
   role: UserRole;
+  agencyId?: string | null;
 }
 
 export enum UserRole {
   Admin = 'Admin',
   Manager = 'Manager',
   WarehouseUser = 'WarehouseUser',
-  Viewer = 'Viewer'
+  Viewer = 'Viewer',
+  AgencyManager = 'AgencyManager'
 }
 
 export interface LoginRequest {
@@ -19,12 +21,11 @@ export interface LoginRequest {
   password: string;
 }
 
-export interface RegisterRequest {
-  email: string;
-  password: string;
-  confirmPassword: string;
+export interface RequestAccountRequest {
   firstName: string;
   lastName: string;
+  email: string;
+  message?: string | null;
 }
 
 export interface AuthResponse {

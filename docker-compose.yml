@@ -30,6 +30,12 @@ services:
       Jwt__Issuer: TheHiveApi
       Jwt__Audience: TheHiveClient
       AllowedOrigins__0: ${APP_ORIGIN}
+      Smtp__Host: ${SMTP_HOST}
+      Smtp__Port: ${SMTP_PORT}
+      Smtp__User: ${SMTP_USER}
+      Smtp__Password: ${SMTP_PASSWORD}
+      Smtp__FromAddress: ${SMTP_FROM_ADDRESS}
+      Smtp__FromName: ${SMTP_FROM_NAME}
     volumes:
       - backend_images:/app/wwwroot/images/items
 

@@ -11,19 +11,37 @@ public record GetActionsQuery : IRequest<List<ActionDto>>;
 public class GetActionsQueryHandler : IRequestHandler<GetActionsQuery, List<ActionDto>>
 {
     private readonly IApplicationDbContext _context;
+    private readonly ICurrentUserService _currentUser;
 
-    public GetActionsQueryHandler(IApplicationDbContext context) => _context = context;
+    public GetActionsQueryHandler(IApplicationDbContext context, ICurrentUserService currentUser)
+    {
+        _context = context;
+        _currentUser = currentUser;
+    }
 
     public async Task<List<ActionDto>> Handle(GetActionsQuery request, CancellationToken cancellationToken)
     {
-        return await _context.BrandActions
+        var query = _context.BrandActions
+            .Include(a => a.Brand).ThenInclude(b => b!.Agency)
             .Include(a => a.Checklists).ThenInclude(c => c.Items)
+            .AsQueryable();
+
+        if (_currentUser.Role == "AgencyManager" && Guid.TryParse(_currentUser.AgencyId, out var agencyId))
+            query = query.Where(a => a.Brand!.AgencyId == agencyId);
+
+        if (_currentUser.Role == "Manager")
+            query = query.Where(a => _currentUser.BrandIds.Contains(a.BrandId));
+
+        return await query
             .OrderByDescending(a => a.PlannedDate)
             .Select(a => new ActionDto
             {
                 Id = a.Id,
                 Name = a.Name,
-                Client = a.Client,
+                BrandId = a.BrandId,
+                BrandName = a.Brand!.Name,
+                AgencyId = a.Brand!.AgencyId,
+                AgencyName = a.Brand!.Agency!.Name,
                 PlannedDate = a.PlannedDate,
                 PlannedDepartureTime = a.PlannedDepartureTime,
                 PlannedReturnTime = a.PlannedReturnTime,

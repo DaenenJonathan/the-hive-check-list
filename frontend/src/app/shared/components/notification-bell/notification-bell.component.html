@@ -21,10 +21,10 @@
     <a *ngFor="let n of notifications"
        class="notification-item"
        [class.unread]="!n.isRead"
-       [routerLink]="['/checklists', n.checklistId]"
+       [routerLink]="notificationLink(n)"
        (click)="select(n)">
       <span class="notification-message">
-        {{ messageKey(n.type) | translate:{ actionName: n.actionName, checklistName: n.checklistName } }}
+        {{ messageKey(n.type) | translate:{ actionName: n.actionName, checklistName: n.checklistName, name: n.requesterName, email: n.requesterEmail } }}
       </span>
       <span class="notification-date">{{ n.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
     </a>

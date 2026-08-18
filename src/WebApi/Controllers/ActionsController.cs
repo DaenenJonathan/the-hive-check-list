@@ -30,7 +30,7 @@ public class ActionsController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin,Manager")]
+    [Authorize(Roles = "Admin,Manager,AgencyManager")]
     public async Task<IActionResult> Create([FromBody] CreateActionCommand command, CancellationToken cancellationToken)
     {
         var result = await _sender.Send(command, cancellationToken);

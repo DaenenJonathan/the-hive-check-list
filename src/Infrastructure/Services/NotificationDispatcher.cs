@@ -35,4 +35,22 @@ public class NotificationDispatcher : INotificationDispatcher
 
         await _context.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task DispatchAccountRequestAsync(
+        string requesterName,
+        string requesterEmail,
+        string? message,
+        CancellationToken cancellationToken = default)
+    {
+        var adminIds = await _userDirectory.GetUserIdsByRoleAsync("Admin", cancellationToken);
+        if (adminIds.Count == 0) return;
+
+        foreach (var adminId in adminIds)
+        {
+            _context.Notifications.Add(Notification.CreateAccountRequest(
+                adminId, requesterName, requesterEmail, message));
+        }
+
+        await _context.SaveChangesAsync(cancellationToken);
+    }
 }

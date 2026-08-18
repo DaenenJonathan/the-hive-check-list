@@ -10,7 +10,7 @@ namespace TheHive.Application.Features.Actions.Commands.UpdateAction;
 public record UpdateActionCommand(
     Guid Id,
     string Name,
-    string Client,
+    Guid BrandId,
     DateTime PlannedDate,
     string? Description,
     TimeSpan? PlannedDepartureTime = null,
@@ -23,7 +23,7 @@ public class UpdateActionCommandValidator : AbstractValidator<UpdateActionComman
     {
         RuleFor(x => x.Id).NotEmpty();
         RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
-        RuleFor(x => x.Client).NotEmpty().MaximumLength(200);
+        RuleFor(x => x.BrandId).NotEmpty();
     }
 }
 
@@ -50,7 +50,7 @@ public class UpdateActionCommandHandler : IRequestHandler<UpdateActionCommand, R
             ?? throw new NotFoundException("BrandAction", request.Id);
 
         var oldPlannedDate = action.PlannedDate;
-        action.Update(request.Name, request.Client, request.PlannedDate, request.Description,
+        action.Update(request.Name, request.BrandId, request.PlannedDate, request.Description,
             request.PlannedDepartureTime, request.PlannedReturnTime);
         action.SetUpdated(_currentUser.UserId!);
 

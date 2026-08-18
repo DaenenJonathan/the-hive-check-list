@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from './core/guards/auth.guard';
+import { RoleGuard } from './core/guards/role.guard';
 
 const routes: Routes = [
   { path: '', redirectTo: 'actions', pathMatch: 'full' },
@@ -28,6 +29,24 @@ const routes: Routes = [
     path: 'audit/:actionId',
     canActivate: [AuthGuard],
     loadChildren: () => import('./features/audit-logs/audit-logs.module').then(m => m.AuditLogsModule)
+  },
+  {
+    path: 'agencies',
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['Admin'] },
+    loadChildren: () => import('./features/agencies/agencies.module').then(m => m.AgenciesModule)
+  },
+  {
+    path: 'brands',
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['Admin', 'AgencyManager'] },
+    loadChildren: () => import('./features/brands/brands.module').then(m => m.BrandsModule)
+  },
+  {
+    path: 'users',
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['Admin'] },
+    loadChildren: () => import('./features/users/users.module').then(m => m.UsersModule)
   },
   { path: '**', redirectTo: 'actions' }
 ];

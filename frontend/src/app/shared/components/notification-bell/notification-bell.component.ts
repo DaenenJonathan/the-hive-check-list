@@ -65,7 +65,14 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
       case NotificationType.ChecklistCompletedWithMissing: return 'NOTIFICATIONS.CHECKLIST_MISSING';
       case NotificationType.ActionCancelled: return 'NOTIFICATIONS.ACTION_CANCELLED';
       case NotificationType.ActionReactivated: return 'NOTIFICATIONS.ACTION_REACTIVATED';
+      case NotificationType.AccountRequested: return 'NOTIFICATIONS.ACCOUNT_REQUESTED';
     }
+  }
+
+  notificationLink(notification: NotificationDto): string[] {
+    return notification.type === NotificationType.AccountRequested
+      ? ['/users']
+      : ['/checklists', notification.checklistId!];
   }
 
   private startPolling(): void {

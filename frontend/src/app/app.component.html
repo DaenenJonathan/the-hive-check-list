@@ -4,6 +4,9 @@
     <a routerLink="/actions" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">{{ 'NAV.ACTIONS' | translate }}</a>
     <a routerLink="/actions/returns" routerLinkActive="active">{{ 'NAV.RETURNS' | translate }}</a>
     <a routerLink="/imports" routerLinkActive="active" *ngIf="authService.hasRole('Admin','Manager')">{{ 'NAV.IMPORTS' | translate }}</a>
+    <a routerLink="/agencies" routerLinkActive="active" *ngIf="authService.hasRole('Admin')">{{ 'NAV.AGENCIES' | translate }}</a>
+    <a routerLink="/brands" routerLinkActive="active" *ngIf="authService.hasRole('Admin','AgencyManager')">{{ 'NAV.BRANDS' | translate }}</a>
+    <a routerLink="/users" routerLinkActive="active" *ngIf="authService.hasRole('Admin')">{{ 'NAV.USERS' | translate }}</a>
   </div>
   <div class="navbar-right">
     <app-notification-bell></app-notification-bell>

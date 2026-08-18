@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using TheHive.Application.Common.Exceptions;
 using TheHive.Application.Common.Interfaces;
+using TheHive.Application.Common.Security;
 using TheHive.Application.Features.Checklists.DTOs;
 
 namespace TheHive.Application.Features.Checklists.Queries.GetChecklistById;
@@ -11,16 +12,24 @@ public record GetChecklistByIdQuery(Guid Id) : IRequest<ChecklistDetailDto>;
 public class GetChecklistByIdQueryHandler : IRequestHandler<GetChecklistByIdQuery, ChecklistDetailDto>
 {
     private readonly IApplicationDbContext _context;
+    private readonly ICurrentUserService _currentUser;
 
-    public GetChecklistByIdQueryHandler(IApplicationDbContext context) => _context = context;
+    public GetChecklistByIdQueryHandler(IApplicationDbContext context, ICurrentUserService currentUser)
+    {
+        _context = context;
+        _currentUser = currentUser;
+    }
 
     public async Task<ChecklistDetailDto> Handle(GetChecklistByIdQuery request, CancellationToken cancellationToken)
     {
         var checklist = await _context.Checklists
-            .Include(c => c.BrandAction)
+            .Include(c => c.BrandAction).ThenInclude(a => a!.Brand)
             .Include(c => c.Items)
             .FirstOrDefaultAsync(c => c.Id == request.Id, cancellationToken)
             ?? throw new NotFoundException("Checklist", request.Id);
+
+        AgencyAccessGuard.EnsureCanAccessAgency(_currentUser, checklist.BrandAction?.Brand?.AgencyId);
+        BrandAccessGuard.EnsureCanAccessBrand(_currentUser, checklist.BrandAction?.BrandId);
 
         return new ChecklistDetailDto
         {

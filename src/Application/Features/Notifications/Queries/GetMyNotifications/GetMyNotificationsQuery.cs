@@ -32,6 +32,9 @@ public class GetMyNotificationsQueryHandler : IRequestHandler<GetMyNotifications
                 ChecklistId = n.ChecklistId,
                 ActionName = n.ActionName,
                 ChecklistName = n.ChecklistName,
+                RequesterName = n.RequesterName,
+                RequesterEmail = n.RequesterEmail,
+                Message = n.Message,
                 IsRead = n.IsRead,
                 CreatedAt = n.CreatedAt
             })

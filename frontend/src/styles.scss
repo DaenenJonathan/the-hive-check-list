@@ -198,6 +198,26 @@ body {
   &-danger:hover { background: #fef2f2; border-color: #fecaca; }
 }
 
+.color-swatch {
+  display: inline-block; width: 16px; height: 16px; border-radius: 50%;
+  border: 1px solid rgba(0,0,0,0.1);
+}
+
+.color-input {
+  width: 44px; height: 34px; padding: 2px; border: 1px solid #d1d5db; border-radius: 6px;
+  cursor: pointer; background: white;
+}
+
+.form-hint { color: #9ca3af; font-size: 0.8rem; margin: 0.25rem 0; }
+.brand-checkbox-list {
+  display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; margin-bottom: 0.5rem;
+  padding: 0.6rem; border: 1px solid #e5e7eb; border-radius: 6px; max-width: 480px;
+}
+.brand-checkbox {
+  display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.85rem; cursor: pointer;
+  input[type="checkbox"] { cursor: pointer; }
+}
+
 // Compact send/return status dots next to the action title - replace the old two-line text badges
 // so the row stays a single glanceable line; full meaning is in the title tooltip on hover.
 .status-icon {
@@ -361,9 +381,25 @@ body {
   }
 }
 
-.week-columns { display: flex; gap: 1rem; overflow-x: auto; padding-bottom: 0.5rem; }
+.week-columns {
+  display: flex; gap: 1rem; overflow-x: auto; padding-bottom: 0.5rem;
+
+  // On desktop the horizontal scrollbar is easy to miss way down below the columns.
+  // Flip the scroll container vertically so the native scrollbar renders at the top,
+  // then flip each column back so its content still reads top-to-bottom normally.
+  // Mobile (touch) scrolling needs no such hint, so this is scoped to mouse-driven devices.
+  @media (hover: hover) and (pointer: fine) {
+    transform: scaleY(-1);
+    padding-bottom: 0;
+    padding-top: 0.5rem;
+  }
+}
 .week-column {
   flex: 0 0 260px;
+
+  @media (hover: hover) and (pointer: fine) {
+    transform: scaleY(-1);
+  }
 
   .week-column-header {
     display: flex; align-items: baseline; justify-content: center; gap: 0.4rem;

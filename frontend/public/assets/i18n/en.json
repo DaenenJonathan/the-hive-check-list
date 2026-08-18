@@ -5,6 +5,9 @@
     "IMPORTS": "Import",
     "AUDIT": "Audit log",
     "RETURNS": "Returns",
+    "AGENCIES": "Agencies",
+    "BRANDS": "Brands",
+    "USERS": "Users",
     "LOGOUT": "Logout",
     "VERSION": "Version"
   },
@@ -12,7 +15,8 @@
     "ADMIN": "Administrator",
     "MANAGER": "Brand manager",
     "WAREHOUSEUSER": "Warehouse preparer",
-    "VIEWER": "Viewer"
+    "VIEWER": "Viewer",
+    "AGENCYMANAGER": "Agency manager"
   },
   "COMMON": {
     "SAVE": "Save",
@@ -24,9 +28,12 @@
     "DELETE": "Delete",
     "EDIT": "Edit",
     "BACK": "Back",
+    "REFRESH": "Refresh",
+    "COLOR": "Color",
     "SEARCH": "Search",
     "YES": "Yes",
-    "NO": "No"
+    "NO": "No",
+    "ERROR_GENERIC": "Something went wrong. Please try again."
   },
   "LOGIN": {
     "TITLE": "Login",
@@ -39,17 +46,17 @@
     "REGISTER_LINK": "Create an account"
   },
   "REGISTER": {
-    "TITLE": "Create an account",
     "FIRSTNAME": "First name",
     "LASTNAME": "Last name",
-    "CONFIRM_PASSWORD": "Confirm password",
-    "PASSWORD_HINT": "At least 6 characters, with an uppercase letter, a lowercase letter and a digit.",
-    "PASSWORD_MISMATCH": "Passwords do not match.",
-    "SUBMIT": "Create my account",
-    "ERROR": "Could not create the account. Please try again.",
-    "ERROR_EMAIL_TAKEN": "An account already exists with this email.",
     "HAVE_ACCOUNT": "Already have an account?",
     "LOGIN_LINK": "Sign in"
+  },
+  "REQUEST_ACCOUNT": {
+    "TITLE": "Request an account",
+    "MESSAGE": "Message (optional)",
+    "SUBMIT": "Send request",
+    "SUCCESS": "Your request has been sent. An administrator will create your account and contact you.",
+    "ERROR": "Could not send the request. Please try again."
   },
   "STATUS": {
     "ToPrepare": "To prepare",
@@ -70,7 +77,8 @@
     "TITLE": "Actions",
     "CREATE": "New action",
     "NAME": "Name",
-    "CLIENT": "Client",
+    "BRAND": "Brand",
+    "SELECT_BRAND": "Select a brand",
     "PLANNED_DATE": "Planned date",
     "PLANNED_DEPARTURE_TIME": "Planned departure time",
     "PLANNED_RETURN_TIME": "Planned return time",
@@ -84,8 +92,8 @@
     "STATUS": "Status",
     "VIEW": "View",
     "CITY": "City",
-    "FILTER_CLIENT": "Client",
-    "FILTER_CLIENT_ALL": "All clients",
+    "FILTER_BRAND": "Brand",
+    "FILTER_BRAND_ALL": "All brands",
     "FILTER_FROM": "From",
     "FILTER_TO": "To",
     "FILTER_HINT": "Leave \"To\" empty to filter a single day.",
@@ -190,7 +198,8 @@
     "ITEMS_CHANGED": "Items were added or removed on action \"{{actionName}}\".",
     "CHECKLIST_MISSING": "Checklist \"{{checklistName}}\" for action \"{{actionName}}\" is complete but has missing items.",
     "ACTION_CANCELLED": "Action \"{{actionName}}\" was cancelled.",
-    "ACTION_REACTIVATED": "Action \"{{actionName}}\" was reactivated."
+    "ACTION_REACTIVATED": "Action \"{{actionName}}\" was reactivated.",
+    "ACCOUNT_REQUESTED": "New account request from {{name}} ({{email}})."
   },
   "AUDIT": {
     "TITLE": "Audit log",
@@ -200,5 +209,45 @@
     "DATE": "Date",
     "OLD_VALUE": "Previous value",
     "NEW_VALUE": "New value"
+  },
+  "AGENCIES": {
+    "TITLE": "Agencies",
+    "CREATE": "New agency",
+    "NAME": "Name",
+    "BRAND_COUNT": "Brands",
+    "DELETE_CONFIRM_TITLE": "Delete agency",
+    "DELETE_CONFIRM_MESSAGE": "Delete agency \"{{name}}\"?",
+    "DELETE_HAS_BRANDS": "This agency still has brands attached to it and cannot be deleted."
+  },
+  "BRANDS": {
+    "TITLE": "Brands",
+    "CREATE": "New brand",
+    "NAME": "Name",
+    "AGENCY": "Agency",
+    "SELECT_AGENCY": "Select an agency",
+    "DELETE_CONFIRM_TITLE": "Delete brand",
+    "DELETE_CONFIRM_MESSAGE": "Delete brand \"{{name}}\"?",
+    "DELETE_HAS_ACTIONS": "This brand is still used by actions and cannot be deleted."
+  },
+  "USERS": {
+    "TITLE": "Users",
+    "NAME": "Name",
+    "EMAIL": "Email",
+    "ROLE": "Role",
+    "AGENCY": "Agency",
+    "NO_AGENCY": "No agency",
+    "AGENCY_REQUIRED": "An agency must be selected for an Agency manager.",
+    "MANAGED_BRANDS": "Managed brands",
+    "NO_BRANDS": "No brands",
+    "BRANDS_REQUIRED": "At least one brand must be selected for a Manager.",
+    "SELECT_AGENCY_FIRST": "Select an agency first.",
+    "SELECT_ALL_BRANDS": "Select all",
+    "DESELECT_ALL_BRANDS": "Deselect all",
+    "SAVE": "Save",
+    "CREATE": "New user",
+    "RESET_PASSWORD": "Reset password",
+    "PASSWORD_GENERATED_EMAIL_SENT": "Account created — a temporary password was emailed to {{email}}.",
+    "PASSWORD_GENERATED_MANUAL": "New password for {{email}}: {{password}} (couldn't be emailed — copy it now, it won't be shown again).",
+    "COPY": "Copy"
   }
 }

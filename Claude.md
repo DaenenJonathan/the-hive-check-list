@@ -63,11 +63,15 @@ Domain depends on nothing.
 ### Domain (`src/Domain/`)
 Pure business logic only — no EF, no ASP.NET, no DTOs.
 
-Key entities: `Action`, `Checklist`, `ChecklistItem`, `AuditLog`, `User`
+Key entities: `BrandAction`, `Checklist`, `ChecklistItem`, `AuditLog`, `Agency`, `Brand`, `User`
+
+An `Agency` owns a portfolio of `Brand`s (1-N); every `BrandAction` belongs to a `Brand` (`BrandAction.BrandId`), never to a free-text client name.
 
 `ChecklistItem` statuses: `ToPrepare`, `Prepared`, `Missing`, `PartiallyPrepared`, `Loaded`, `Cancelled`, `Replaced`
 
-Roles: `Admin`, `Manager`, `WarehouseUser`, `Viewer`
+Roles: `Admin`, `Manager`, `WarehouseUser`, `Viewer`, `AgencyManager`
+
+`AgencyManager` is scoped to a single `Agency` (`User.AgencyId`): can create `BrandAction`s only for brands in their own agency, and can only view/follow (never edit, cancel, send, or validate returns for) actions belonging to their own agency's brands. Row-level isolation is enforced server-side via `AgencyAccessGuard` (`src/Application/Common/Security/AgencyAccessGuard.cs`) — any new query/command that exposes a single `BrandAction`/`Checklist` by ID must call it, or list-filter by agency, to avoid an IDOR hole for this role.
 
 ### Application (`src/Application/`)
 CQRS via MediatR. Every feature folder contains Commands/, Queries/, DTOs/.

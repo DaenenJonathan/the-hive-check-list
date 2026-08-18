@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using TheHive.Application.Common.Exceptions;
 using TheHive.Application.Common.Interfaces;
+using TheHive.Application.Common.Security;
 using TheHive.Application.Features.Actions.DTOs;
 
 namespace TheHive.Application.Features.Actions.Queries.GetActionReturns;
@@ -11,14 +12,23 @@ public record GetActionReturnsQuery(Guid ActionId) : IRequest<ActionReturnsDto>;
 public class GetActionReturnsQueryHandler : IRequestHandler<GetActionReturnsQuery, ActionReturnsDto>
 {
     private readonly IApplicationDbContext _context;
+    private readonly ICurrentUserService _currentUser;
 
-    public GetActionReturnsQueryHandler(IApplicationDbContext context) => _context = context;
+    public GetActionReturnsQueryHandler(IApplicationDbContext context, ICurrentUserService currentUser)
+    {
+        _context = context;
+        _currentUser = currentUser;
+    }
 
     public async Task<ActionReturnsDto> Handle(GetActionReturnsQuery request, CancellationToken cancellationToken)
     {
         var action = await _context.BrandActions
+            .Include(a => a.Brand)
             .FirstOrDefaultAsync(a => a.Id == request.ActionId, cancellationToken)
             ?? throw new NotFoundException("BrandAction", request.ActionId);
+
+        AgencyAccessGuard.EnsureCanAccessAgency(_currentUser, action.Brand?.AgencyId);
+        BrandAccessGuard.EnsureCanAccessBrand(_currentUser, action.BrandId);
 
         var items = await _context.ChecklistItems
             .Include(i => i.Checklist)

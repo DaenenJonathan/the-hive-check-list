@@ -5,7 +5,10 @@ export enum ActionStatus {
 export interface ActionDto {
   id: string;
   name: string;
-  client: string;
+  brandId: string;
+  brandName: string;
+  agencyId: string;
+  agencyName: string;
   plannedDate: string;
   plannedDepartureTime: string | null;
   plannedReturnTime: string | null;
@@ -27,7 +30,7 @@ export interface ActionDto {
 
 export interface CreateActionRequest {
   name: string;
-  client: string;
+  brandId: string;
   plannedDate: string;
   description: string | null;
   plannedDepartureTime: string | null;
