@@ -3,5 +3,5 @@ export const environment = {
   apiUrl: 'http://localhost:5000/api',
   hubUrl: 'http://localhost:5000',
   filesBaseUrl: 'http://localhost:5000',
-  appVersion: '1.0.6.0'
+  appVersion: '1.0.6.1'
 };
