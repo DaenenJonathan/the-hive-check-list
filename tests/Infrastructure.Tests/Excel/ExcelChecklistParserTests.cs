@@ -122,4 +122,27 @@ public class ExcelChecklistParserTests
         categories.Should().NotContain(c => c != null && c.StartsWith("CONSUMABLES"));
         categories.Should().NotContain("EXTRA");
     }
+
+    [Fact]
+    public async Task CanadaDry_resolves_images_pasted_as_classic_floating_pictures_not_just_in_cell_ones()
+    {
+        var dto = await ParseFixtureAsync("Template_CanadaDry.xlsx");
+
+        dto.Errors.Should().BeEmpty();
+        dto.Client.Should().Be("CANADA DRY");
+
+        dto.Items.Should().HaveCount(17);
+
+        // None of these have an in-cell (rich-data) picture in the real file - their images only
+        // exist as classic floating DrawingML pictures anchored near their row, the case that used
+        // to be silently dropped before ExcelFloatingPictureReader was added.
+        dto.Items.Should().ContainSingle(i => i.MaterialName == "Canada Dry (15cl)" && i.QuantityRequested == 3000).Which.ImageData.Should().NotBeNull();
+        dto.Items.Should().ContainSingle(i => i.MaterialName.Contains("DIABLE HBS")).Which.ImageData.Should().NotBeNull();
+        dto.Items.Should().ContainSingle(i => i.MaterialName.Contains("CUTTER")).Which.ImageData.Should().NotBeNull();
+
+        // "Celsuis Kiwi Guava" and "TOPCARD" genuinely have no picture at all (neither in-cell nor
+        // floating) in the real file.
+        dto.Items.Single(i => i.MaterialName == "Celsuis Kiwi Guava").ImageData.Should().BeNull();
+        dto.Items.Single(i => i.MaterialName.Contains("TOPCARD")).ImageData.Should().BeNull();
+    }
 }

@@ -28,7 +28,9 @@ public class ExcelChecklistParser : IExcelChecklistParser
             ExcelMetadataExtractor.Extract(sheet, result);
             result.City = ExtractCity(result.AddressAction);
 
-            var imagesByRow = ExcelEmbeddedImageReader.ReadImagesByRow(bytes, sheet.Name);
+            var imagesByRow = MergeImagesByRow(
+                ExcelEmbeddedImageReader.ReadImagesByRow(bytes, sheet.Name),
+                ExcelFloatingPictureReader.ReadImagesByRow(sheet));
             ExcelItemTableExtractor.Extract(sheet, result, imagesByRow);
 
             result.SuggestedChecklistName = BuildChecklistName(result, fileName);
@@ -39,6 +41,18 @@ public class ExcelChecklistParser : IExcelChecklistParser
         }
 
         return result;
+    }
+
+    // In-cell rich-data images take priority; floating pictures only fill rows that have none yet
+    // (a row is never expected to carry both, but this keeps the merge deterministic if it ever does).
+    private static IReadOnlyDictionary<int, byte[]> MergeImagesByRow(
+        IReadOnlyDictionary<int, byte[]> inCellImagesByRow, IReadOnlyDictionary<int, byte[]> floatingImagesByRow)
+    {
+        var merged = new Dictionary<int, byte[]>(inCellImagesByRow);
+        foreach (var (row, image) in floatingImagesByRow)
+            merged.TryAdd(row, image);
+
+        return merged;
     }
 
     // The city follows the 4-digit postal code in the "Adresse Action" field, e.g. "Rue Example 12, 1000 Bruxelles"

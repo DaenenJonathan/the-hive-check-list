@@ -28,7 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Fixtures\*.xlsm">
+    <None Include="Fixtures\*.xlsm;Fixtures\*.xlsx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
