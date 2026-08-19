@@ -8,6 +8,7 @@ using TheHive.Application.Features.Actions.Commands.MarkActionAsSent;
 using TheHive.Application.Features.Actions.Commands.ReactivateAction;
 using TheHive.Application.Features.Actions.Commands.UpdateAction;
 using TheHive.Application.Features.Actions.Commands.ValidateActionReturn;
+using TheHive.Application.Features.Actions.Queries.GetActionById;
 using TheHive.Application.Features.Actions.Queries.GetActionReturns;
 using TheHive.Application.Features.Actions.Queries.GetActions;
 
@@ -26,6 +27,13 @@ public class ActionsController : ControllerBase
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
         var result = await _sender.Send(new GetActionsQuery(), cancellationToken);
+        return Ok(result);
+    }
+
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(new GetActionByIdQuery(id), cancellationToken);
         return Ok(result);
     }
 

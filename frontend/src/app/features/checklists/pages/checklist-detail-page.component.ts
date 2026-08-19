@@ -1,12 +1,16 @@
 import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { AddChecklistItemRequest, BrandActionStatus, ChecklistDetailDto, ChecklistItemDto, ChecklistItemStatus } from '../models/checklist.model';
 import { ChecklistService } from '../services/checklist.service';
 import { ChecklistRealtimeService } from '../../../core/services/checklist-realtime.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
+import { ActionService } from '../../actions/services/action.service';
+import { BrandDto } from '../../brands/models/brand.model';
+import { BrandService } from '../../brands/services/brand.service';
 import { Subscription } from 'rxjs';
 
 interface PendingItemChange {
@@ -37,17 +41,37 @@ export class ChecklistDetailPageComponent implements OnInit, OnDestroy {
   // triggered by another user (see load()).
   pendingChanges = new Map<string, PendingItemChange>();
 
+  // Editing the parent action's own attributes (name/brand/date/time/description) - separate from
+  // editMode above, which only concerns checklist items.
+  showActionForm = false;
+  actionForm: FormGroup;
+  actionFormError = '';
+  brands: BrandDto[] = [];
+
   private realtimeSub?: Subscription;
   private checklistUpdatedSub?: Subscription;
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private checklistService: ChecklistService,
     private realtimeService: ChecklistRealtimeService,
     private confirmDialogService: ConfirmDialogService,
+    private actionService: ActionService,
+    private brandService: BrandService,
+    private fb: FormBuilder,
     private location: Location,
     public authService: AuthService
-  ) {}
+  ) {
+    this.actionForm = this.fb.group({
+      name: ['', [Validators.required, Validators.maxLength(200)]],
+      brandId: ['', Validators.required],
+      plannedDate: ['', Validators.required],
+      plannedDepartureTime: [''],
+      plannedReturnTime: [''],
+      description: ['']
+    });
+  }
 
   goBack(): void {
     this.location.back();
@@ -274,6 +298,108 @@ export class ChecklistDetailPageComponent implements OnInit, OnDestroy {
       this.checklistId,
       items.map((item, i) => ({ itemId: item.id, sortOrder: i, category: item.category ?? null }))
     ).subscribe();
+  }
+
+  // Fetches the full action (name/brand/date/time/description aren't in ChecklistDetailDto) so the
+  // form has something to edit, then shows it - lazy, since most visits never open this form.
+  startEditAction(): void {
+    if (!this.checklist) return;
+    this.actionFormError = '';
+    this.actionService.getById(this.checklist.brandActionId).subscribe({
+      next: action => {
+        this.actionForm.setValue({
+          name: action.name,
+          brandId: action.brandId,
+          plannedDate: new Date(action.plannedDate),
+          plannedDepartureTime: action.plannedDepartureTime ?? '',
+          plannedReturnTime: action.plannedReturnTime ?? '',
+          description: action.description ?? ''
+        });
+        this.showActionForm = true;
+      }
+    });
+    if (this.brands.length === 0) {
+      this.brandService.getAll().subscribe({ next: data => { this.brands = data; } });
+    }
+  }
+
+  cancelEditAction(): void {
+    this.showActionForm = false;
+    this.actionForm.reset();
+    this.actionFormError = '';
+  }
+
+  submitActionEdit(): void {
+    if (this.actionForm.invalid || !this.checklist) return;
+
+    const request = {
+      id: this.checklist.brandActionId,
+      ...this.actionForm.value,
+      plannedDate: this.toDateOnlyString(this.actionForm.value.plannedDate),
+      plannedDepartureTime: this.toTimeSpanString(this.actionForm.value.plannedDepartureTime),
+      plannedReturnTime: this.toTimeSpanString(this.actionForm.value.plannedReturnTime)
+    };
+
+    this.actionService.update(request).subscribe({
+      next: () => { this.cancelEditAction(); this.load(); },
+      error: () => { this.actionFormError = 'Erreur lors de la mise à jour de l\'action.'; }
+    });
+  }
+
+  async cancelBrandAction(): Promise<void> {
+    if (!this.checklist) return;
+    const ok = await this.confirmDialogService.confirm({
+      title: 'Annuler l\'action',
+      message: `Annuler l'action "${this.checklist.brandActionName}" ?`,
+      confirmLabel: 'Annuler l\'action',
+      variant: 'primary'
+    });
+    if (!ok) return;
+    this.actionService.cancelAction(this.checklist.brandActionId).subscribe({ next: () => this.load() });
+  }
+
+  async reactivateBrandAction(): Promise<void> {
+    if (!this.checklist) return;
+    const ok = await this.confirmDialogService.confirm({
+      title: 'Réactiver l\'action',
+      message: `Réactiver l'action "${this.checklist.brandActionName}" ?`,
+      confirmLabel: 'Réactiver',
+      variant: 'success'
+    });
+    if (!ok) return;
+    this.actionService.reactivateAction(this.checklist.brandActionId).subscribe({ next: () => this.load() });
+  }
+
+  // Deletes the whole action (and all its checklists, this one included) - there's nothing left to
+  // display afterwards, so navigate back to the actions list instead of reloading in place.
+  async deleteBrandAction(): Promise<void> {
+    if (!this.checklist) return;
+    const ok = await this.confirmDialogService.confirm({
+      title: 'Supprimer l\'action',
+      message: `Supprimer définitivement l'action "${this.checklist.brandActionName}" et toutes ses checklists ? Cette opération est irréversible.`,
+      confirmLabel: 'Supprimer',
+      variant: 'danger'
+    });
+    if (!ok) return;
+    this.actionService.deleteAction(this.checklist.brandActionId).subscribe({
+      next: () => this.router.navigate(['/actions'])
+    });
+  }
+
+  // Same "HH:mm" -> "HH:mm:ss" conversion the actions list form needs - the backend's TimeSpan
+  // JSON converter requires the full form.
+  private toTimeSpanString(value: string | null): string | null {
+    if (!value) return null;
+    return value.split(':').length === 2 ? `${value}:00` : value;
+  }
+
+  // Sends the calendar day the user actually picked as a bare date (no time/offset) - otherwise
+  // serializing the picker's local-midnight Date shifts it to the previous day in UTC+ timezones.
+  private toDateOnlyString(date: Date): string {
+    const d = new Date(date);
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${d.getFullYear()}-${month}-${day}`;
   }
 
   private emptyItem(): AddChecklistItemRequest {

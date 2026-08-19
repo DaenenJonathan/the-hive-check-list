@@ -14,6 +14,10 @@ export class ActionService {
     return this.http.get<ActionDto[]>(this.base);
   }
 
+  getById(actionId: string): Observable<ActionDto> {
+    return this.http.get<ActionDto>(`${this.base}/${actionId}`);
+  }
+
   create(request: CreateActionRequest): Observable<string> {
     return this.http.post<string>(this.base, request);
   }

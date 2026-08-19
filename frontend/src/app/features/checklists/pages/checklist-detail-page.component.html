@@ -22,7 +22,74 @@
               (click)="toggleEditMode()">
         {{ editMode ? '✓ Terminer édition' : '✏️ Modifier' }}
       </button>
+      <button *ngIf="authService.hasRole('Admin','Manager')"
+              type="button"
+              class="btn-icon"
+              title="{{ 'COMMON.EDIT' | translate }} l'action"
+              (click)="showActionForm ? cancelEditAction() : startEditAction()"
+      >✏️ Action</button>
+      <button *ngIf="authService.hasRole('Admin','Manager') && !isActionCancelled"
+              type="button"
+              class="btn-icon"
+              title="{{ 'ACTIONS.CANCEL_ACTION' | translate }}"
+              (click)="cancelBrandAction()"
+      >⛔</button>
+      <button *ngIf="authService.hasRole('Admin','Manager') && isActionCancelled"
+              type="button"
+              class="btn-icon"
+              title="{{ 'ACTIONS.REACTIVATE_ACTION' | translate }}"
+              (click)="reactivateBrandAction()"
+      >♻️</button>
+      <button *ngIf="authService.hasRole('Admin','Manager','AgencyManager')"
+              type="button"
+              class="btn-icon btn-icon-danger"
+              title="{{ 'COMMON.DELETE' | translate }}"
+              (click)="deleteBrandAction()"
+      >🗑️</button>
     </div>
+  </div>
+
+  <div class="card" *ngIf="showActionForm">
+    <form [formGroup]="actionForm" (ngSubmit)="submitActionEdit()">
+      <div class="form-row">
+        <div class="form-group">
+          <label>{{ 'ACTIONS.NAME' | translate }}</label>
+          <input type="text" formControlName="name" class="form-control" />
+        </div>
+        <div class="form-group">
+          <label>{{ 'ACTIONS.BRAND' | translate }}</label>
+          <select formControlName="brandId" class="form-control">
+            <option value="" disabled>{{ 'ACTIONS.SELECT_BRAND' | translate }}</option>
+            <option *ngFor="let b of brands" [value]="b.id">{{ b.name }} ({{ b.agencyName }})</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>{{ 'ACTIONS.PLANNED_DATE' | translate }}</label>
+          <mat-form-field appearance="outline" class="date-field">
+            <input matInput readonly formControlName="plannedDate" [matDatepicker]="editPlannedPicker" (click)="editPlannedPicker.open()" />
+            <mat-datepicker-toggle matIconSuffix [for]="editPlannedPicker"></mat-datepicker-toggle>
+            <mat-datepicker #editPlannedPicker></mat-datepicker>
+          </mat-form-field>
+        </div>
+        <div class="form-group">
+          <label>{{ 'ACTIONS.PLANNED_DEPARTURE_TIME' | translate }}</label>
+          <input type="time" formControlName="plannedDepartureTime" class="form-control" />
+        </div>
+        <div class="form-group">
+          <label>{{ 'ACTIONS.PLANNED_RETURN_TIME' | translate }}</label>
+          <input type="time" formControlName="plannedReturnTime" class="form-control" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>{{ 'ACTIONS.DESCRIPTION' | translate }}</label>
+        <textarea formControlName="description" class="form-control"></textarea>
+      </div>
+      <div class="alert alert-danger" *ngIf="actionFormError">{{ actionFormError }}</div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-success" [disabled]="actionForm.invalid">{{ 'COMMON.SAVE' | translate }}</button>
+        <button type="button" class="btn btn-secondary" (click)="cancelEditAction()">{{ 'COMMON.CANCEL' | translate }}</button>
+      </div>
+    </form>
   </div>
 
   <div class="progress-summary">
