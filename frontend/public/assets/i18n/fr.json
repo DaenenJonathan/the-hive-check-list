@@ -2,7 +2,6 @@
   "NAV": {
     "ACTIONS": "Actions",
     "CHECKLISTS": "Checklists",
-    "IMPORTS": "Importer",
     "AUDIT": "Historique",
     "RETURNS": "Retours",
     "AGENCIES": "Agences",
@@ -195,16 +194,6 @@
     "ITEMS_COUNT": "{{count}} article(s)",
     "MARK_READY": "Prêt",
     "MARK_NOT_READY": "Non prêt"
-  },
-  "IMPORT": {
-    "TITLE": "Importer une checklist Excel",
-    "DROP_FILE": "Sélectionnez un fichier .xlsx ou .xlsm",
-    "PREVIEW": "Aperçu",
-    "CONFIRM_IMPORT": "Confirmer l'import",
-    "ITEMS_COUNT": "{{count}} article(s) trouvé(s)",
-    "ERRORS": "Erreurs détectées",
-    "ERROR_PREVIEW": "Erreur lors de la lecture du fichier.",
-    "ERROR_CONFIRM": "Erreur lors de l'import."
   },
   "NOTIFICATIONS": {
     "TITLE": "Notifications",

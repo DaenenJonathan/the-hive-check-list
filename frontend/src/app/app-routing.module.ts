@@ -26,11 +26,6 @@ const routes: Routes = [
     loadChildren: () => import('./features/checklists/checklists.module').then(m => m.ChecklistsModule)
   },
   {
-    path: 'imports',
-    canActivate: [AuthGuard],
-    loadChildren: () => import('./features/imports/imports.module').then(m => m.ImportsModule)
-  },
-  {
     path: 'audit/:actionId',
     canActivate: [AuthGuard],
     loadChildren: () => import('./features/audit-logs/audit-logs.module').then(m => m.AuditLogsModule)

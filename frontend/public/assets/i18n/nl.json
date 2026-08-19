@@ -2,7 +2,6 @@
   "NAV": {
     "ACTIONS": "Acties",
     "CHECKLISTS": "Checklists",
-    "IMPORTS": "Importeren",
     "AUDIT": "Geschiedenis",
     "RETURNS": "Retours",
     "AGENCIES": "Agentschappen",
@@ -195,16 +194,6 @@
     "ITEMS_COUNT": "{{count}} artikel(en)",
     "MARK_READY": "Klaar",
     "MARK_NOT_READY": "Niet klaar"
-  },
-  "IMPORT": {
-    "TITLE": "Excel-checklist importeren",
-    "DROP_FILE": "Selecteer een .xlsx of .xlsm bestand",
-    "PREVIEW": "Voorbeeld",
-    "CONFIRM_IMPORT": "Import bevestigen",
-    "ITEMS_COUNT": "{{count}} artikel(en) gevonden",
-    "ERRORS": "Gevonden fouten",
-    "ERROR_PREVIEW": "Fout bij het lezen van het bestand.",
-    "ERROR_CONFIRM": "Fout bij het importeren."
   },
   "NOTIFICATIONS": {
     "TITLE": "Meldingen",

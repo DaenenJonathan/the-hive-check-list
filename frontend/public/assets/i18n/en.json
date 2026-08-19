@@ -2,7 +2,6 @@
   "NAV": {
     "ACTIONS": "Actions",
     "CHECKLISTS": "Checklists",
-    "IMPORTS": "Import",
     "AUDIT": "Audit log",
     "RETURNS": "Returns",
     "AGENCIES": "Agencies",
@@ -195,16 +194,6 @@
     "ITEMS_COUNT": "{{count}} item(s)",
     "MARK_READY": "Ready",
     "MARK_NOT_READY": "Not ready"
-  },
-  "IMPORT": {
-    "TITLE": "Import Excel checklist",
-    "DROP_FILE": "Select a .xlsx or .xlsm file",
-    "PREVIEW": "Preview",
-    "CONFIRM_IMPORT": "Confirm import",
-    "ITEMS_COUNT": "{{count}} item(s) found",
-    "ERRORS": "Errors detected",
-    "ERROR_PREVIEW": "Error reading the file.",
-    "ERROR_CONFIRM": "Error during import."
   },
   "NOTIFICATIONS": {
     "TITLE": "Notifications",
