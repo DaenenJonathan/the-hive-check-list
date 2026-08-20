@@ -25,7 +25,10 @@ public class CreateActionCommandValidator : AbstractValidator<CreateActionComman
     {
         RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
         RuleFor(x => x.BrandId).NotEmpty();
-        RuleFor(x => x.PlannedDate).GreaterThan(DateTime.UtcNow.AddDays(-1));
+        // An action is always prepared ahead of time - same-day creation is never realistic, so the
+        // planned date must be at least tomorrow, not just "not in the past".
+        RuleFor(x => x.PlannedDate.Date).GreaterThan(DateTime.UtcNow.Date)
+            .WithMessage("La date planifiée doit être au moins le lendemain.");
     }
 }
 
@@ -34,15 +37,18 @@ public class CreateActionCommandHandler : IRequestHandler<CreateActionCommand, R
     private readonly IApplicationDbContext _context;
     private readonly IAuditService _auditService;
     private readonly ICurrentUserService _currentUser;
+    private readonly IImageStorageService _imageStorage;
 
     public CreateActionCommandHandler(
         IApplicationDbContext context,
         IAuditService auditService,
-        ICurrentUserService currentUser)
+        ICurrentUserService currentUser,
+        IImageStorageService imageStorage)
     {
         _context = context;
         _auditService = auditService;
         _currentUser = currentUser;
+        _imageStorage = imageStorage;
     }
 
     public async Task<Result<Guid>> Handle(CreateActionCommand request, CancellationToken cancellationToken)
@@ -77,6 +83,11 @@ public class CreateActionCommandHandler : IRequestHandler<CreateActionCommand, R
                     checklist.Id, item.MaterialName, item.QuantityRequested,
                     location: item.Location, category: item.Category, notes: item.Notes,
                     sortOrder: item.SortOrder);
+                if (item.ImagePath is not null)
+                {
+                    var copiedImagePath = await _imageStorage.CopyAsync(item.ImagePath, cancellationToken);
+                    clone.SetImage(copiedImagePath);
+                }
                 clone.SetCreated(_currentUser.UserId!);
                 checklist.AddItem(clone);
             }

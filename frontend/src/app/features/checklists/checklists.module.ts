@@ -3,7 +3,7 @@ import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
+import { MAT_DATE_LOCALE, MatNativeDateModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { SharedModule } from '../../shared/shared.module';
@@ -27,6 +27,9 @@ const routes: Routes = [
     MatFormFieldModule,
     MatInputModule,
     RouterModule.forChild(routes)
-  ]
+  ],
+  // Same rationale as ActionsModule: no global LOCALE_ID override, so the datepicker needs its own
+  // locale to render dd/mm/yyyy.
+  providers: [{ provide: MAT_DATE_LOCALE, useValue: 'fr-BE' }]
 })
 export class ChecklistsModule {}

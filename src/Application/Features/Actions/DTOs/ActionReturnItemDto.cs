@@ -7,6 +7,8 @@ public class ActionReturnsDto
     public DateTime? SentAt { get; set; }
     public bool ReturnValidated { get; set; }
     public DateTime? ReturnValidatedAt { get; set; }
+    public string? MaterialPhotoPath { get; set; }
+    public string? ConsumablesPhotoPath { get; set; }
     public List<ActionReturnItemDto> Items { get; set; } = [];
 }
 

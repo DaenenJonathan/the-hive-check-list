@@ -24,6 +24,8 @@ export interface ChecklistDto {
   brandActionAddress: string | null;
   brandActionCity: string | null;
   brandActionStatus: BrandActionStatus;
+  brandActionPlannedDepartureTime: string | null;
+  brandActionPlannedReturnTime: string | null;
   createdAt: string;
   totalItems: number;
   preparedItems: number;

@@ -16,6 +16,8 @@ public class ChecklistDto
     public string? BrandActionAddress { get; set; }
     public string? BrandActionCity { get; set; }
     public ActionStatus BrandActionStatus { get; set; }
+    public TimeSpan? BrandActionPlannedDepartureTime { get; set; }
+    public TimeSpan? BrandActionPlannedReturnTime { get; set; }
     public DateTime CreatedAt { get; set; }
     public int TotalItems { get; set; }
     public int PreparedItems { get; set; }

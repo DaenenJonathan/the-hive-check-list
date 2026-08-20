@@ -50,6 +50,8 @@ public class GetChecklistsQueryHandler : IRequestHandler<GetChecklistsQuery, Lis
                 BrandActionAddress = c.BrandAction != null ? c.BrandAction.Address : null,
                 BrandActionCity = c.BrandAction != null ? c.BrandAction.City : null,
                 BrandActionStatus = c.BrandAction != null ? c.BrandAction.Status : Domain.Enums.ActionStatus.Planned,
+                BrandActionPlannedDepartureTime = c.BrandAction != null ? c.BrandAction.PlannedDepartureTime : null,
+                BrandActionPlannedReturnTime = c.BrandAction != null ? c.BrandAction.PlannedReturnTime : null,
                 CreatedAt = c.CreatedAt,
                 TotalItems = c.Items.Count,
                 PreparedItems = c.Items.Count(i => i.Status == Domain.Enums.ChecklistItemStatus.Prepared)

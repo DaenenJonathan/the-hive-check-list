@@ -7,7 +7,7 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { ChecklistDto } from '../../checklists/models/checklist.model';
 import { ChecklistService } from '../../checklists/services/checklist.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
-import { ImportService } from '../../imports/services/import.service';
+import { ImportService, ImportPreview, ImportSheetOption } from '../../imports/services/import.service';
 import { BrandDto } from '../../brands/models/brand.model';
 import { BrandService } from '../../brands/services/brand.service';
 
@@ -37,6 +37,9 @@ export class ActionsListPageComponent implements OnInit {
   brands: BrandDto[] = [];
   importFile: File | null = null;
   importError = '';
+  importSheets: ImportSheetOption[] = [];
+  importSheetName: string | null = null;
+  importPreviewLoading = false;
 
   constructor(
     private actionService: ActionService,
@@ -83,8 +86,7 @@ export class ActionsListPageComponent implements OnInit {
     this.editingId = null;
     this.form.reset();
     this.form.get('templateChecklistId')!.enable();
-    this.importFile = null;
-    this.importError = '';
+    this.resetImportFile();
     this.showForm = true;
   }
 
@@ -95,14 +97,86 @@ export class ActionsListPageComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     this.importFile = input.files?.length ? input.files[0] : null;
     const templateControl = this.form.get('templateChecklistId')!;
-    if (this.importFile) { templateControl.setValue(''); templateControl.disable(); }
-    else templateControl.enable();
+    if (this.importFile) {
+      templateControl.setValue('');
+      templateControl.disable();
+      this.loadImportSheets();
+    } else {
+      templateControl.enable();
+      this.importSheets = [];
+      this.importSheetName = null;
+    }
+  }
+
+  // Most workbooks have exactly one sheet worth importing, so the picker only needs to appear when
+  // there's a genuine choice to make (e.g. a "BIG"/"SMALL" wave of the same event bundled together).
+  onImportSheetChange(sheetName: string): void {
+    this.importSheetName = sheetName;
+    this.loadImportSheets(sheetName);
+  }
+
+  private loadImportSheets(sheetName?: string): void {
+    if (!this.importFile) return;
+    this.importPreviewLoading = true;
+    this.importError = '';
+    this.importService.preview(this.importFile, sheetName).subscribe({
+      next: preview => {
+        this.importPreviewLoading = false;
+        this.importSheets = preview.availableSheets;
+        this.importSheetName = preview.selectedSheetName;
+        if (!preview.isValid && preview.errors.length) this.importError = preview.errors[0];
+        this.applyImportAutofill(preview);
+      },
+      error: () => {
+        this.importPreviewLoading = false;
+        this.importError = 'ACTIONS.IMPORT_CHECKLIST_ERROR';
+      }
+    });
+  }
+
+  // Name and times always come from the file - they're new to the form either way. The planned date
+  // only comes along if it's actually usable (an action can never be created for today or the past).
+  private applyImportAutofill(preview: ImportPreview): void {
+    const name = preview.projectName || preview.suggestedChecklistName;
+    if (name) this.form.get('name')!.setValue(name);
+    if (preview.plannedDepartureTime) this.form.get('plannedDepartureTime')!.setValue(this.formatTime(preview.plannedDepartureTime));
+    if (preview.plannedReturnTime) this.form.get('plannedReturnTime')!.setValue(this.formatTime(preview.plannedReturnTime));
+
+    if (preview.eventDate) {
+      const eventDate = new Date(preview.eventDate);
+      if (this.startOfDay(eventDate) > this.startOfDay(new Date())) this.form.get('plannedDate')!.setValue(eventDate);
+    }
+  }
+
+  // Reusing a past checklist as a template carries over its action's name and times too - only the
+  // date stays manual, since a template is by definition reused for a different, future date.
+  onTemplateChecklistChange(event: Event): void {
+    const templateId = (event.target as HTMLSelectElement).value;
+    const template = this.templates.find(t => t.id === templateId);
+    if (!template) return;
+
+    if (template.brandActionName) this.form.get('name')!.setValue(template.brandActionName);
+    if (template.brandActionPlannedDepartureTime) this.form.get('plannedDepartureTime')!.setValue(this.formatTime(template.brandActionPlannedDepartureTime));
+    if (template.brandActionPlannedReturnTime) this.form.get('plannedReturnTime')!.setValue(this.formatTime(template.brandActionPlannedReturnTime));
+  }
+
+  // An action is always prepared ahead of time - same-day creation is never realistic, so the
+  // datepicker blocks today and earlier (edit mode leaves this off; see the template binding).
+  get minPlannedDate(): Date {
+    return this.addDays(new Date(), 1);
   }
 
   clearImportFile(fileInput: HTMLInputElement): void {
-    this.importFile = null;
     fileInput.value = '';
+    this.resetImportFile();
     this.form.get('templateChecklistId')!.enable();
+  }
+
+  private resetImportFile(): void {
+    this.importFile = null;
+    this.importError = '';
+    this.importSheets = [];
+    this.importSheetName = null;
   }
 
   startEdit(action: ActionDto): void {
@@ -124,8 +198,7 @@ export class ActionsListPageComponent implements OnInit {
     this.editingId = null;
     this.form.reset();
     this.form.get('templateChecklistId')!.enable();
-    this.importFile = null;
-    this.importError = '';
+    this.resetImportFile();
   }
 
   submit(): void {
@@ -149,7 +222,7 @@ export class ActionsListPageComponent implements OnInit {
       this.actionService.create(request).subscribe({
         next: newActionId => {
           if (this.importFile) {
-            this.importService.confirm(this.importFile, newActionId).subscribe({
+            this.importService.confirm(this.importFile, newActionId, this.importSheetName).subscribe({
               next: result => { this.cancel(); this.router.navigate(['/checklists', result.checklistId]); },
               error: () => { this.importError = 'ACTIONS.IMPORT_CHECKLIST_ERROR'; this.load(); }
             });

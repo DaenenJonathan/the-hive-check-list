@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
-import { ActionDto, ActionReturnItemDto } from '../models/action.model';
+import { ActionDto, ActionPhotoKind, ActionReturnItemDto } from '../models/action.model';
 import { ActionService } from '../services/action.service';
 import { ChecklistService } from '../../checklists/services/checklist.service';
 import { AuthService } from '../../../core/auth/auth.service';
@@ -22,6 +22,9 @@ export class ActionReturnsPageComponent implements OnInit {
   returnValidatedAt: string | null = null;
   sent = false;
   sentAt: string | null = null;
+  materialPhotoPath: string | null = null;
+  consumablesPhotoPath: string | null = null;
+  uploadingPhoto: ActionPhotoKind | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -52,6 +55,8 @@ export class ActionReturnsPageComponent implements OnInit {
         this.sentAt = data.sentAt;
         this.returnValidated = data.returnValidated;
         this.returnValidatedAt = data.returnValidatedAt;
+        this.materialPhotoPath = data.materialPhotoPath;
+        this.consumablesPhotoPath = data.consumablesPhotoPath;
         this.loading = false;
       },
       error: () => { this.loading = false; }
@@ -65,6 +70,24 @@ export class ActionReturnsPageComponent implements OnInit {
       next: () => { item.quantityReturned = quantityReturned; this.savingId = null; },
       error: () => { this.savingId = null; }
     });
+  }
+
+  uploadPhoto(kind: ActionPhotoKind, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length) return;
+    this.uploadingPhoto = kind;
+    this.actionService.uploadActionPhoto(this.actionId, kind, input.files[0]).subscribe({
+      next: res => {
+        if (kind === 'material') this.materialPhotoPath = res.photoPath;
+        else this.consumablesPhotoPath = res.photoPath;
+        this.uploadingPhoto = null;
+      },
+      error: () => { this.uploadingPhoto = null; }
+    });
+  }
+
+  get photosComplete(): boolean {
+    return !!this.materialPhotoPath && !!this.consumablesPhotoPath;
   }
 
   validateReturns(): void {

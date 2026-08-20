@@ -7,10 +7,12 @@ using TheHive.Application.Features.Actions.Commands.DeleteAction;
 using TheHive.Application.Features.Actions.Commands.MarkActionAsSent;
 using TheHive.Application.Features.Actions.Commands.ReactivateAction;
 using TheHive.Application.Features.Actions.Commands.UpdateAction;
+using TheHive.Application.Features.Actions.Commands.UploadActionPhoto;
 using TheHive.Application.Features.Actions.Commands.ValidateActionReturn;
 using TheHive.Application.Features.Actions.Queries.GetActionById;
 using TheHive.Application.Features.Actions.Queries.GetActionReturns;
 using TheHive.Application.Features.Actions.Queries.GetActions;
+using TheHive.Domain.Enums;
 
 namespace TheHive.WebApi.Controllers;
 
@@ -110,5 +112,22 @@ public class ActionsController : ControllerBase
         var result = await _sender.Send(new ValidateActionReturnCommand(id), cancellationToken);
         if (!result.Succeeded) return BadRequest(result.Errors);
         return NoContent();
+    }
+
+    [HttpPost("{id:guid}/photos/{kind}")]
+    [RequestSizeLimit(5 * 1024 * 1024)]
+    [Authorize(Roles = "Admin,Manager,WarehouseUser")]
+    public async Task<IActionResult> UploadPhoto(Guid id, ActionPhotoKind kind, IFormFile file, CancellationToken cancellationToken)
+    {
+        if (file == null || file.Length == 0) return BadRequest("No file provided.");
+        var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+        if (ext is not (".jpg" or ".jpeg" or ".png" or ".gif" or ".webp"))
+            return BadRequest("Format non supporté. Utilisez JPG, PNG, GIF ou WebP.");
+
+        using var stream = file.OpenReadStream();
+        var result = await _sender.Send(new UploadActionPhotoCommand(id, kind, stream, file.FileName), cancellationToken);
+        if (!result.Succeeded) return BadRequest(result.Errors);
+
+        return Ok(new { photoPath = result.Value });
     }
 }

@@ -101,6 +101,8 @@
     "IMPORT_CHECKLIST_OR": "ou",
     "IMPORT_CHECKLIST_FILE": "Importer un fichier Excel",
     "IMPORT_CHECKLIST_ERROR": "L'action a été créée mais l'import du fichier a échoué. Réessayez depuis la page Checklists.",
+    "IMPORT_SHEET": "Onglet à importer",
+    "IMPORT_SHEET_ITEMS": "articles",
     "CHECKLISTS_COUNT": "Checklists",
     "STATUS": "Statut",
     "VIEW": "Voir",
@@ -172,7 +174,12 @@
     "VALIDATE": "Valider le retour",
     "REVALIDATE": "Revalider le retour",
     "EDITABLE_HINT": "Les quantités restent modifiables même après validation.",
-    "NOT_SENT_HINT": "Le retour ne peut être validé que si l'action a été envoyée."
+    "NOT_SENT_HINT": "Le retour ne peut être validé que si l'action a été envoyée.",
+    "PHOTOS_REQUIRED_HINT": "Une photo du matériel et une photo des boissons/consommables sont requises avant de valider.",
+    "PHOTO_MATERIAL": "Photo matériel",
+    "PHOTO_MATERIAL_HINT": "Ex. l'action prête dans la loadzone",
+    "PHOTO_CONSUMABLES": "Photo boissons / consommables",
+    "PHOTO_CONSUMABLES_HINT": "Ex. la palette dans le frigo"
   },
   "CHECKLISTS": {
     "TITLE": "Checklists",

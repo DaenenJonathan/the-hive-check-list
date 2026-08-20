@@ -30,6 +30,11 @@ public class ExcelChecklistParserTests
         dto.AddressAction.Should().Contain("2300 Turnhout");
         dto.City.Should().Be("Turnhout");
 
+        // BUILD-UP/ARRIVAL start = 07h45 (departure), BREAK-DOWN/RETOUR end = 19h45 (return) -
+        // typed as plain text ("07h45") in this fixture, not real Excel time cells.
+        dto.PlannedDepartureTime.Should().Be(new TimeSpan(7, 45, 0));
+        dto.PlannedReturnTime.Should().Be(new TimeSpan(19, 45, 0));
+
         // "CTA PANEEL" has a name but no quantity in the real file - must be skipped, not crash the import.
         dto.Items.Should().NotContain(i => i.MaterialName.Contains("CTA PANEEL"));
         dto.Warnings.Should().Contain(w => w.Contains("CTA PANEEL"));

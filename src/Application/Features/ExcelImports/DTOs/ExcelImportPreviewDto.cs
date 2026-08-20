@@ -10,6 +10,8 @@ public class ExcelImportPreviewDto
     public string ProjectName { get; set; } = string.Empty;
     public string ActionType { get; set; } = string.Empty;
     public DateTime? EventDate { get; set; }
+    public TimeSpan? PlannedDepartureTime { get; set; }
+    public TimeSpan? PlannedReturnTime { get; set; }
     public string? Account { get; set; }
     public string? CostCode { get; set; }
     public string? AddressAction { get; set; }
@@ -19,11 +21,19 @@ public class ExcelImportPreviewDto
     // Derived checklist name (can be overridden by user)
     public string SuggestedChecklistName { get; set; } = string.Empty;
 
+    // The sheet actually used to produce Items/metadata above, and every other visible sheet in the
+    // workbook that also looks like a checklist (i.e. has at least one item). Populated whenever the
+    // workbook has more than one such sheet, so the caller can offer a picker instead of guessing.
+    public string? SelectedSheetName { get; set; }
+    public List<ExcelSheetOptionDto> AvailableSheets { get; set; } = [];
+
     public List<ExcelImportItemDto> Items { get; set; } = [];
     public List<string> Errors { get; set; } = [];
     public List<string> Warnings { get; set; } = [];
     public bool IsValid => Errors.Count == 0 && Items.Count > 0;
 }
+
+public record ExcelSheetOptionDto(string Name, int ItemCount);
 
 public class ExcelImportItemDto
 {

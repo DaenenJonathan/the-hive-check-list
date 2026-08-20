@@ -7,6 +7,8 @@ public enum MetadataField
     ProjectName,
     ActionType,
     EventDate,
+    DepartureTime,
+    ReturnTime,
     Account,
     CostCode,
     AddressPickUp,

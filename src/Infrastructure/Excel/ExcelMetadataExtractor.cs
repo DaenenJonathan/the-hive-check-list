@@ -21,6 +21,21 @@ public static class ExcelMetadataExtractor
                 if (ExcelLabelMatcher.MatchMetadataConcept(normalized) is not { } field || found.ContainsKey(field))
                     continue;
 
+                // BUILD-UP/ARRIVAL and BREAK-DOWN/RETOUR each carry a date plus a start and end time
+                // on the same row (see the NAME/DATE/START/END header above them) - not a single
+                // adjacent value like the other metadata fields, so these two are read from the whole
+                // row instead of FindValueForLabel: departure is the first time found, return the last.
+                if (field is MetadataField.DepartureTime or MetadataField.ReturnTime)
+                {
+                    var time = field == MetadataField.DepartureTime ? FirstTimeInRow(row) : LastTimeInRow(row);
+                    if (time is not { } resolvedTime) continue;
+
+                    found[field] = cell.Value;
+                    if (field == MetadataField.DepartureTime) dto.PlannedDepartureTime = resolvedTime;
+                    else dto.PlannedReturnTime = resolvedTime;
+                    continue;
+                }
+
                 var value = FindValueForLabel(sheet, cell.Address.RowNumber, cell.Address.ColumnNumber);
                 if (value is { } resolved)
                     found[field] = resolved;
@@ -74,6 +89,16 @@ public static class ExcelMetadataExtractor
         var below = sheet.Cell(row + 1, col).Value;
         return below.IsBlank || below.IsError ? (XLCellValue?)null : below;
     }
+
+    private static TimeSpan? FirstTimeInRow(IXLRow row) =>
+        row.CellsUsed()
+            .Select(c => TimeParser.TryParse(c.Value, out var t) ? t : (TimeSpan?)null)
+            .FirstOrDefault(t => t is not null);
+
+    private static TimeSpan? LastTimeInRow(IXLRow row) =>
+        row.CellsUsed()
+            .Select(c => TimeParser.TryParse(c.Value, out var t) ? t : (TimeSpan?)null)
+            .LastOrDefault(t => t is not null);
 
     private static string GetText(XLCellValue value)
     {

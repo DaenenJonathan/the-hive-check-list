@@ -22,7 +22,7 @@ public class ImportsController : ControllerBase
 
     [HttpPost("preview")]
     [RequestSizeLimit(50 * 1024 * 1024)]
-    public async Task<IActionResult> Preview(IFormFile file, CancellationToken cancellationToken)
+    public async Task<IActionResult> Preview(IFormFile file, [FromForm] string? sheetName, CancellationToken cancellationToken)
     {
         if (file == null || file.Length == 0)
             return BadRequest("No file provided.");
@@ -32,7 +32,7 @@ public class ImportsController : ControllerBase
             return BadRequest("Only .xlsx and .xlsm files are supported.");
 
         using var stream = file.OpenReadStream();
-        var preview = await _parser.ParseAsync(stream, file.FileName, cancellationToken);
+        var preview = await _parser.ParseAsync(stream, file.FileName, sheetName, cancellationToken);
         return Ok(preview);
     }
 
@@ -40,6 +40,7 @@ public class ImportsController : ControllerBase
     [RequestSizeLimit(50 * 1024 * 1024)]
     public async Task<IActionResult> Confirm(
         [FromForm] Guid? brandActionId,
+        [FromForm] string? sheetName,
         IFormFile file,
         CancellationToken cancellationToken)
     {
@@ -47,7 +48,7 @@ public class ImportsController : ControllerBase
             return BadRequest("No file provided.");
 
         using var stream = file.OpenReadStream();
-        var command = new ImportChecklistCommand(stream, file.FileName, brandActionId);
+        var command = new ImportChecklistCommand(stream, file.FileName, brandActionId, sheetName);
         var result = await _sender.Send(command, cancellationToken);
 
         if (!result.Succeeded)

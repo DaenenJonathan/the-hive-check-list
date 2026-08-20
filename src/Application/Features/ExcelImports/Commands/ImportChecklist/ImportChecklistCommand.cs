@@ -9,7 +9,8 @@ namespace TheHive.Application.Features.ExcelImports.Commands.ImportChecklist;
 public record ImportChecklistCommand(
     Stream FileStream,
     string FileName,
-    Guid? BrandActionId = null
+    Guid? BrandActionId = null,
+    string? SheetName = null
 ) : IRequest<Result<ImportChecklistResult>>;
 
 public record ImportChecklistResult(Guid BrandActionId, Guid ChecklistId);
@@ -38,7 +39,7 @@ public class ImportChecklistCommandHandler : IRequestHandler<ImportChecklistComm
 
     public async Task<Result<ImportChecklistResult>> Handle(ImportChecklistCommand request, CancellationToken cancellationToken)
     {
-        var preview = await _parser.ParseAsync(request.FileStream, request.FileName, cancellationToken);
+        var preview = await _parser.ParseAsync(request.FileStream, request.FileName, request.SheetName, cancellationToken);
         if (!preview.IsValid)
             return Result<ImportChecklistResult>.Failure(preview.Errors.ToArray());
 
@@ -64,14 +65,19 @@ public class ImportChecklistCommandHandler : IRequestHandler<ImportChecklistComm
                 _context.Brands.Add(brand);
             }
 
-            var eventDate = preview.EventDate ?? DateTime.UtcNow;
+            // Same "at least tomorrow" rule as CreateActionCommand - a date from the file that's
+            // today or in the past can't be used as-is, so fall back to tomorrow instead.
+            var tomorrow = DateTime.UtcNow.Date.AddDays(1);
+            var eventDate = preview.EventDate is { } d && d.Date > DateTime.UtcNow.Date ? d : tomorrow;
             var action = BrandAction.Create(
                 preview.ProjectName.Length > 0 ? preview.ProjectName : preview.SuggestedChecklistName,
                 brand.Id,
                 eventDate,
                 $"{preview.ActionType} | {preview.Brand}".Trim(' ', '|'),
                 address: preview.AddressAction,
-                city: preview.City);
+                city: preview.City,
+                plannedDepartureTime: preview.PlannedDepartureTime,
+                plannedReturnTime: preview.PlannedReturnTime);
             action.SetCreated(_currentUser.UserId!);
             _context.BrandActions.Add(action);
             brandActionId = action.Id;

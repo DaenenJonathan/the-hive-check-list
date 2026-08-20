@@ -11,39 +11,10 @@
 
   <div class="card" *ngIf="showForm">
     <form [formGroup]="form" (ngSubmit)="submit()">
-      <div class="form-row">
-        <div class="form-group">
-          <label>{{ 'ACTIONS.NAME' | translate }}</label>
-          <input type="text" formControlName="name" class="form-control" />
-        </div>
-        <div class="form-group">
-          <label>{{ 'ACTIONS.BRAND' | translate }}</label>
-          <select formControlName="brandId" class="form-control">
-            <option value="" disabled>{{ 'ACTIONS.SELECT_BRAND' | translate }}</option>
-            <option *ngFor="let b of brands" [value]="b.id">{{ b.name }} ({{ b.agencyName }})</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>{{ 'ACTIONS.PLANNED_DATE' | translate }}</label>
-          <mat-form-field appearance="outline" class="date-field">
-            <input matInput readonly formControlName="plannedDate" [matDatepicker]="plannedPicker" (click)="plannedPicker.open()" />
-            <mat-datepicker-toggle matIconSuffix [for]="plannedPicker"></mat-datepicker-toggle>
-            <mat-datepicker #plannedPicker></mat-datepicker>
-          </mat-form-field>
-        </div>
-        <div class="form-group">
-          <label>{{ 'ACTIONS.PLANNED_DEPARTURE_TIME' | translate }}</label>
-          <input type="time" formControlName="plannedDepartureTime" class="form-control" />
-        </div>
-        <div class="form-group">
-          <label>{{ 'ACTIONS.PLANNED_RETURN_TIME' | translate }}</label>
-          <input type="time" formControlName="plannedReturnTime" class="form-control" />
-        </div>
-      </div>
       <div class="form-row" *ngIf="!editingId">
         <div class="form-group">
           <label>{{ 'ACTIONS.TEMPLATE_CHECKLIST' | translate }}</label>
-          <select formControlName="templateChecklistId" class="form-control">
+          <select formControlName="templateChecklistId" class="form-control" (change)="onTemplateChecklistChange($event)">
             <option value="">{{ 'ACTIONS.TEMPLATE_CHECKLIST_NONE' | translate }}</option>
             <option *ngFor="let t of templates" [value]="t.id">
               {{ t.name }} ({{ t.brandActionName || '—' }}, {{ t.totalItems }})
@@ -60,8 +31,47 @@
             <button type="button" class="btn btn-sm btn-outline" *ngIf="importFile" (click)="clearImportFile(fileInput)">✕</button>
           </div>
         </div>
+        <div class="form-group" *ngIf="importSheets.length > 1">
+          <label>{{ 'ACTIONS.IMPORT_SHEET' | translate }}</label>
+          <select class="form-control" [ngModel]="importSheetName" [ngModelOptions]="{standalone: true}"
+                  (ngModelChange)="onImportSheetChange($event)">
+            <option *ngFor="let s of importSheets" [value]="s.name">
+              {{ s.name }} ({{ s.itemCount }} {{ 'ACTIONS.IMPORT_SHEET_ITEMS' | translate }})
+            </option>
+          </select>
+        </div>
       </div>
       <div class="alert alert-danger" *ngIf="importError">{{ importError | translate }}</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>{{ 'ACTIONS.NAME' | translate }}</label>
+          <input type="text" formControlName="name" class="form-control" />
+        </div>
+        <div class="form-group">
+          <label>{{ 'ACTIONS.BRAND' | translate }}</label>
+          <select formControlName="brandId" class="form-control">
+            <option value="" disabled>{{ 'ACTIONS.SELECT_BRAND' | translate }}</option>
+            <option *ngFor="let b of brands" [value]="b.id">{{ b.name }} ({{ b.agencyName }})</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>{{ 'ACTIONS.PLANNED_DATE' | translate }}</label>
+          <mat-form-field appearance="outline" class="date-field">
+            <input matInput readonly formControlName="plannedDate" [matDatepicker]="plannedPicker"
+                   [min]="editingId ? null : minPlannedDate" (click)="plannedPicker.open()" />
+            <mat-datepicker-toggle matIconSuffix [for]="plannedPicker"></mat-datepicker-toggle>
+            <mat-datepicker #plannedPicker></mat-datepicker>
+          </mat-form-field>
+        </div>
+        <div class="form-group">
+          <label>{{ 'ACTIONS.PLANNED_DEPARTURE_TIME' | translate }}</label>
+          <input type="time" formControlName="plannedDepartureTime" class="form-control" />
+        </div>
+        <div class="form-group">
+          <label>{{ 'ACTIONS.PLANNED_RETURN_TIME' | translate }}</label>
+          <input type="time" formControlName="plannedReturnTime" class="form-control" />
+        </div>
+      </div>
       <div class="form-group">
         <label>{{ 'ACTIONS.DESCRIPTION' | translate }}</label>
         <textarea formControlName="description" class="form-control"></textarea>

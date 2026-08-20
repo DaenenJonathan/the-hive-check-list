@@ -55,6 +55,8 @@ public class GetActionReturnsQueryHandler : IRequestHandler<GetActionReturnsQuer
             SentAt = action.SentAt,
             ReturnValidated = action.ReturnValidated,
             ReturnValidatedAt = action.ReturnValidatedAt,
+            MaterialPhotoPath = action.MaterialPhotoPath,
+            ConsumablesPhotoPath = action.ConsumablesPhotoPath,
             Items = items
         };
     }

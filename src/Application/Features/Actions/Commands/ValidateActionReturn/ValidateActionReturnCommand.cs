@@ -33,6 +33,9 @@ public class ValidateActionReturnCommandHandler : IRequestHandler<ValidateAction
         if (!action.Sent)
             return Result.Failure("Le retour ne peut être validé que si l'action a été marquée comme envoyée.");
 
+        if (action.MaterialPhotoPath is null || action.ConsumablesPhotoPath is null)
+            return Result.Failure("Une photo du matériel et une photo des boissons/consommables sont requises avant de valider le retour.");
+
         var wasValidated = action.ReturnValidated;
         action.ValidateReturn(_currentUser.UserId!);
 

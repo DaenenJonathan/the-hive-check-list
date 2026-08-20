@@ -30,6 +30,21 @@ public class LocalImageStorageService : IImageStorageService
         return $"images/items/{fileName}";
     }
 
+    // Used when cloning a checklist item (e.g. creating an action from a template): each
+    // item must own its own file so deleting/replacing one image never affects the other.
+    public Task<string?> CopyAsync(string sourceImagePath, CancellationToken cancellationToken = default)
+    {
+        var sourceFullPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", sourceImagePath);
+        if (!File.Exists(sourceFullPath))
+            return Task.FromResult<string?>(null);
+
+        var fileName = $"{Guid.NewGuid()}.jpg";
+        var destFullPath = Path.Combine(_basePath, fileName);
+        File.Copy(sourceFullPath, destFullPath);
+
+        return Task.FromResult<string?>($"images/items/{fileName}");
+    }
+
     public Task DeleteAsync(string imagePath, CancellationToken cancellationToken = default)
     {
         var fullPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", imagePath);

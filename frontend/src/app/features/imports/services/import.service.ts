@@ -10,14 +10,23 @@ export interface ImportPreview {
   projectName: string;
   actionType: string;
   eventDate: string | null;
+  plannedDepartureTime: string | null;
+  plannedReturnTime: string | null;
   account: string | null;
   costCode: string | null;
   addressPickUp: string | null;
   addressAction: string | null;
   suggestedChecklistName: string;
+  selectedSheetName: string | null;
+  availableSheets: ImportSheetOption[];
   items: ImportPreviewItem[];
   errors: string[];
   isValid: boolean;
+}
+
+export interface ImportSheetOption {
+  name: string;
+  itemCount: number;
 }
 
 export interface ImportPreviewItem {
@@ -39,16 +48,18 @@ export class ImportService {
 
   constructor(private http: HttpClient) {}
 
-  preview(file: File): Observable<ImportPreview> {
+  preview(file: File, sheetName?: string | null): Observable<ImportPreview> {
     const formData = new FormData();
     formData.append('file', file);
+    if (sheetName) formData.append('sheetName', sheetName);
     return this.http.post<ImportPreview>(`${this.base}/preview`, formData);
   }
 
-  confirm(file: File, brandActionId?: string): Observable<ImportResult> {
+  confirm(file: File, brandActionId?: string, sheetName?: string | null): Observable<ImportResult> {
     const formData = new FormData();
     formData.append('file', file);
     if (brandActionId) formData.append('brandActionId', brandActionId);
+    if (sheetName) formData.append('sheetName', sheetName);
     return this.http.post<ImportResult>(`${this.base}/confirm`, formData);
   }
 }

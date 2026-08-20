@@ -101,6 +101,8 @@
     "IMPORT_CHECKLIST_OR": "of",
     "IMPORT_CHECKLIST_FILE": "Excel-bestand importeren",
     "IMPORT_CHECKLIST_ERROR": "De actie is aangemaakt, maar het importeren van het bestand is mislukt. Probeer het opnieuw vanaf de pagina Checklists.",
+    "IMPORT_SHEET": "Tabblad om te importeren",
+    "IMPORT_SHEET_ITEMS": "artikelen",
     "CHECKLISTS_COUNT": "Checklists",
     "STATUS": "Status",
     "VIEW": "Bekijken",
@@ -172,7 +174,12 @@
     "VALIDATE": "Retour valideren",
     "REVALIDATE": "Retour opnieuw valideren",
     "EDITABLE_HINT": "Hoeveelheden blijven bewerkbaar, ook na validatie.",
-    "NOT_SENT_HINT": "De retour kan pas gevalideerd worden als de actie verzonden is."
+    "NOT_SENT_HINT": "De retour kan pas gevalideerd worden als de actie verzonden is.",
+    "PHOTOS_REQUIRED_HINT": "Een foto van het materiaal en een foto van de drank/verbruiksartikelen zijn vereist voor validatie.",
+    "PHOTO_MATERIAL": "Foto materiaal",
+    "PHOTO_MATERIAL_HINT": "Bv. de actie klaar in de loadzone",
+    "PHOTO_CONSUMABLES": "Foto dranken / verbruiksartikelen",
+    "PHOTO_CONSUMABLES_HINT": "Bv. de pallet in de koelkast"
   },
   "CHECKLISTS": {
     "TITLE": "Checklists",

@@ -17,6 +17,8 @@ public static class ExcelFieldSynonyms
         [MetadataField.ProjectName] = ["PROJECT NAME", "PROJECTNAAM", "NOM DU PROJET"],
         [MetadataField.ActionType] = ["ACTION TYPE", "ACTIETYPE", "TYPE D'ACTION"],
         [MetadataField.EventDate] = ["EVENT / ACTION HOURS", "EVENT DATE", "ACTIE UREN", "HEURES D'ACTION"],
+        [MetadataField.DepartureTime] = ["BUILD-UP / ARRIVAL", "OPBOUW / AANKOMST", "MONTAGE / ARRIVEE"],
+        [MetadataField.ReturnTime] = ["BREAK-DOWN / RETOUR", "AFBOUW / RETOUR", "DEMONTAGE / RETOUR"],
         [MetadataField.Account] = ["ACCOUNT", "REKENING", "COMPTE"],
         [MetadataField.CostCode] = ["COST CODE", "KOSTENCODE", "CODE COUT"],
         [MetadataField.AddressPickUp] = ["ADDRESS PICK UP", "OPHAALADRES", "ADRESSE ENLEVEMENT"],

@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
+import { MAT_DATE_LOCALE, MatNativeDateModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { RouterModule, Routes } from '@angular/router';
@@ -27,6 +27,9 @@ const routes: Routes = [
     MatFormFieldModule,
     MatInputModule,
     RouterModule.forChild(routes)
-  ]
+  ],
+  // The app has no global LOCALE_ID override (stays en-US - see the weekday/month label workaround
+  // in ActionsListPageComponent), so the datepicker needs its own locale to render dd/mm/yyyy.
+  providers: [{ provide: MAT_DATE_LOCALE, useValue: 'fr-BE' }]
 })
 export class ActionsModule {}

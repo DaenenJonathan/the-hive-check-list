@@ -22,6 +22,11 @@ public class BrandAction : BaseEntity
     public DateTime? ReturnValidatedAt { get; private set; }
     public string? ReturnValidatedBy { get; private set; }
 
+    // Closing photos required before the return can be validated: one of the prepared material,
+    // one of the drinks/consumables (typically the pallet in the fridge and the action ready in the load zone).
+    public string? MaterialPhotoPath { get; private set; }
+    public string? ConsumablesPhotoPath { get; private set; }
+
     private readonly List<Checklist> _checklists = [];
     public IReadOnlyCollection<Checklist> Checklists => _checklists.AsReadOnly();
 
@@ -88,4 +93,7 @@ public class BrandAction : BaseEntity
         ReturnValidatedAt = DateTime.UtcNow;
         ReturnValidatedBy = userId;
     }
+
+    public void SetMaterialPhoto(string? photoPath) => MaterialPhotoPath = photoPath;
+    public void SetConsumablesPhoto(string? photoPath) => ConsumablesPhotoPath = photoPath;
 }

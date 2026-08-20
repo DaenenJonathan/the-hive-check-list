@@ -60,5 +60,9 @@ export interface ActionReturnsDto {
   sentAt: string | null;
   returnValidated: boolean;
   returnValidatedAt: string | null;
+  materialPhotoPath: string | null;
+  consumablesPhotoPath: string | null;
   items: ActionReturnItemDto[];
 }
+
+export type ActionPhotoKind = 'material' | 'consumables';

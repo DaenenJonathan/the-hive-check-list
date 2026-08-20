@@ -18,11 +18,41 @@
       *ngIf="authService.hasRole('Admin','Manager','WarehouseUser')"
       type="button"
       class="btn btn-sm btn-success"
-      [disabled]="validating || !sent"
+      [disabled]="validating || !sent || !photosComplete"
       (click)="validateReturns()"
     >{{ (returnValidated ? 'RETURNS.REVALIDATE' : 'RETURNS.VALIDATE') | translate }}</button>
     <small *ngIf="!sent" class="hint">{{ 'RETURNS.NOT_SENT_HINT' | translate }}</small>
-    <small *ngIf="sent" class="hint">{{ 'RETURNS.EDITABLE_HINT' | translate }}</small>
+    <small *ngIf="sent && !photosComplete" class="hint">{{ 'RETURNS.PHOTOS_REQUIRED_HINT' | translate }}</small>
+    <small *ngIf="sent && photosComplete" class="hint">{{ 'RETURNS.EDITABLE_HINT' | translate }}</small>
+  </div>
+
+  <div class="card return-photos-bar">
+    <div class="return-photo-slot">
+      <label class="return-photo-label" [class.disabled]="!authService.hasRole('Admin','Manager','WarehouseUser')">
+        <img *ngIf="materialPhotoPath" [src]="materialPhotoPath | imageUrl" class="return-photo-thumbnail" alt="{{ 'RETURNS.PHOTO_MATERIAL' | translate }}" />
+        <span *ngIf="!materialPhotoPath" class="return-photo-placeholder">📷</span>
+        <input type="file" accept="image/*" class="hidden-file-input"
+               [disabled]="!authService.hasRole('Admin','Manager','WarehouseUser') || uploadingPhoto"
+               (change)="uploadPhoto('material', $event)" />
+      </label>
+      <div class="return-photo-caption">
+        <strong>{{ 'RETURNS.PHOTO_MATERIAL' | translate }}</strong>
+        <small class="hint">{{ 'RETURNS.PHOTO_MATERIAL_HINT' | translate }}</small>
+      </div>
+    </div>
+    <div class="return-photo-slot">
+      <label class="return-photo-label" [class.disabled]="!authService.hasRole('Admin','Manager','WarehouseUser')">
+        <img *ngIf="consumablesPhotoPath" [src]="consumablesPhotoPath | imageUrl" class="return-photo-thumbnail" alt="{{ 'RETURNS.PHOTO_CONSUMABLES' | translate }}" />
+        <span *ngIf="!consumablesPhotoPath" class="return-photo-placeholder">📷</span>
+        <input type="file" accept="image/*" class="hidden-file-input"
+               [disabled]="!authService.hasRole('Admin','Manager','WarehouseUser') || uploadingPhoto"
+               (change)="uploadPhoto('consumables', $event)" />
+      </label>
+      <div class="return-photo-caption">
+        <strong>{{ 'RETURNS.PHOTO_CONSUMABLES' | translate }}</strong>
+        <small class="hint">{{ 'RETURNS.PHOTO_CONSUMABLES_HINT' | translate }}</small>
+      </div>
+    </div>
   </div>
 
   <div *ngIf="loading" class="loading">{{ 'COMMON.LOADING' | translate }}</div>

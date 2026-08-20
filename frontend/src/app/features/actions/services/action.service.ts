@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { ActionDto, ActionReturnsDto, CreateActionRequest, UpdateActionRequest } from '../models/action.model';
+import { ActionDto, ActionPhotoKind, ActionReturnsDto, CreateActionRequest, UpdateActionRequest } from '../models/action.model';
 
 @Injectable({ providedIn: 'root' })
 export class ActionService {
@@ -36,6 +36,12 @@ export class ActionService {
 
   validateReturns(actionId: string): Observable<void> {
     return this.http.post<void>(`${this.base}/${actionId}/returns/validate`, {});
+  }
+
+  uploadActionPhoto(actionId: string, kind: ActionPhotoKind, file: File): Observable<{ photoPath: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<{ photoPath: string }>(`${this.base}/${actionId}/photos/${kind}`, formData);
   }
 
   cancelAction(actionId: string): Observable<void> {
